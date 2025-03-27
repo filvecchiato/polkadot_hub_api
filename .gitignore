@@ -1,0 +1,21 @@
+# Node.js dependencies
+node_modules/
+coverage/
+dist/
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# dotenv environment variables file
+.env
+.env.test
+
+# VS Code settings
+.vscode/
+
+# MacOS files
+.DS_Store
+
+pnpm-lock.yaml

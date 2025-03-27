@@ -1,0 +1,9 @@
+# Ignore artifacts:
+node_modules
+build
+coverage
+
+.prettierignore
+.prettierrc
+pnpm-lock.yaml
+.husky
