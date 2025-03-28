@@ -5,7 +5,6 @@ type chainDefinition = {
   network: ChainIdRelay
   smoldot: string | null
   info: TChain
-  substrate_connect?: unknown
 }
 
 export const WellKnownChains: Record<ChainId, chainDefinition> = {
