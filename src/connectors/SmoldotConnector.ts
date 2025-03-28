@@ -26,6 +26,11 @@ export class SmHubConnector extends NetworkConnector {
 
   async connect(): Promise<void> {
     // load all chains needed, set them up in the registry
+
+    if (this.status === "connected" && this.chains.size > 0) {
+      return
+    }
+
     await this.loadChains()
     this.status = "connected"
     return
@@ -75,10 +80,6 @@ export class SmHubConnector extends NetworkConnector {
           const client = createClient(getSmProvider(chain))
           return await ChainRegistry.getOrCreate(info, client)
         }),
-
-        // const client = createClient(getSmProvider(chain))
-
-        // const chainConnector = await ChainRegistry.getOrCreate(info, client)
       )
     }
     const chainConnectors = await Promise.allSettled(promises)
@@ -93,6 +94,11 @@ export class SmHubConnector extends NetworkConnector {
 
   async disconnect(): Promise<void> {
     console.log(`[${this.network}] Disconnecting Substrate Connect...`)
+
+    if (this.status === "disconnected" && this.chains.size === 0) {
+      return
+    }
+
     this.client?.terminate()
     this.chains.forEach((chain) => {
       ChainRegistry.removeChain(chain.chainInfo.id)

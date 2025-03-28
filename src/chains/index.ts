@@ -7,6 +7,7 @@ import {
   Descriptors,
   TChain,
 } from "./types"
+import { AllAssetsSdkTypedApi } from "./descriptors"
 
 export class ChainConnector {
   private static instance: ChainConnector
@@ -67,6 +68,35 @@ export class ChainConnector {
   }
   async getBlockHash(): Promise<string> {
     return ""
+  }
+
+  async getStorage() {
+    return Object.keys((await this.descriptors.descriptors).storage)
+  }
+
+  async getAssets() {
+    const storageAccess = await this.getStorage()
+    const [assets, pool] = await Promise.allSettled([
+      storageAccess.includes("Assets")
+        ? (
+            this.client.getTypedApi(
+              this.descriptors,
+            ) as unknown as AllAssetsSdkTypedApi
+          ).query.Assets.Asset.getEntries()
+        : [],
+      storageAccess.includes("PoolAssets")
+        ? (
+            this.client.getTypedApi(
+              this.descriptors,
+            ) as unknown as AllAssetsSdkTypedApi
+          ).query.PoolAssets.Asset.getEntries()
+        : [],
+    ])
+
+    return {
+      assets: assets.status === "fulfilled" ? assets.value : [],
+      pool: pool.status === "fulfilled" ? pool.value : [],
+    }
   }
 
   static async getInitChainInfo(

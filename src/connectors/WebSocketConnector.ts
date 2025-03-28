@@ -1,5 +1,5 @@
 import { Client } from "polkadot-api/smoldot"
-import { ChainIdRelay } from "../chains/types"
+import { ChainId, ChainIdRelay } from "../chains/types"
 import { NetworkConnector } from "./types"
 import { WellKnownChains } from "./utils"
 import { createClient } from "polkadot-api"
@@ -25,6 +25,10 @@ export class WsHubConnector extends NetworkConnector {
 
   async connect(): Promise<void> {
     // load chains in registry and return
+    if (this.status === "connected" && this.chains.size > 0) {
+      return
+    }
+
     await this.loadChains()
     this.status = "connected"
     return
@@ -53,13 +57,17 @@ export class WsHubConnector extends NetworkConnector {
       )
       // create a client for the chain
       const chainConnector = await ChainRegistry.getOrCreate(info, chainClient)
-      this.chains.set(chainId, chainConnector)
+      this.chains.set(chainId as ChainId, chainConnector)
     }
     return Array.from(this.chains.keys())
   }
 
   async disconnect(): Promise<void> {
     console.log(`[${this.network}] Disconnecting Substrate Connect...`)
+
+    if (this.status === "disconnected" && this.chains.size === 0) {
+      return
+    }
     // destroy client and chains
     this.client?.terminate()
     this.chains.forEach((chain) => {

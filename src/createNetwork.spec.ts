@@ -58,4 +58,23 @@ describe("createNetwork", () => {
 
     expect(wsConnector.getChains().length).toEqual(expectedChains.length)
   }, 15000)
+
+  it("should be able to disconnect from the network", async () => {
+    const wsConnector = createNetworkConnector("polkadot", "websocket")
+
+    expect(wsConnector.getStatus()).toBe("connected")
+
+    await wsConnector.disconnect()
+    expect(wsConnector.getStatus()).toBe("disconnected")
+  })
+
+  it("should be able to get a chain from the network", async () => {
+    const wsConnector = createNetworkConnector("polkadot", "smoldot")
+
+    await wsConnector.connect()
+
+    const chain = wsConnector.getChain("pah")
+
+    expect(chain).toBeDefined()
+  })
 })

@@ -33,6 +33,7 @@ export class ConnectorRegistry {
   }
 
   static getConnector(network: string, type: string): NetworkConnector {
+    // TODO: make it a singleton
     const Connector = this.registry.get(type)
     if (!Connector) {
       throw new Error(`Connector type "${type}" not supported`)
