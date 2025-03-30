@@ -2,6 +2,7 @@ import {
   CompatibilityLevel,
   CompatibilityToken,
   PolkadotClient,
+  SS58String,
 } from "polkadot-api"
 import {
   ApiOf,
@@ -11,7 +12,7 @@ import {
   Descriptors,
   TChain,
 } from "./types"
-import { AllAssetsSdkTypedApi } from "./descriptors"
+import { AllAssetsSdkTypedApi, NativeBalanceSdkTypedApi } from "./descriptors"
 // import { NativeBalanceSdkTypedApi } from "./descriptors/nativeBalanceDescriptors"
 
 export class ChainConnector {
@@ -75,20 +76,62 @@ export class ChainConnector {
     return ""
   }
 
-  async balanceOf(address: string): Promise<string> {
+  async balanceOf(account: SS58String[]): Promise<{
+    free: bigint
+    reserved: bigint
+    frozen: bigint
+  }> {
     const storage = await this.getStorage()
     if (!storage.includes("Balances") && !storage.includes("System")) {
-      return "0"
+      return {
+        free: 0n,
+        reserved: 0n,
+        frozen: 0n,
+      }
     }
+    const api = this.client.getTypedApi(
+      this.descriptors,
+    ) as unknown as NativeBalanceSdkTypedApi
 
-    // this.client.getTypedApi(
-    //   this.descriptors,
-    // ) as unknown as NativeBalanceSdkTypedApi
+    const querySystem = api.query.System.Account
+    const [system] = await Promise.allSettled([
+      // TODO: add checks for where the balances could be locked
+      storage.includes("System") &&
+      querySystem.isCompatible(
+        CompatibilityLevel.BackwardsCompatible,
+        this.compatibilityToken,
+      )
+        ? api.query.System.Account.getValues(account.map((a) => [a]))
+        : [],
+    ])
 
-    // get balance of native,
-    // get locked options, freeze options etc
+    // if every account checked does not have reserved/frozen/locked balance then skip checks and return
+    const settledSystem = system.status === "fulfilled" ? system.value : []
+    const accountBalance = settledSystem.reduce(
+      (acc, curr) => {
+        const accountData = curr.data
+        return {
+          free: acc.free + accountData.free,
+          reserved: acc.reserved + accountData.reserved,
+          frozen: acc.frozen + accountData.frozen,
+        }
+      },
+      {
+        free: BigInt(0),
+        reserved: BigInt(0),
+        frozen: BigInt(0),
+      },
+    )
 
-    return address
+    if (
+      accountBalance.frozen === BigInt(0) &&
+      accountBalance.reserved === BigInt(0)
+    ) {
+      return accountBalance
+    }
+    console.log("system", accountBalance)
+
+    return accountBalance
   }
   async getStorage() {
     return Object.keys((await this.descriptors.descriptors).storage)
