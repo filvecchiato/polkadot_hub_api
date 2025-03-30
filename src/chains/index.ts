@@ -12,13 +12,18 @@ import {
   Descriptors,
   TChain,
 } from "./types"
-import { AllAssetsSdkTypedApi, NativeBalanceSdkTypedApi } from "./descriptors"
+import {
+  AllAssetsSdkTypedApi,
+  NativeBalanceSdkTypedApi,
+} from "./pallets/descriptors"
+import { balances_getAccountBalance, system_getAccountBalance } from "./pallets"
 // import { NativeBalanceSdkTypedApi } from "./descriptors/nativeBalanceDescriptors"
 
 export class ChainConnector {
   private static instance: ChainConnector
   client: PolkadotClient
   chainInfo: TChain
+  pallets: string[] = []
   api: ApiOf<ChainId>
   descriptors: Descriptors<ChainId>
   compatibilityToken: CompatibilityToken
@@ -32,11 +37,12 @@ export class ChainConnector {
     compatibilityToken: CompatibilityToken,
     SS58Prefix: number,
     asset: ChainAsset,
+    pallets: string[],
   ) {
     this.chainInfo = info
     this.client = client
     this.api = api
-
+    this.pallets = pallets
     this.descriptors = DESCRIPTORS[info.id as ChainId]
     this.SS58Prefix = SS58Prefix
     this.compatibilityToken = compatibilityToken
@@ -55,7 +61,11 @@ export class ChainConnector {
     client: PolkadotClient,
   ): Promise<ChainConnector> {
     const typedApi = client.getTypedApi(DESCRIPTORS[info.id as ChainId])
-    const chainInfo = await ChainConnector.getInitChainInfo(client, typedApi)
+    const chainInfo = await ChainConnector.getInitChainInfo(
+      client,
+      typedApi,
+      DESCRIPTORS[info.id as ChainId],
+    )
 
     this.instance = new ChainConnector(
       info,
@@ -64,6 +74,7 @@ export class ChainConnector {
       chainInfo.compatibilityToken,
       chainInfo.SS58Prefix,
       chainInfo.asset,
+      chainInfo.pallets,
     )
 
     return this.instance
@@ -81,8 +92,10 @@ export class ChainConnector {
     reserved: bigint
     frozen: bigint
   }> {
-    const storage = await this.getStorage()
-    if (!storage.includes("Balances") && !storage.includes("System")) {
+    if (
+      !this.pallets.includes("Balances") &&
+      !this.pallets.includes("System")
+    ) {
       return {
         free: 0n,
         reserved: 0n,
@@ -93,52 +106,46 @@ export class ChainConnector {
       this.descriptors,
     ) as unknown as NativeBalanceSdkTypedApi
 
-    const querySystem = api.query.System.Account
-    const [system] = await Promise.allSettled([
+    const [system, balances] = await Promise.allSettled([
       // TODO: add checks for where the balances could be locked
-      storage.includes("System") &&
-      querySystem.isCompatible(
-        CompatibilityLevel.BackwardsCompatible,
-        this.compatibilityToken,
-      )
-        ? api.query.System.Account.getValues(account.map((a) => [a]))
-        : [],
+      system_getAccountBalance(this, api, account),
+      balances_getAccountBalance(this, api, account),
     ])
 
-    // if every account checked does not have reserved/frozen/locked balance then skip checks and return
-    const settledSystem = system.status === "fulfilled" ? system.value : []
-    const accountBalance = settledSystem.reduce(
-      (acc, curr) => {
-        const accountData = curr.data
-        return {
-          free: acc.free + accountData.free,
-          reserved: acc.reserved + accountData.reserved,
-          frozen: acc.frozen + accountData.frozen,
-        }
-      },
-      {
-        free: BigInt(0),
-        reserved: BigInt(0),
-        frozen: BigInt(0),
-      },
-    )
+    // if every account checked does not have reserved/frozen/locked balance then skip checks and retur
 
-    if (
-      accountBalance.frozen === BigInt(0) &&
-      accountBalance.reserved === BigInt(0)
-    ) {
-      return accountBalance
+    if (system.status === "rejected" && balances.status === "rejected") {
+      throw new Error(
+        `Failed to get balances: ${system.reason}, ${balances.reason}`,
+      )
     }
-    console.log("system", accountBalance)
+
+    // give precedence to system pallet
+    const systemBalance = system.status === "fulfilled" ? system.value : null
+    const balancesValue =
+      balances.status === "fulfilled" ? balances.value : null
+
+    const accountBalance = {
+      free: systemBalance?.free || balancesValue?.free || 0n,
+      reserved: systemBalance?.reserved || balancesValue?.reserved || 0n,
+      frozen: systemBalance?.frozen || balancesValue?.frozen || 0n,
+    }
+
+    // const possibleLockingPallets = [
+    //   "Balances",
+    //   "Staking",
+    //   "Democracy",
+    //   "Vesting",
+    //   "Conviction",
+    //   "Crowdloan",
+    //   "Assets",
+    // ]
+    // const possibleFreezesPallets = ["Balances", "ForeignAssets", "Assets"]
 
     return accountBalance
   }
-  async getStorage() {
-    return Object.keys((await this.descriptors.descriptors).storage)
-  }
 
   async getAssets() {
-    const storageAccess = await this.getStorage()
     const api = this.client.getTypedApi(
       this.descriptors,
     ) as unknown as AllAssetsSdkTypedApi
@@ -146,14 +153,14 @@ export class ChainConnector {
     const queryAssets = api.query.Assets.Asset
     const queryPoolAssets = api.query.PoolAssets.Asset
     const [assets, pool] = await Promise.allSettled([
-      storageAccess.includes("Assets") &&
+      this.pallets.includes("Assets") &&
       queryAssets.isCompatible(
         CompatibilityLevel.BackwardsCompatible,
         this.compatibilityToken,
       )
         ? api.query.Assets.Asset.getEntries()
         : [],
-      storageAccess.includes("PoolAssets") &&
+      this.pallets.includes("PoolAssets") &&
       queryPoolAssets.isCompatible(
         CompatibilityLevel.BackwardsCompatible,
         this.compatibilityToken,
@@ -171,17 +178,24 @@ export class ChainConnector {
   static async getInitChainInfo(
     client: PolkadotClient,
     typedApi: ApiOf<ChainId>,
+    descriptors: Descriptors<ChainId>,
   ): Promise<{
     SS58Prefix: number
     compatibilityToken: CompatibilityToken
     asset: ChainAsset
+    pallets: string[]
   }> {
-    const [{ name, properties }, SS58Prefix, compatibilityToken] =
-      await Promise.all([
-        client.getChainSpecData(),
-        typedApi.constants.System.SS58Prefix(),
-        typedApi.compatibilityToken,
-      ])
+    const [
+      { name, properties },
+      SS58Prefix,
+      compatibilityToken,
+      wrappedStorage,
+    ] = await Promise.all([
+      client.getChainSpecData(),
+      typedApi.constants.System.SS58Prefix(),
+      typedApi.compatibilityToken,
+      descriptors.descriptors,
+    ])
 
     return {
       SS58Prefix,
@@ -191,6 +205,7 @@ export class ChainConnector {
         name: name,
         symbol: properties.tokenSymbol,
       },
+      pallets: Object.keys(wrappedStorage.storage),
     }
   }
 }
