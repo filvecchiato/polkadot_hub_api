@@ -77,7 +77,6 @@ export type Metadata = {
   is_frozen: boolean
 }
 
-// TODO: define metadata
 export type AllAssetsSDKPallets = PalletsTypedef<
   {
     Assets: {

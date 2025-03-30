@@ -12,9 +12,13 @@ describe("createNetwork", () => {
     expect(wsConnector.getStatus()).toBe("connected")
 
     const pah = wsConnector.getChain("pah")
-
+    const dot = wsConnector.getChain("polkadot")
     expect(pah).toBeDefined()
 
-    expect(await pah?.getAssets()).toBeDefined()
+    const pahAssets = await pah?.getAssets()
+    expect(pahAssets).toBeDefined()
+
+    const dotAssets = await dot?.getAssets()
+    expect(dotAssets?.assets).toHaveLength(0)
   })
 })

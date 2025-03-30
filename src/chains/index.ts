@@ -1,4 +1,8 @@
-import { CompatibilityToken, PolkadotClient } from "polkadot-api"
+import {
+  CompatibilityLevel,
+  CompatibilityToken,
+  PolkadotClient,
+} from "polkadot-api"
 import {
   ApiOf,
   ChainAsset,
@@ -8,6 +12,7 @@ import {
   TChain,
 } from "./types"
 import { AllAssetsSdkTypedApi } from "./descriptors"
+// import { NativeBalanceSdkTypedApi } from "./descriptors/nativeBalanceDescriptors"
 
 export class ChainConnector {
   private static instance: ChainConnector
@@ -63,33 +68,54 @@ export class ChainConnector {
     return this.instance
   }
 
-  async getBalanceOf(): Promise<string> {
+  async getBalances(): Promise<string> {
     return ""
   }
   async getBlockHash(): Promise<string> {
     return ""
   }
 
+  async balanceOf(address: string): Promise<string> {
+    const storage = await this.getStorage()
+    if (!storage.includes("Balances") && !storage.includes("System")) {
+      return "0"
+    }
+
+    // this.client.getTypedApi(
+    //   this.descriptors,
+    // ) as unknown as NativeBalanceSdkTypedApi
+
+    // get balance of native,
+    // get locked options, freeze options etc
+
+    return address
+  }
   async getStorage() {
     return Object.keys((await this.descriptors.descriptors).storage)
   }
 
   async getAssets() {
     const storageAccess = await this.getStorage()
+    const api = this.client.getTypedApi(
+      this.descriptors,
+    ) as unknown as AllAssetsSdkTypedApi
+
+    const queryAssets = api.query.Assets.Asset
+    const queryPoolAssets = api.query.PoolAssets.Asset
     const [assets, pool] = await Promise.allSettled([
-      storageAccess.includes("Assets")
-        ? (
-            this.client.getTypedApi(
-              this.descriptors,
-            ) as unknown as AllAssetsSdkTypedApi
-          ).query.Assets.Asset.getEntries()
+      storageAccess.includes("Assets") &&
+      queryAssets.isCompatible(
+        CompatibilityLevel.BackwardsCompatible,
+        this.compatibilityToken,
+      )
+        ? api.query.Assets.Asset.getEntries()
         : [],
-      storageAccess.includes("PoolAssets")
-        ? (
-            this.client.getTypedApi(
-              this.descriptors,
-            ) as unknown as AllAssetsSdkTypedApi
-          ).query.PoolAssets.Asset.getEntries()
+      storageAccess.includes("PoolAssets") &&
+      queryPoolAssets.isCompatible(
+        CompatibilityLevel.BackwardsCompatible,
+        this.compatibilityToken,
+      )
+        ? api.query.PoolAssets.Asset.getEntries()
         : [],
     ])
 
