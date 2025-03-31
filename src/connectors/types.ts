@@ -25,7 +25,7 @@ export abstract class NetworkConnector {
     return this.isConnected ? "connected" : "disconnected"
   }
 
-  getChains(): string[] {
+  getChains(): ChainId[] {
     return [...this.chains.keys()]
   }
 }

@@ -17,8 +17,8 @@ export const balances_getAccountBalance = async (
   if (account.length === 0) {
     throw new Error("No account provided")
   }
-
   const query = typedApi.query.Balances.Account
+
   const balance = query.isCompatible(
     CompatibilityLevel.BackwardsCompatible,
     chain.compatibilityToken,

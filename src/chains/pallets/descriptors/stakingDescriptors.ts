@@ -8,6 +8,8 @@ import {
   TypedApi,
 } from "polkadot-api"
 
+import {} from "@polkadot-api/descriptors"
+
 type targetsData = Array<SS58String>
 type NominatorData = {
   targets: targetsData

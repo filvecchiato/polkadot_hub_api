@@ -19,13 +19,13 @@ export const system_getAccountBalance = async (
   }
 
   const query = typedApi.query.System.Account
+
   const balance = query.isCompatible(
     CompatibilityLevel.BackwardsCompatible,
     chain.compatibilityToken,
   )
     ? await query.getValues(account.map((a) => [a]))
     : []
-
   return balance.reduce(
     (acc, b) => {
       const { free, reserved, frozen } = b.data
