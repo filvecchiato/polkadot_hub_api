@@ -19,3 +19,5 @@ logs/
 .DS_Store
 
 pnpm-lock.yaml
+
+.papi/descriptors/*

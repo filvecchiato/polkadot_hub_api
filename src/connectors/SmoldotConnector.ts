@@ -114,22 +114,22 @@ export class SmHubConnector extends NetworkConnector {
   //   TODO make sure it tests for browser environments
   static getInstance(network: ChainIdRelay): SmHubConnector {
     if (!this.instances.has(network)) {
-      const smClient =
-        typeof window !== "undefined"
-          ? webStartFromWorker(
-              new Worker(
-                new URL("polkadot-api/smoldot/worker", import.meta.url),
-              ),
-            )
-          : NodeStartFromWorker(
-              new ThreadWorker(
-                fileURLToPath(
-                  import.meta.resolve("polkadot-api/smoldot/node-worker"),
-                ),
-              ),
-            )
+      if (typeof window === "undefined") {
+        const smClient = NodeStartFromWorker(
+          new ThreadWorker(
+            fileURLToPath(
+              import.meta.resolve("polkadot-api/smoldot/node-worker"),
+            ),
+          ),
+        )
 
-      this.instances.set(network, new SmHubConnector(network, smClient))
+        this.instances.set(network, new SmHubConnector(network, smClient))
+      } else {
+        const smClient = webStartFromWorker(
+          new Worker(new URL("polkadot-api/smoldot/worker", import.meta.url)),
+        )
+        this.instances.set(network, new SmHubConnector(network, smClient))
+      }
     }
     return this.instances.get(network)!
   }

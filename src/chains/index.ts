@@ -19,6 +19,9 @@ import {
 import { balances_getAccountBalance, system_getAccountBalance } from "./pallets"
 // import { NativeBalanceSdkTypedApi } from "./descriptors/nativeBalanceDescriptors"
 
+export * from "./types"
+export * from "./pallets"
+
 export class ChainConnector {
   private static instance: ChainConnector
   client: PolkadotClient
