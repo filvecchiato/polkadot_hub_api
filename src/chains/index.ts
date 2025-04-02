@@ -4,14 +4,8 @@ import {
   PolkadotClient,
   SS58String,
 } from "polkadot-api"
-import {
-  ApiOf,
-  ChainAsset,
-  ChainId,
-  DESCRIPTORS,
-  Descriptors,
-  TChain,
-} from "./types"
+import { ApiOf, ChainAsset, ChainId, Descriptors, TChain } from "./types"
+import { DESCRIPTORS } from "./constants"
 import {
   AllAssetsSdkTypedApi,
   NativeBalanceSdkTypedApi,
@@ -21,6 +15,7 @@ import { balances_getAccountBalance, system_getAccountBalance } from "./pallets"
 
 export * from "./types"
 export * from "./pallets"
+export * from "./constants"
 
 export class ChainConnector {
   private static instance: ChainConnector

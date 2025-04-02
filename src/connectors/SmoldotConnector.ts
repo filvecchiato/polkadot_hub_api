@@ -1,5 +1,5 @@
 import { Client } from "polkadot-api/smoldot"
-import { ChainIdRelay } from "../chains/types"
+import { ChainId, ChainIdRelay } from "../chains/types"
 import { NetworkConnector } from "./types"
 import { startFromWorker as webStartFromWorker } from "polkadot-api/smoldot/from-worker"
 import { Worker as ThreadWorker } from "worker_threads"
@@ -12,7 +12,7 @@ import { getSmProvider } from "polkadot-api/sm-provider"
 // TODO generate instance with a client depening on network and type
 
 export class SmHubConnector extends NetworkConnector {
-  private static instances = new Map<string, SmHubConnector>()
+  private static instances = new Map<ChainId, SmHubConnector>()
 
   private status = "disconnected"
 
@@ -36,7 +36,7 @@ export class SmHubConnector extends NetworkConnector {
     return
   }
 
-  async loadChains(): Promise<string[]> {
+  async loadChains(): Promise<ChainId[]> {
     // load chains from the registry
     if (!this.client) {
       throw new Error("Client is required to create a smoldot connector")

@@ -19,71 +19,72 @@ import {
   wct,
 } from "@polkadot-api/descriptors"
 
-export const DESCRIPTORS_RELAY = {
-  polkadot,
-  kusama,
-  westend,
-} as const
+export type TDescriptorsRelay = {
+  polkadot: typeof polkadot
+  kusama: typeof kusama
+  westend: typeof westend
+}
 
-export const DESCRIPTORS_ASSET_HUB = {
-  kah,
-  wah,
-  pah,
-} as const
+export type TDescriptorsAssetHub = {
+  kah: typeof kah
+  wah: typeof wah
+  pah: typeof pah
+}
 
 // TODO add other system chains
-export const DESCRIPTORS = {
-  polkadot,
-  kusama,
-  westend,
-  kah,
-  wah,
-  pah,
-  pbh,
-  pcl,
-  pct,
-  ppl,
-  kbh,
-  kpl,
-  wbh,
-  wpl,
-  wcl,
-  kct,
-  wct,
-} as const
+export type TDescriptors = {
+  polkadot: typeof polkadot
+  kusama: typeof kusama
+  westend: typeof westend
+  kah: typeof kah
+  wah: typeof wah
+  pah: typeof pah
+  pbh: typeof pbh
+  pcl: typeof pcl
+  pct: typeof pct
+  ppl: typeof ppl
+  kbh: typeof kbh
+  kpl: typeof kpl
+  wbh: typeof wbh
+  wpl: typeof wpl
+  wcl: typeof wcl
+  kct: typeof kct
+  wct: typeof wct
+}
 
-export const DESCRIPTORS_POLKADOT = {
-  polkadot,
-  pah,
-  pbh,
-  pcl,
-  pct,
-  ppl,
-} as const
-export const DESCRIPTORS_KUSAMA = {
-  kusama,
-  kah,
-  kbh,
-  kct,
-  kpl,
-} as const
+export type TDescriptorsPolkadot = {
+  polkadot: typeof polkadot
+  pah: typeof pah
+  pbh: typeof pbh
+  pcl: typeof pcl
+  pct: typeof pct
+  ppl: typeof ppl
+}
 
-export const DESCRIPTORS_WESTEND = {
-  westend,
-  wah,
-  wbh,
-  wcl,
-  wpl,
-  wct,
-} as const
+export type TDescriptorsKusama = {
+  kusama: typeof kusama
+  kah: typeof kah
+  kbh: typeof kbh
+  kct: typeof kct
+  kpl: typeof kpl
+}
 
-export type ChainIdAssetHub = keyof typeof DESCRIPTORS_ASSET_HUB
-export type ChainIdRelay = keyof typeof DESCRIPTORS_RELAY
-export type ChainId = keyof typeof DESCRIPTORS
-export type ChainIdPolkadot = keyof typeof DESCRIPTORS_POLKADOT
-export type ChainIdKusama = keyof typeof DESCRIPTORS_KUSAMA
-export type ChainIdWestend = keyof typeof DESCRIPTORS_WESTEND
-export type Descriptors<Id extends ChainId> = (typeof DESCRIPTORS)[Id]
+export type TDescriptorsWestend = {
+  westend: typeof westend
+  wah: typeof wah
+  wbh: typeof wbh
+  wcl: typeof wcl
+  wpl: typeof wpl
+  wct: typeof wct
+}
+
+export type ChainIdAssetHub = keyof TDescriptorsAssetHub
+export type ChainIdRelay = keyof TDescriptorsRelay
+export type ChainId = keyof TDescriptors
+export type ChainIdPolkadot = keyof TDescriptorsPolkadot
+export type ChainIdKusama = keyof TDescriptorsKusama
+export type ChainIdWestend = keyof TDescriptorsWestend
+export type Descriptors<Id extends ChainId> = TDescriptors[Id]
 
 export type ApiOf<Id extends ChainId> = TypedApi<Descriptors<Id>>
 
