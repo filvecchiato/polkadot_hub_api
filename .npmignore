@@ -1,0 +1,6 @@
+.husky/
+vitest.config.ts
+vitest.setup.ts
+tsconfig.ts
+rollup.config.mjs
+src/**/*.spec.ts

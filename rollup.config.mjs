@@ -22,12 +22,20 @@ export default [
       },
     ],
     plugins: [
-      resolve({ extensions: [".ts", ".js"] }),
+      resolve(),
       commonjs(),
       typescript({
         tsconfig: "./tsconfig.json", // Ensure this points to the correct tsconfig
         declaration: false, // Do not generate declaration files during bundling
         module: "ESNext",
+        exclude: [
+          "**/.husky/**",
+          "vitest.config.ts",
+          "vitest.setup.ts",
+          "tsconfig.ts",
+          "rollup.config.mjs",
+          "src/**/*.spec.ts",
+        ],
       }),
       esbuild(),
     ],
