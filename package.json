@@ -1,7 +1,7 @@
 {
-  "name": "dotht",
+  "name": "polkadot_hub_api",
   "version": "0.1.20",
-  "description": "pht",
+  "description": "Polkadot Hub API",
   "type": "module",
   "exports": {
     "import": "./dist/index.esm.js",
