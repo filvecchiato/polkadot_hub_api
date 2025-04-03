@@ -111,6 +111,7 @@
   "include": [
     "src",
     ".papi/polkadot-api.json",
+    "preinstall.js",
     "vite-env.d.ts",
     "vite.config.ts"
   ],

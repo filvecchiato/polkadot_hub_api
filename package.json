@@ -1,6 +1,6 @@
 {
   "name": "dotht",
-  "version": "0.1.5",
+  "version": "0.1.20",
   "description": "pht",
   "type": "module",
   "exports": {
@@ -13,8 +13,9 @@
     "build": "rollup --config",
     "prepare": "husky",
     "lint": "eslint .",
-    "preinstall": "papi generate",
-    "format": "prettier --write ."
+    "preinstall": "node preinstall.js",
+    "format": "prettier --write .",
+    "postinstall": "papi"
   },
   "engines": {
     "node": ">=20.0.0"
@@ -58,6 +59,7 @@
   },
   "files": [
     "dist",
-    ".papi/descriptors"
+    ".papi/polkadot-api.json",
+    "./preinstall.js"
   ]
 }
