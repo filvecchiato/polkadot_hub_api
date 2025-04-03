@@ -1,6 +1,6 @@
 {
   "name": "dotht",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "pht",
   "type": "module",
   "exports": {
@@ -56,5 +56,9 @@
       "eslint --fix --no-warn-ignored",
       "prettier --write"
     ]
-  }
+  },
+  "files": [
+    "dist",
+    ".papi/descriptors"
+  ]
 }
