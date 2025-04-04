@@ -3,6 +3,8 @@ import commonjs from "@rollup/plugin-commonjs"
 import typescript from "@rollup/plugin-typescript"
 import esbuild from "rollup-plugin-esbuild"
 import dts from "rollup-plugin-dts"
+import { terser } from "rollup-plugin-terser"
+import pkg from "./package.json" assert { type: "json" }
 
 export default [
   {
@@ -11,13 +13,11 @@ export default [
       {
         file: "dist/index.esm.js",
         format: "esm", // ESM format
-        sourcemap: true,
         inlineDynamicImports: true,
       },
       {
         file: "dist/index.cjs.js",
         format: "cjs", // CommonJS format
-        sourcemap: true,
         inlineDynamicImports: true,
       },
     ],
@@ -37,8 +37,10 @@ export default [
           "src/**/*.spec.ts",
         ],
       }),
+      terser(),
       esbuild(),
     ],
+    external: [Object.keys(pkg.dependencies || {})],
   },
   {
     input: "src/index.ts",

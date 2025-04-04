@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const packageRoot = resolve(__dirname)
 
-const jsonPath = join(packageRoot, ".papi", "polkadot-api.json")
+const jsonPath = join(packageRoot, "dist", "polkadot-hub-config.json")
 const pathMetadata = join(packageRoot, ".papi", "metadata")
 const rawData = readFileSync(jsonPath, "utf-8")
 const chains = JSON.parse(rawData)
