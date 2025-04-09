@@ -4,9 +4,9 @@ import {
   PolkadotClient,
   SS58String,
 } from "polkadot-api"
-import { ApiOf, ChainAsset, ChainId, Descriptors, TChain } from "./types"
+import type { ApiOf, ChainAsset, ChainId, Descriptors, TChain } from "./types"
 import { DESCRIPTORS } from "./constants"
-import {
+import type {
   AllAssetsSdkTypedApi,
   NativeBalanceSdkTypedApi,
 } from "./pallets/descriptors"

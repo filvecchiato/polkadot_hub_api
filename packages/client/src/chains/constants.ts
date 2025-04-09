@@ -16,7 +16,7 @@ import {
   wcl,
   wpl,
   wct,
-} from "@polkadot-api/descriptors"
+} from "@polkadot-hub-api/descriptors"
 import {
   TDescriptors,
   TDescriptorsAssetHub,

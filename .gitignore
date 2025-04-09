@@ -20,4 +20,4 @@ logs/
 
 pnpm-lock.yaml
 
-.papi/descriptors/*
+.turbo
