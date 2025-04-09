@@ -1,4 +1,4 @@
-import { TypedApi } from "polkadot-api"
+import { TypedApi, ChainDefinition } from "polkadot-api"
 import {
   kusama,
   kah,
@@ -17,7 +17,8 @@ import {
   wcl,
   wpl,
   wct,
-} from "@polkadot-api/descriptors"
+} from "@polkadot-hub-api/descriptors"
+import { AllUnionFields } from "type-fest"
 
 export type TDescriptorsRelay = {
   polkadot: typeof polkadot
@@ -85,8 +86,11 @@ export type ChainIdPolkadot = keyof TDescriptorsPolkadot
 export type ChainIdKusama = keyof TDescriptorsKusama
 export type ChainIdWestend = keyof TDescriptorsWestend
 export type Descriptors<Id extends ChainId> = TDescriptors[Id]
-
-export type ApiOf<Id extends ChainId> = TypedApi<Descriptors<Id>>
+export type UnionDescriptors<Id extends ChainId> = AllUnionFields<
+  TDescriptors[Id]
+> &
+  ChainDefinition
+export type ApiOf<Id extends ChainId> = TypedApi<UnionDescriptors<Id>>
 
 export type ChainAsset = {
   decimals: number

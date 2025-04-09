@@ -1,0 +1,45 @@
+{
+  "name": "@polkadot-hub-api/descriptors",
+  "version": "0.1.0",
+  "description": "",
+  "type": "module",
+  "files": [
+    ".papi"
+  ],
+  "scripts": {
+    "prepare": "pnpm turbo build",
+    "clean": "rimraf .papi/descriptors",
+    "build": "pnpm run clean && papi"
+  },
+  "main": "./.papi/descriptors/dist/index.js",
+  "types": "./.papi/descriptors/dist/index.d.ts",
+  "module": "./.papi/descriptors/dist/index.mjs",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": {
+        "types": "./.papi/descriptors/dist/index.d.ts",
+        "default": "./.papi/descriptors/dist/index.mjs"
+      },
+      "require": {
+        "types": "./.papi/descriptors/dist/index.d.ts",
+        "default": "./.papi/descriptors/dist/index.js"
+      }
+    }
+  },
+  "keywords": [],
+  "author": "Filippo Vecchiato <filippo@parity.io>",
+  "license": "MIT",
+  "dependencies": {
+    "@polkadot-api/descriptors": "file:.papi/descriptors"
+  },
+  "devDependencies": {
+    "polkadot-api": "^1.9.9",
+    "typescript": "^5.8.3",
+    "rimraf": "^6.0.1",
+    "turbo": "^2.5.0"
+  },
+  "peerDependencies": {
+    "polkadot-api": "^1.9.9"
+  }
+}

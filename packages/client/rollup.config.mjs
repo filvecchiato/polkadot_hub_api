@@ -5,15 +5,37 @@ import esbuild from "rollup-plugin-esbuild"
 import dts from "rollup-plugin-dts"
 import { terser } from "rollup-plugin-terser"
 import pkg from "./package.json" assert { type: "json" }
+import path from "path"
+import alias from "@rollup/plugin-alias"
+
+const commonOptions = {
+  input: ["src/index.ts"],
+  external: (id) => !/^[./]/.test(id) && !/^@\//.test(id),
+}
+
+const absoluteAlias = alias({
+  entries: [
+    {
+      find: "@",
+      // In tsconfig this would be like `"paths": { "@/*": ["./src/*"] }`
+      replacement: path.resolve("./src"),
+      customResolver: resolve({
+        extensions: [".js", ".ts"],
+      }),
+    },
+  ],
+})
 
 export default [
   {
-    input: "src/index.ts",
+    ...commonOptions,
     output: [
       {
         file: "dist/index.esm.js",
         format: "esm", // ESM format
         inlineDynamicImports: true,
+        preserveModules: true,
+        entryFileNames: "[name].mjs",
       },
       {
         file: "dist/index.cjs.js",
@@ -22,6 +44,7 @@ export default [
       },
     ],
     plugins: [
+      absoluteAlias,
       resolve(),
       commonjs(),
       typescript({
@@ -29,7 +52,6 @@ export default [
         declaration: false, // Do not generate declaration files during bundling
         module: "ESNext",
         exclude: [
-          "**/.husky/**",
           "vitest.config.ts",
           "vitest.setup.ts",
           "tsconfig.ts",
@@ -43,12 +65,8 @@ export default [
     external: [Object.keys(pkg.dependencies || {})],
   },
   {
-    input: "src/index.ts",
-    plugins: [
-      dts({
-        tsconfig: "./tsconfig.json", // Ensure this points to the correct tsconfig
-      }),
-    ],
+    ...commonOptions,
+    plugins: [absoluteAlias, dts()],
     output: {
       file: `dist/index.d.ts`,
       format: "es",

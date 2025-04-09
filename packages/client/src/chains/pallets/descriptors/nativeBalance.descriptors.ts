@@ -4,7 +4,7 @@ import {
   BalancesTypesReasons,
   PreimagePalletHoldReason,
   WestendRuntimeRuntimeFreezeReason,
-} from "@polkadot-api/descriptors"
+} from "@polkadot-hub-api/descriptors"
 import {
   ApisTypedef,
   FixedSizeBinary,

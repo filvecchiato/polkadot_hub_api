@@ -1,5 +1,5 @@
 import { SdkDefinition } from "@polkadot-api/common-sdk-utils"
-import { XcmV3Junction } from "@polkadot-api/descriptors"
+import { XcmV3Junction } from "@polkadot-hub-api/descriptors"
 import {
   ApisTypedef,
   Binary,
