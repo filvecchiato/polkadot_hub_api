@@ -9,6 +9,7 @@ import { WellKnownChains } from "./utils"
 import { ChainRegistry } from "../registry/ChainRegistry"
 import { createClient } from "polkadot-api"
 import { getSmProvider } from "polkadot-api/sm-provider"
+import { resolve } from "import-meta-resolve"
 // TODO generate instance with a client depening on network and type
 
 export class SmHubConnector extends NetworkConnector {
@@ -118,7 +119,7 @@ export class SmHubConnector extends NetworkConnector {
         const smClient = NodeStartFromWorker(
           new ThreadWorker(
             fileURLToPath(
-              import.meta.resolve("polkadot-api/smoldot/node-worker"),
+              resolve("polkadot-api/smoldot/node-worker", import.meta.url),
             ),
           ),
         )
@@ -133,10 +134,4 @@ export class SmHubConnector extends NetworkConnector {
     }
     return this.instances.get(network)!
   }
-}
-
-// ONLY FOR TEST PURPOSES
-if (typeof __vite_ssr_import_meta__ !== "undefined") {
-  __vite_ssr_import_meta__!.resolve = (path: string) =>
-    "file://" + globalCreateRequire(import.meta.url).resolve(path)
 }
