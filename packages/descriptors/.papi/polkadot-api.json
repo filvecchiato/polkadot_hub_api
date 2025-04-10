@@ -1,6 +1,9 @@
 {
   "version": 0,
   "descriptorPath": ".papi/descriptors",
+  "options": {
+    "noDescriptorsPackage": true
+  },
   "entries": {
     "kah": {
       "chain": "ksmcc3_asset_hub",
