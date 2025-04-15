@@ -1,15 +1,15 @@
-import { CompatibilityLevel, SS58String } from "polkadot-api"
-import { ChainConnector } from ".."
-import { StakingSDKTypedApi } from "./descriptors"
+import {
+  CompatibilityLevel,
+  CompatibilityToken,
+  SS58String,
+} from "polkadot-api"
+import { StakingSdkDefinition, StakingSDKTypedApi } from "./descriptors"
 
 export const staking_getAccountBalance = async (
-  chain: ChainConnector,
   typedApi: StakingSDKTypedApi,
   account: SS58String[],
+  compatibilityToken: CompatibilityToken<StakingSdkDefinition>,
 ): Promise<unknown> => {
-  if (!chain.pallets.includes("Staking")) {
-    throw new Error("No Staking pallet found")
-  }
   if (account.length === 0) {
     throw new Error("No account provided")
   }
@@ -19,7 +19,7 @@ export const staking_getAccountBalance = async (
   if (
     query.isCompatible(
       CompatibilityLevel.BackwardsCompatible,
-      chain.compatibilityToken,
+      compatibilityToken,
     )
   ) {
     // const stakingBalance = await query.getValues(account.map((a) => [a]))

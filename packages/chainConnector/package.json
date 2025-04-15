@@ -1,0 +1,25 @@
+{
+  "name": "@polkadot-hub-api/chain-connector",
+  "version": "0.1.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "keywords": [],
+  "author": "Filippo Vecchiato <filippo@parity.io",
+  "license": "MIT",
+  "dependencies": {
+    "polkadot-api": "^1.9.9",
+    "@polkadot-hub-api/pallet-sdk": "workspace:^",
+    "@polkadot-hub-api/descriptors": "workspace:^"
+  },
+  "peerDependencies": {
+    "polkadot-api": "^1.9.9"
+  },
+  "files": [
+    "dist"
+  ]
+}

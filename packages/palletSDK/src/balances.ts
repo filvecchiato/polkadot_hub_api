@@ -1,9 +1,7 @@
-import { CompatibilityLevel, SS58String } from "polkadot-api"
+import { SS58String } from "polkadot-api"
 import { NativeBalanceSdkTypedApi } from "./descriptors"
-import { ChainConnector } from ".."
 
-export const system_getAccountBalance = async (
-  chain: ChainConnector,
+export const balances_getAccountBalance = async (
   typedApi: NativeBalanceSdkTypedApi,
   account: SS58String[],
 ): Promise<{
@@ -11,24 +9,20 @@ export const system_getAccountBalance = async (
   reserved: bigint
   frozen: bigint
 }> => {
-  if (!chain.pallets.includes("System")) {
-    throw new Error("No System pallet found")
-  }
   if (account.length === 0) {
     throw new Error("No account provided")
   }
 
-  const query = typedApi.query.System.Account
+  const query = typedApi.query.Balances.Account
 
-  const balance = query.isCompatible(
-    CompatibilityLevel.BackwardsCompatible,
-    chain.compatibilityToken,
-  )
-    ? await query.getValues(account.map((a) => [a]))
-    : []
+  const balance = await query.getValues(account.map((a) => [a]))
+
   return balance.reduce(
-    (acc, b) => {
-      const { free, reserved, frozen } = b.data
+    (
+      acc: { free: bigint; reserved: bigint; frozen: bigint },
+      b: { free: bigint; reserved: bigint; frozen: bigint },
+    ) => {
+      const { free, reserved, frozen } = b
       return {
         free: acc.free + BigInt(free),
         reserved: acc.reserved + BigInt(reserved),

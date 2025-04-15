@@ -8,8 +8,6 @@ import {
   TypedApi,
 } from "polkadot-api"
 
-import {} from "@polkadot-hub-api/descriptors"
-
 type targetsData = Array<SS58String>
 type NominatorData = {
   targets: targetsData
@@ -35,5 +33,8 @@ type StakingSdkPallets = PalletsTypedef<
   {}
 >
 
-type StakingSdkDefinition = SdkDefinition<StakingSdkPallets, ApisTypedef<{}>>
+export type StakingSdkDefinition = SdkDefinition<
+  StakingSdkPallets,
+  ApisTypedef<{}>
+>
 export type StakingSDKTypedApi = TypedApi<StakingSdkDefinition>

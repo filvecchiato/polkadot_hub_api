@@ -8,7 +8,6 @@ import {
   StorageDescriptor,
   TypedApi,
 } from "polkadot-api"
-import {} from "@polkadot-hub-api/descriptors"
 
 export type Version = Enum<{
   V0: undefined

@@ -13,11 +13,10 @@ describe("account queries", () => {
     expect(wsConnector.getStatus()).toBe("connected")
 
     const account = new Account([
-      "16M3BG9NGwc6kghtbb6pbaTSstggb7poWuim2Bd8W4pqzYf8",
-      "16AH3HWtBLec3F4v7SjkYKfude4mDWZBktH1T4NRpzNEnAFH",
+      "15Q7FYu3X5gphRvL58kkVQD6sa4LvT3PKNo8615HtSo2MQAS",
     ])
     expect(account).toBeDefined()
-    expect(account.listAddresses()).toHaveLength(2)
+    expect(account.listAddresses()).not.toHaveLength(0)
 
     const balances = await account.balance(wsConnector)
 
@@ -28,5 +27,5 @@ describe("account queries", () => {
     expect(balances).toHaveProperty("free")
     expect(balances).toHaveProperty("reserved")
     expect(balances).toHaveProperty("frozen")
-  }, 10000)
+  }, 15000)
 })

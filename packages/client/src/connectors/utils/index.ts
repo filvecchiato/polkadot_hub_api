@@ -1,5 +1,9 @@
 import * as wellKnownChains from "polkadot-api/chains"
-import { ChainId, ChainIdRelay, TChain } from "../../chains/types"
+import type {
+  ChainId,
+  ChainIdRelay,
+  TChain,
+} from "@polkadot-hub-api/chain-connector"
 
 type chainDefinition = {
   network: ChainIdRelay

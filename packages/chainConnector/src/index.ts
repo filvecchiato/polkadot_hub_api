@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   CompatibilityLevel,
   CompatibilityToken,
@@ -6,15 +7,15 @@ import {
 } from "polkadot-api"
 import type { ApiOf, ChainAsset, ChainId, Descriptors, TChain } from "./types"
 import { DESCRIPTORS } from "./constants"
-import type {
-  AllAssetsSdkTypedApi,
-  NativeBalanceSdkTypedApi,
-} from "./pallets/descriptors"
-import { balances_getAccountBalance, system_getAccountBalance } from "./pallets"
+import type { AllAssetsSdkTypedApi } from "@polkadot-hub-api/pallet-sdk"
+import {
+  balances_getAccountBalance,
+  system_getAccountBalance,
+} from "@polkadot-hub-api/pallet-sdk"
+import { vesting_getAccountBalance } from "@polkadot-hub-api/pallet-sdk"
 // import { NativeBalanceSdkTypedApi } from "./descriptors/nativeBalanceDescriptors"
 
 export * from "./types"
-export * from "./pallets"
 export * from "./constants"
 
 export class ChainConnector {
@@ -79,10 +80,10 @@ export class ChainConnector {
   }
 
   async getBalances(): Promise<string> {
-    return ""
+    throw new Error("Not implemented")
   }
   async getBlockHash(): Promise<string> {
-    return ""
+    throw new Error("Not implemented")
   }
 
   async balanceOf(account: SS58String[]): Promise<{
@@ -100,14 +101,13 @@ export class ChainConnector {
         frozen: 0n,
       }
     }
-    const api = this.client.getTypedApi(
-      this.descriptors,
-    ) as unknown as NativeBalanceSdkTypedApi
+
+    // this.client.getTypedApi(DESCRIPTORS["polkadot"]).query.Vesting.Vesting
 
     const [system, balances] = await Promise.allSettled([
       // TODO: add checks for where the balances could be locked
-      system_getAccountBalance(this, api, account),
-      balances_getAccountBalance(this, api, account),
+      system_getAccountBalance(this.api as any, account),
+      balances_getAccountBalance(this.api as any, account),
     ])
 
     // if every account checked does not have reserved/frozen/locked balance then skip checks and retur
@@ -128,6 +128,24 @@ export class ChainConnector {
       reserved: systemBalance?.reserved || balancesValue?.reserved || 0n,
       frozen: systemBalance?.frozen || balancesValue?.frozen || 0n,
     }
+
+    if (
+      accountBalance.free === 0n &&
+      accountBalance.reserved === 0n &&
+      accountBalance.frozen === 0n
+    ) {
+      return accountBalance
+    }
+
+    const [vesting, systemBal, balancesBal] = await Promise.allSettled([
+      vesting_getAccountBalance(this.api as any, account),
+      system_getAccountBalance(this.api as any, account),
+      balances_getAccountBalance(this.api as any, account),
+    ])
+
+    console.log("Vesting", vesting)
+    console.log("System", systemBal)
+    console.log("Balances", balancesBal)
 
     // const possibleLockingPallets = [
     //   "Balances",
