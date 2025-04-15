@@ -8,8 +8,8 @@
   "scripts": {
     "prepare": "pnpm turbo build",
     "clean": "rimraf dist",
-    "build": "pnpm run clean && tsc ",
-    "lint": "eslint .",
+    "build": "pnpm run clean && tsc -p tsconfig.json ",
+    "lint": "eslint src",
     "format": "prettier --write .",
     "test": "vitest"
   },
