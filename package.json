@@ -9,10 +9,10 @@
     "examples/*"
   ],
   "scripts": {
-    "build": "turbo build",
-    "lint": "pnpm -r lint",
-    "format": "pnpm -r format",
-    "test": "pnpm -r test run"
+    "dev": "turbo run build --watch",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test"
   },
   "engines": {
     "node": ">=20.0.0"
