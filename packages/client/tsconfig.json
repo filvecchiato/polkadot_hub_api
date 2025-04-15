@@ -1,12 +1,12 @@
 {
-    "extends": "../../tsconfig.base",
-    "include": ["src"],
-    "compilerOptions": {
-      "baseUrl": "src",
-      "skipLibCheck": true,
-      "paths": {
-        "@/*": ["*"]
-      }
+  "extends": "../../tsconfig.base",
+  "include": ["src"],
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "baseUrl": "src",
+    "paths": {
+      "@/*": ["*"]
     }
   }
-  
+}

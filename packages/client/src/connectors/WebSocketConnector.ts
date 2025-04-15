@@ -1,5 +1,5 @@
 import { Client } from "polkadot-api/smoldot"
-import { ChainId, ChainIdRelay } from "../chains/types"
+import type { ChainId, ChainIdRelay } from "@polkadot-hub-api/chain-connector"
 import { NetworkConnector } from "./types"
 import { WellKnownChains } from "./utils"
 import { createClient } from "polkadot-api"

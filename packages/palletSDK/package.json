@@ -1,5 +1,5 @@
 {
-  "name": "@polkadot-hub-api/chain-connector",
+  "name": "@polkadot-hub-api/pallet-sdk",
   "version": "0.1.0",
   "description": "",
   "main": "./dist/index.js",
@@ -13,11 +13,12 @@
   "license": "MIT",
   "dependencies": {
     "polkadot-api": "^1.9.9",
-    "@polkadot-hub-api/pallet-sdk": "workspace:^",
+    "@polkadot-api/common-sdk-utils": "0.0.1-1",
     "@polkadot-hub-api/descriptors": "workspace:^"
   },
   "peerDependencies": {
-    "polkadot-api": "^1.9.9"
+    "polkadot-api": "^1.9.9",
+    "@polkadot-api/common-sdk-utils": "0.0.1-1"
   },
   "files": [
     "dist"

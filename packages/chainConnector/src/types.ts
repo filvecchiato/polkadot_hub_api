@@ -1,4 +1,4 @@
-import { TypedApi, ChainDefinition } from "polkadot-api"
+import { TypedApi } from "polkadot-api"
 import {
   kusama,
   kah,
@@ -85,10 +85,6 @@ export type ChainIdPolkadot = keyof TDescriptorsPolkadot
 export type ChainIdKusama = keyof TDescriptorsKusama
 export type ChainIdWestend = keyof TDescriptorsWestend
 export type Descriptors<Id extends ChainId> = TDescriptors[Id]
-export type UnionDescriptors<Id extends ChainId> = AllUnionFields<
-  TDescriptors[Id]
-> &
-  ChainDefinition
 export type ApiOf<Id extends ChainId> = TypedApi<Descriptors<Id>>
 
 export type ChainAsset = {

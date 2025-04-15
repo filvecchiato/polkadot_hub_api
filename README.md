@@ -19,6 +19,7 @@
 
 ```bash
 pnpm add polkadot_hub_api
+```
 
 # Polkadot Hub API
 
@@ -29,4 +30,7 @@ pnpm add polkadot_hub_api
 ### Examples
 
 ## Documentation
+
+```
+
 ```

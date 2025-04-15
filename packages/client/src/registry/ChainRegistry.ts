@@ -1,6 +1,6 @@
 import { PolkadotClient } from "polkadot-api"
-import { ChainConnector } from "../chains"
-import { ChainId, TChain } from "../chains/types"
+import type { ChainId, TChain } from "@polkadot-hub-api/chain-connector"
+import { ChainConnector } from "@polkadot-hub-api/chain-connector"
 
 export class ChainRegistry {
   private static registry = new Map<string, ChainConnector>()

@@ -1,5 +1,5 @@
 import { Client } from "polkadot-api/smoldot"
-import { ChainId, ChainIdRelay } from "../chains/types"
+import type { ChainId, ChainIdRelay } from "@polkadot-hub-api/chain-connector"
 import { NetworkConnector } from "./types"
 import { startFromWorker as webStartFromWorker } from "polkadot-api/smoldot/from-worker"
 import { Worker as ThreadWorker } from "worker_threads"
@@ -116,15 +116,14 @@ export class SmHubConnector extends NetworkConnector {
   static getInstance(network: ChainIdRelay): SmHubConnector {
     if (!this.instances.has(network)) {
       if (typeof window === "undefined") {
-        const smClient = NodeStartFromWorker(
-          new ThreadWorker(
-            fileURLToPath(
-              resolve("polkadot-api/smoldot/node-worker", import.meta.url),
-            ),
-          ),
+        resolve("polkadot-api/smoldot/node-worker", import.meta.url).then(
+          (resolvedUrl) => {
+            const smClient = NodeStartFromWorker(
+              new ThreadWorker(fileURLToPath(resolvedUrl)),
+            )
+            this.instances.set(network, new SmHubConnector(network, smClient))
+          },
         )
-
-        this.instances.set(network, new SmHubConnector(network, smClient))
       } else {
         const smClient = webStartFromWorker(
           new Worker(new URL("polkadot-api/smoldot/worker", import.meta.url)),

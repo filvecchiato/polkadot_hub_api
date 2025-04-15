@@ -33,14 +33,11 @@ export default [
       {
         file: "dist/index.esm.js",
         format: "esm", // ESM format
-        inlineDynamicImports: true,
-        preserveModules: true,
         entryFileNames: "[name].mjs",
       },
       {
         file: "dist/index.cjs.js",
         format: "cjs", // CommonJS format
-        inlineDynamicImports: true,
       },
     ],
     plugins: [

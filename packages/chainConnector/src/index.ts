@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   CompatibilityLevel,
   CompatibilityToken,
@@ -105,8 +106,8 @@ export class ChainConnector {
 
     const [system, balances] = await Promise.allSettled([
       // TODO: add checks for where the balances could be locked
-      system_getAccountBalance(this, account),
-      balances_getAccountBalance(this, account),
+      system_getAccountBalance(this.api as any, account),
+      balances_getAccountBalance(this.api as any, account),
     ])
 
     // if every account checked does not have reserved/frozen/locked balance then skip checks and retur
@@ -137,9 +138,9 @@ export class ChainConnector {
     }
 
     const [vesting, systemBal, balancesBal] = await Promise.allSettled([
-      vesting_getAccountBalance(this, account),
-      system_getAccountBalance(this, account),
-      balances_getAccountBalance(this, account),
+      vesting_getAccountBalance(this.api as any, account),
+      system_getAccountBalance(this.api as any, account),
+      balances_getAccountBalance(this.api as any, account),
     ])
 
     console.log("Vesting", vesting)

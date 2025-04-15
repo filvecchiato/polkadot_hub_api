@@ -1,7 +1,7 @@
 import { SS58String } from "polkadot-api"
 import { u8aToHex } from "@polkadot/util"
 import { decodeAddress } from "@polkadot/util-crypto"
-import { ChainId } from "../chains/types"
+import type { ChainId } from "@polkadot-hub-api/chain-connector"
 import { NetworkConnector } from "../connectors"
 
 export class Account {
