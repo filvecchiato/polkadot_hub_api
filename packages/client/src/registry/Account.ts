@@ -59,20 +59,27 @@ export class Account {
           networkConnector.getChain(chain)!.balanceOf(this.addresses),
         ),
       )
+
       const successfulBalances = balances.reduce(
         (acc, balance) => {
           if (balance.status === "fulfilled") {
-            const { transferrable, reserved, locked } = balance.value
-            acc.free += BigInt(transferrable)
+            const { transferrable, reserved, locked, location } = balance.value
+            acc.transferrable += BigInt(transferrable)
             acc.reserved += BigInt(reserved)
-            acc.frozen += BigInt(locked)
+            acc.locked += BigInt(locked)
+            acc.locations.push(location)
           }
           return acc
         },
         {
-          free: BigInt(0),
+          transferrable: BigInt(0),
           reserved: BigInt(0),
-          frozen: BigInt(0),
+          locked: BigInt(0),
+          locations: [] as {
+            total: bigint
+            location: string
+            decimals: number
+          }[],
         },
       )
 
