@@ -62,10 +62,10 @@ export class Account {
       const successfulBalances = balances.reduce(
         (acc, balance) => {
           if (balance.status === "fulfilled") {
-            const { free, reserved, frozen } = balance.value
-            acc.free += BigInt(free)
+            const { transferrable, reserved, locked } = balance.value
+            acc.free += BigInt(transferrable)
             acc.reserved += BigInt(reserved)
-            acc.frozen += BigInt(frozen)
+            acc.frozen += BigInt(locked)
           }
           return acc
         },

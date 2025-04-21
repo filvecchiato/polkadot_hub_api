@@ -23,7 +23,7 @@ export const staking_getAccountBalance = async (
     )
   ) {
     // const stakingBalance = await query.getValues(account.map((a) => [a]))
-
+    // if query is compatible, check that the user has staking balance either as validator or nominator
     return null
   }
 

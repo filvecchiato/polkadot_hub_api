@@ -87,22 +87,34 @@ export class ChainConnector {
   }
 
   async balanceOf(account: SS58String[]): Promise<{
-    free: bigint
+    total: bigint
+    allocated: bigint
+    transferrable: bigint
     reserved: bigint
-    frozen: bigint
+    locked: bigint
+    location: {
+      total: bigint
+      location: string
+      decimals: number
+    }
   }> {
     if (
       !this.pallets.includes("Balances") &&
       !this.pallets.includes("System")
     ) {
       return {
-        free: 0n,
+        transferrable: 0n,
+        allocated: 0n,
+        total: 0n,
         reserved: 0n,
-        frozen: 0n,
+        locked: 0n,
+        location: {
+          total: 0n,
+          location: this.chainInfo.id,
+          decimals: 0,
+        },
       }
     }
-
-    // this.client.getTypedApi(DESCRIPTORS["polkadot"]).query.Vesting.Vesting
 
     const [system, balances] = await Promise.allSettled([
       // TODO: add checks for where the balances could be locked
@@ -124,17 +136,29 @@ export class ChainConnector {
       balances.status === "fulfilled" ? balances.value : null
 
     const accountBalance = {
-      free: systemBalance?.free || balancesValue?.free || 0n,
+      transferrable:
+        systemBalance?.transferrable || balancesValue?.transferrable || 0n,
       reserved: systemBalance?.reserved || balancesValue?.reserved || 0n,
-      frozen: systemBalance?.frozen || balancesValue?.frozen || 0n,
+      locked: systemBalance?.locked || balancesValue?.locked || 0n,
     }
 
     if (
-      accountBalance.free === 0n &&
+      accountBalance.transferrable === 0n &&
       accountBalance.reserved === 0n &&
-      accountBalance.frozen === 0n
+      accountBalance.locked === 0n
     ) {
-      return accountBalance
+      return {
+        transferrable: 0n,
+        allocated: 0n,
+        total: 0n,
+        reserved: 0n,
+        locked: 0n,
+        location: {
+          total: 0n,
+          location: this.chainInfo.id,
+          decimals: 0,
+        },
+      }
     }
 
     const [vesting, systemBal, balancesBal] = await Promise.allSettled([
@@ -158,7 +182,42 @@ export class ChainConnector {
     // ]
     // const possibleFreezesPallets = ["Balances", "ForeignAssets", "Assets"]
 
-    return accountBalance
+    // TODO: make sure the response shape is the one agreed upon
+
+    // {
+    //   total,
+    //   transferrable,
+    //   allocated,
+    //   reserved,
+    //   reservedDetails: [{
+    //     value,
+    //     flag
+    //   }],
+    //   locked,
+    //   lockedDetails: [{
+    //     value,
+    //     flag
+    //     timelock
+    //   }],
+    //   location: {
+    //     total,
+    //     location,
+    //     decimals
+    //   }
+    // }
+
+    return {
+      transferrable: accountBalance.transferrable,
+      allocated: 0n,
+      total: 0n,
+      reserved: accountBalance.reserved,
+      locked: accountBalance.locked,
+      location: {
+        total: 0n,
+        location: this.chainInfo.id,
+        decimals: this.asset.decimals,
+      },
+    }
   }
 
   async getAssets() {
