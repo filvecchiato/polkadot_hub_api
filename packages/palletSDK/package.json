@@ -7,8 +7,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "lint": "eslint src",
-    "test": "vitest run"
+    "lint": "eslint src"
   },
   "keywords": [],
   "author": "Filippo Vecchiato <filippo@parity.io",
