@@ -1,0 +1,25 @@
+{
+  "name": "@polkadot-hub-api/tests",
+  "version": "0.1.0",
+  "description": "tests for the polkadot-hub-api",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint src"
+  },
+  "keywords": [],
+  "author": "Filippo Vecchiato <filippo@parity.io",
+  "license": "MIT",
+  "dependencies": {
+    "polkadot-api": "^1.9.9",
+    "@polkadot-hub-api/pallet-sdk": "workspace:^",
+    "@polkadot-hub-api/descriptors": "workspace:^",
+    "@polkadot-hub-api/chain-connector": "workspace:^",
+    "@polkadot-hub-api/client": "workspace:^"
+  },
+  "peerDependencies": {
+    "polkadot-api": "^1.9.9"
+  }
+}

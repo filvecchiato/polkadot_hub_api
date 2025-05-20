@@ -10,6 +10,7 @@ import { DESCRIPTORS } from "./constants"
 import type { AllAssetsSdkTypedApi } from "@polkadot-hub-api/pallet-sdk"
 import {
   balances_getAccountBalance,
+  staking_getAccountBalance,
   system_getAccountBalance,
 } from "@polkadot-hub-api/pallet-sdk"
 import { vesting_getAccountBalance } from "@polkadot-hub-api/pallet-sdk"
@@ -161,16 +162,16 @@ export class ChainConnector {
       }
     }
 
-    const [vesting, systemBal, balancesBal] = await Promise.allSettled([
-      vesting_getAccountBalance(this.api as any, account),
-      system_getAccountBalance(this.api as any, account),
-      balances_getAccountBalance(this.api as any, account),
-    ])
-
-    console.log("Vesting", vesting)
-    console.log("System", systemBal)
-    console.log("Balances", balancesBal)
-
+    const [vesting, systemBal, balancesBal, staking] = await Promise.allSettled(
+      [
+        vesting_getAccountBalance(this.api as any, account),
+        system_getAccountBalance(this.api as any, account),
+        balances_getAccountBalance(this.api as any, account),
+        staking_getAccountBalance(this.api as any, account),
+      ],
+    )
+    // this.client.getTypedApi(DESCRIPTORS_POLKADOT.polkadot).query.Staking
+    console.log({ vesting, systemBal, balancesBal, staking })
     // const possibleLockingPallets = [
     //   "Balances",
     //   "Staking",
@@ -178,7 +179,6 @@ export class ChainConnector {
     //   "Vesting",
     //   "Conviction",
     //   "Crowdloan",
-    //   "Assets",
     // ]
     // const possibleFreezesPallets = ["Balances", "ForeignAssets", "Assets"]
 

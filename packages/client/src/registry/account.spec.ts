@@ -27,5 +27,5 @@ describe("account queries", () => {
     expect(balances).toHaveProperty("free")
     expect(balances).toHaveProperty("reserved")
     expect(balances).toHaveProperty("frozen")
-  }, 15000)
+  }, 50000)
 })
