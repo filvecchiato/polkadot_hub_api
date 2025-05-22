@@ -21,8 +21,8 @@
     "@polkadot-hub-api/descriptors": "workspace:^",
     "@polkadot-hub-api/pallet-sdk": "workspace:^",
     "@polkadot-hub-api/chain-connector": "workspace:^",
-    "@polkadot/util": "^13.4.3",
-    "@polkadot/util-crypto": "^13.4.3",
+    "@polkadot/util": "^13.5.1",
+    "@polkadot/util-crypto": "^13.5.1",
     "polkadot-api": "^1.9.7",
     "type-fest": "^4.39.1",
     "import-meta-resolve": "^2.2.0"

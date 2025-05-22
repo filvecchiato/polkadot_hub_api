@@ -19,13 +19,19 @@ describe("account queries", () => {
     expect(account.listAddresses()).not.toHaveLength(0)
 
     const balances = await account.balance(wsConnector)
-
-    console.log("balances", balances)
-
+    expect(balances.total).toEqual(
+      balances.transferrable + balances.reserved + balances.locked,
+    )
     expect(balances).toBeDefined()
+    const totLocations = balances.locations.reduce(
+      (acc: bigint, loc) => acc + loc.total,
+      0n,
+    )
 
-    expect(balances).toHaveProperty("free")
+    expect(balances.total).toEqual(totLocations)
+
+    expect(balances).toHaveProperty("total")
     expect(balances).toHaveProperty("reserved")
-    expect(balances).toHaveProperty("frozen")
+    expect(balances).toHaveProperty("locked")
   }, 50000)
 })

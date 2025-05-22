@@ -52,7 +52,10 @@ export class Account {
       const chainConnector = networkConnector.getChain(chain)!
 
       const balances = await chainConnector.balanceOf(this.addresses)
-      return balances
+      return {
+        ...balances,
+        locations: [balances.location],
+      }
     } else {
       const balances = await Promise.allSettled(
         chains.map((chain) =>
@@ -62,11 +65,21 @@ export class Account {
 
       const successfulBalances = balances.reduce(
         (acc, balance) => {
+          console.log("Balance", balance)
           if (balance.status === "fulfilled") {
-            const { transferrable, reserved, locked, location } = balance.value
+            const {
+              total,
+              transferrable,
+              reserved,
+              locked,
+              location,
+              lockedDetails,
+            } = balance.value
             acc.transferrable += BigInt(transferrable)
             acc.reserved += BigInt(reserved)
             acc.locked += BigInt(locked)
+            acc.total += BigInt(total)
+            acc.lockedDetails.push(...lockedDetails)
             acc.locations.push(location)
           }
           return acc
@@ -75,6 +88,12 @@ export class Account {
           transferrable: BigInt(0),
           reserved: BigInt(0),
           locked: BigInt(0),
+          total: BigInt(0),
+          lockedDetails: [] as {
+            value: bigint
+            flag: string
+            timelock?: bigint
+          }[],
           locations: [] as {
             total: bigint
             location: string
@@ -82,7 +101,16 @@ export class Account {
           }[],
         },
       )
-
+      if (
+        successfulBalances.total !==
+        successfulBalances.transferrable +
+          successfulBalances.locked +
+          successfulBalances.reserved
+      ) {
+        throw new Error(
+          `Total balance ${successfulBalances.total} does not match sum of transferrable ${successfulBalances.transferrable}, reserved ${successfulBalances.reserved}, and locked ${successfulBalances.locked}`,
+        )
+      }
       return successfulBalances
     }
   }

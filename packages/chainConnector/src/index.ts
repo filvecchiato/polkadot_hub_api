@@ -6,7 +6,7 @@ import {
   SS58String,
 } from "polkadot-api"
 import type { ApiOf, ChainAsset, ChainId, Descriptors, TChain } from "./types"
-import { DESCRIPTORS } from "./constants"
+import { DESCRIPTORS /*DESCRIPTORS_POLKADOT*/ } from "./constants"
 import type { AllAssetsSdkTypedApi } from "@polkadot-hub-api/pallet-sdk"
 import {
   balances_getAccountBalance,
@@ -15,6 +15,7 @@ import {
 } from "@polkadot-hub-api/pallet-sdk"
 import { vesting_getAccountBalance } from "@polkadot-hub-api/pallet-sdk"
 // import { NativeBalanceSdkTypedApi } from "./descriptors/nativeBalanceDescriptors"
+import { BN } from "@polkadot/util"
 
 export * from "./types"
 export * from "./constants"
@@ -87,12 +88,63 @@ export class ChainConnector {
     throw new Error("Not implemented")
   }
 
+  get emptyAccountBalance(): {
+    total: bigint
+    allocated: bigint
+    transferrable: bigint
+    reserved: bigint
+    reservedDetails: {
+      value: bigint
+      flag: string
+    }[]
+    lockedDetails: {
+      value: bigint
+      flag: string
+      timelock?: bigint
+    }[]
+    locked: bigint
+    location: {
+      total: bigint
+      location: string
+      decimals: number
+    }
+  } {
+    return {
+      total: 0n,
+      allocated: 0n,
+      transferrable: 0n,
+      reserved: 0n,
+      reservedDetails: [],
+      lockedDetails: [],
+      locked: 0n,
+      location: {
+        total: 0n,
+        location: this.chainInfo.id,
+        decimals: this.asset.decimals,
+      },
+    }
+  }
+
+  /**
+   * Get the balance of an account
+   * @param account - The account to get the balance for
+   * @returns The balance of the account
+   */
   async balanceOf(account: SS58String[]): Promise<{
     total: bigint
     allocated: bigint
     transferrable: bigint
     reserved: bigint
+    reservedDetails: {
+      value: bigint
+      flag: string
+    }[]
     locked: bigint
+    lockedDetails: {
+      value: bigint
+      flag: string
+      timelock?: bigint
+    }[]
     location: {
       total: bigint
       location: string
@@ -103,22 +155,11 @@ export class ChainConnector {
       !this.pallets.includes("Balances") &&
       !this.pallets.includes("System")
     ) {
-      return {
-        transferrable: 0n,
-        allocated: 0n,
-        total: 0n,
-        reserved: 0n,
-        locked: 0n,
-        location: {
-          total: 0n,
-          location: this.chainInfo.id,
-          decimals: 0,
-        },
-      }
+      return this.emptyAccountBalance
     }
 
     const [system, balances] = await Promise.allSettled([
-      // TODO: add checks for where the balances could be locked
+      // TODO: add checks for where the balances could be locked or cache the used method
       system_getAccountBalance(this.api as any, account),
       balances_getAccountBalance(this.api as any, account),
     ])
@@ -148,72 +189,80 @@ export class ChainConnector {
       accountBalance.reserved === 0n &&
       accountBalance.locked === 0n
     ) {
-      return {
-        transferrable: 0n,
-        allocated: 0n,
-        total: 0n,
-        reserved: 0n,
-        locked: 0n,
-        location: {
-          total: 0n,
-          location: this.chainInfo.id,
-          decimals: 0,
-        },
-      }
+      return this.emptyAccountBalance
     }
 
-    const [vesting, systemBal, balancesBal, staking] = await Promise.allSettled(
-      [
-        vesting_getAccountBalance(this.api as any, account),
-        system_getAccountBalance(this.api as any, account),
-        balances_getAccountBalance(this.api as any, account),
-        staking_getAccountBalance(this.api as any, account),
-      ],
-    )
-    // this.client.getTypedApi(DESCRIPTORS_POLKADOT.polkadot).query.Staking
-    console.log({ vesting, systemBal, balancesBal, staking })
+    const [vesting, staking] = await Promise.allSettled([
+      vesting_getAccountBalance(this.api as any, account),
+      staking_getAccountBalance(this.api as any, account),
+    ])
+    // this.client.getTypedApi(DESCRIPTORS_POLKADOT.polkadot).query.
     // const possibleLockingPallets = [
-    //   "Balances",
     //   "Staking",
     //   "Democracy",
     //   "Vesting",
     //   "Conviction",
-    //   "Crowdloan",
+    //   "XCM"
+    //   "CONVICTION_VOTING",
+    //   "Elections-phragmen",
     // ]
     // const possibleFreezesPallets = ["Balances", "ForeignAssets", "Assets"]
 
     // TODO: make sure the response shape is the one agreed upon
 
-    // {
-    //   total,
-    //   transferrable,
-    //   allocated,
-    //   reserved,
-    //   reservedDetails: [{
-    //     value,
-    //     flag
-    //   }],
-    //   locked,
-    //   lockedDetails: [{
-    //     value,
-    //     flag
-    //     timelock
-    //   }],
-    //   location: {
-    //     total,
-    //     location,
-    //     decimals
-    //   }
-    // }
+    // vesting is locked assets
+    const vestingBalance = vesting.status === "fulfilled" ? vesting.value : null
+    const stakingBalance = staking.status === "fulfilled" ? staking.value : null
+
+    const lockedDetails: {
+      value: bigint
+      flag: string
+      timelock?: bigint
+    }[] = []
+    const reservedDetails: {
+      value: bigint
+      flag: string
+    }[] = []
+
+    if (vestingBalance) {
+      const { locked, perBlock } = vestingBalance
+      if (locked > 0n) {
+        const timelock = new BN(locked.toString()).divRound(
+          new BN(perBlock.toString()),
+        )
+
+        lockedDetails.push({
+          value: locked,
+          flag: "Vesting",
+          timelock: BigInt(timelock.toString()),
+        })
+      }
+    }
+
+    if (stakingBalance) {
+      stakingBalance.forEach((s) => {
+        lockedDetails.push({
+          value: s.total,
+          flag: "Staking",
+        })
+      })
+    }
+    const locked = new BN(accountBalance.locked.toString()).isub(
+      new BN(accountBalance.reserved.toString()),
+    )
+
+    const total = new BN(accountBalance.transferrable.toString()).add(locked)
 
     return {
       transferrable: accountBalance.transferrable,
-      allocated: 0n,
-      total: 0n,
+      allocated: vestingBalance?.locked || 0n,
+      total: BigInt(total.toString()), // transferrable + reserved + locked + allocated,
       reserved: accountBalance.reserved,
+      reservedDetails,
       locked: accountBalance.locked,
+      lockedDetails,
       location: {
-        total: 0n,
+        total: BigInt(total.toString()),
         location: this.chainInfo.id,
         decimals: this.asset.decimals,
       },

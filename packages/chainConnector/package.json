@@ -15,7 +15,8 @@
   "dependencies": {
     "polkadot-api": "^1.9.9",
     "@polkadot-hub-api/pallet-sdk": "workspace:^",
-    "@polkadot-hub-api/descriptors": "workspace:^"
+    "@polkadot-hub-api/descriptors": "workspace:^",
+    "@polkadot/util": "^13.5.1"
   },
   "peerDependencies": {
     "polkadot-api": "^1.9.9"
