@@ -15,6 +15,17 @@ type NominatorData = {
   suppressed: boolean
 }
 
+type LedgerData = {
+  stash: SS58String
+  total: bigint
+  active: bigint
+  unlocking: Array<{
+    value: bigint
+    era: number
+  }>
+  legacy_claimed_rewards: Array<number>
+}
+
 type StakingSdkPallets = PalletsTypedef<
   {
     Staking: {
@@ -25,6 +36,13 @@ type StakingSdkPallets = PalletsTypedef<
         never
       >
       Bonded: StorageDescriptor<[Key: SS58String], SS58String, true, never>
+      Ledger: StorageDescriptor<[Key: SS58String], LedgerData, true, never>
+      ClaimedRewards: StorageDescriptor<
+        [number, SS58String],
+        Array<number>,
+        false,
+        never
+      >
     }
   },
   {},

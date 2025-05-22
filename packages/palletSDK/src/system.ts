@@ -50,9 +50,10 @@ export async function system_getAccountBalance(
   typedApi: NativeBalanceSdkTypedApi,
   account: SS58String[],
 ): Promise<{
-  free: bigint
+  total: bigint
+  transferrable: bigint
   reserved: bigint
-  frozen: bigint
+  locked: bigint
 }> {
   if (account.length === 0) {
     throw new Error("No account provided")
@@ -65,20 +66,27 @@ export async function system_getAccountBalance(
 
   return balance.reduce(
     (
-      acc: { free: bigint; reserved: bigint; frozen: bigint },
+      acc: {
+        transferrable: bigint
+        reserved: bigint
+        locked: bigint
+        total: bigint
+      },
       b: { data: { free: bigint; reserved: bigint; frozen: bigint } },
     ) => {
       const { free, reserved, frozen } = b.data
       return {
-        free: acc.free + BigInt(free),
+        total: acc.total + BigInt(free) + BigInt(reserved),
+        transferrable: acc.transferrable + BigInt(free) - BigInt(frozen),
         reserved: acc.reserved + BigInt(reserved),
-        frozen: acc.frozen + BigInt(frozen),
+        locked: acc.locked + BigInt(frozen),
       }
     },
     {
-      free: BigInt(0),
+      total: BigInt(0),
+      transferrable: BigInt(0),
       reserved: BigInt(0),
-      frozen: BigInt(0),
+      locked: BigInt(0),
     },
   )
 }

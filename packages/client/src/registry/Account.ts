@@ -52,30 +52,65 @@ export class Account {
       const chainConnector = networkConnector.getChain(chain)!
 
       const balances = await chainConnector.balanceOf(this.addresses)
-      return balances
+      return {
+        ...balances,
+        locations: [balances.location],
+      }
     } else {
       const balances = await Promise.allSettled(
         chains.map((chain) =>
           networkConnector.getChain(chain)!.balanceOf(this.addresses),
         ),
       )
+
       const successfulBalances = balances.reduce(
         (acc, balance) => {
+          console.log("Balance", balance)
           if (balance.status === "fulfilled") {
-            const { free, reserved, frozen } = balance.value
-            acc.free += BigInt(free)
+            const {
+              total,
+              transferrable,
+              reserved,
+              locked,
+              location,
+              lockedDetails,
+            } = balance.value
+            acc.transferrable += BigInt(transferrable)
             acc.reserved += BigInt(reserved)
-            acc.frozen += BigInt(frozen)
+            acc.locked += BigInt(locked)
+            acc.total += BigInt(total)
+            acc.lockedDetails.push(...lockedDetails)
+            acc.locations.push(location)
           }
           return acc
         },
         {
-          free: BigInt(0),
+          transferrable: BigInt(0),
           reserved: BigInt(0),
-          frozen: BigInt(0),
+          locked: BigInt(0),
+          total: BigInt(0),
+          lockedDetails: [] as {
+            value: bigint
+            flag: string
+            timelock?: bigint
+          }[],
+          locations: [] as {
+            total: bigint
+            location: string
+            decimals: number
+          }[],
         },
       )
-
+      if (
+        successfulBalances.total !==
+        successfulBalances.transferrable +
+          successfulBalances.locked +
+          successfulBalances.reserved
+      ) {
+        throw new Error(
+          `Total balance ${successfulBalances.total} does not match sum of transferrable ${successfulBalances.transferrable}, reserved ${successfulBalances.reserved}, and locked ${successfulBalances.locked}`,
+        )
+      }
       return successfulBalances
     }
   }

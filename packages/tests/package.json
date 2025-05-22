@@ -1,13 +1,14 @@
 {
-  "name": "@polkadot-hub-api/chain-connector",
+  "name": "@polkadot-hub-api/tests",
   "version": "0.1.0",
-  "description": "",
+  "description": "tests for the polkadot-hub-api",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "Filippo Vecchiato <filippo@parity.io",
@@ -16,12 +17,11 @@
     "polkadot-api": "^1.9.9",
     "@polkadot-hub-api/pallet-sdk": "workspace:^",
     "@polkadot-hub-api/descriptors": "workspace:^",
-    "@polkadot/util": "^13.5.1"
+    "@polkadot-hub-api/chain-connector": "workspace:^",
+    "@polkadot-hub-api/client": "workspace:^",
+    "vitest": "3.1.4"
   },
   "peerDependencies": {
     "polkadot-api": "^1.9.9"
-  },
-  "files": [
-    "dist"
-  ]
+  }
 }
