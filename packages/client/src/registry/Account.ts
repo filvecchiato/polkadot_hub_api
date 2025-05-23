@@ -65,7 +65,6 @@ export class Account {
 
       const successfulBalances = balances.reduce(
         (acc, balance) => {
-          console.log("Balance", balance)
           if (balance.status === "fulfilled") {
             const {
               total,

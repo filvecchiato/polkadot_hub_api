@@ -13,7 +13,7 @@ describe("account queries", () => {
     expect(wsConnector.getStatus()).toBe("connected")
 
     const account = new Account([
-      "15Q7FYu3X5gphRvL58kkVQD6sa4LvT3PKNo8615HtSo2MQAS",
+      "14rEVPh5hz4D6y783QCH9xgySNJVxMLaHhQKm69KChphYoEw",
     ])
     expect(account).toBeDefined()
     expect(account.listAddresses()).not.toHaveLength(0)
