@@ -47,16 +47,13 @@ export class WsHubConnector extends NetworkConnector {
         console.log("No ws endpoints found for chain")
         continue
       }
-      // const wsProvider =
-      //   typeof window === "undefined"
-      //     ? NodeWsProvider(info.wsUrl)
-      //     : WebWsProvider(info.wsUrl)
 
       const chainClient = createClient(
         withPolkadotSdkCompat(NodeWsProvider(info.wsUrl)),
       )
       // create a client for the chain
       const chainConnector = await ChainRegistry.getOrCreate(info, chainClient)
+
       this.chains.set(chainId as ChainId, chainConnector)
     }
     return Array.from(this.chains.keys())

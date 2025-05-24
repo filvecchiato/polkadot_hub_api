@@ -51,21 +51,37 @@ export class Account {
       }
       const chainConnector = networkConnector.getChain(chain)!
 
-      const balances = await chainConnector.balanceOf(this.addresses)
+      const balances =
+        "balanceOf" in chainConnector &&
+        ((await chainConnector.balanceOf!(this.addresses)) as object)
+      if (!balances) {
+        return {}
+      }
       return {
         ...balances,
-        locations: [balances.location],
+        locations: [],
       }
     } else {
       const balances = await Promise.allSettled(
-        chains.map((chain) =>
-          networkConnector.getChain(chain)!.balanceOf(this.addresses),
-        ),
+        chains
+          .map((chain) => {
+            const networkConnectorChain = networkConnector.getChain(chain)
+            if (networkConnectorChain) {
+              if (
+                !("balanceOf" in networkConnectorChain) ||
+                typeof networkConnectorChain.balanceOf !== "function"
+              ) {
+                return null
+              }
+              return networkConnectorChain.balanceOf(this.addresses)
+            }
+            return null
+          })
+          .filter((el) => !!el), // filter out nulls
       )
 
       const successfulBalances = balances.reduce(
         (acc, balance) => {
-          console.log("Balance", balance)
           if (balance.status === "fulfilled") {
             const {
               total,
@@ -74,7 +90,8 @@ export class Account {
               locked,
               location,
               lockedDetails,
-            } = balance.value
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } = balance.value as any
             acc.transferrable += BigInt(transferrable)
             acc.reserved += BigInt(reserved)
             acc.locked += BigInt(locked)

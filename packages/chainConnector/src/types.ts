@@ -18,12 +18,42 @@ import {
   wpl,
   wct,
 } from "@polkadot-hub-api/descriptors"
+import { ChainConnector } from "."
+import {
+  AssetsApiClass,
+  AssetsPalletMethods,
+  BalancesPalletMethods,
+  StakingPalletMethods,
+  SystemPalletMethods,
+  VestingPalletMethods,
+} from "./mixins"
 
 export type TDescriptorsRelay = {
   polkadot: typeof polkadot
   kusama: typeof kusama
   westend: typeof westend
 }
+
+export type DescriptorsRelay = typeof polkadot & typeof kusama & typeof westend
+export type DescriptorsAssetHub = typeof kah & typeof wah & typeof pah
+
+export type AllDescriptors = typeof polkadot &
+  typeof kusama &
+  typeof westend &
+  typeof kah &
+  typeof wah &
+  typeof pah &
+  typeof pbh &
+  typeof pcl &
+  typeof pct &
+  typeof ppl &
+  typeof kbh &
+  typeof kpl &
+  typeof wbh &
+  typeof wpl &
+  typeof wcl &
+  typeof kct &
+  typeof wct
 
 export type TDescriptorsAssetHub = {
   kah: typeof kah
@@ -100,3 +130,13 @@ export type TChain<Id = ChainId> = {
   paraId: number | null
   stableTokenId: string | null
 }
+
+export type PalletComposedChain = ChainConnector &
+  Partial<
+    SystemPalletMethods &
+      BalancesPalletMethods &
+      VestingPalletMethods &
+      StakingPalletMethods &
+      AssetsPalletMethods
+  >
+export type ComposedChainClass = PalletComposedChain & Partial<AssetsApiClass>

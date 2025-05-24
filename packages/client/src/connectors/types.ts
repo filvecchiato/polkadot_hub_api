@@ -1,11 +1,14 @@
 import { Client } from "polkadot-api/smoldot"
-import type { ChainId, ChainIdRelay } from "@polkadot-hub-api/chain-connector"
-import { ChainConnector } from "@polkadot-hub-api/chain-connector"
+import type {
+  ChainId,
+  ChainIdRelay,
+  ComposedChainClass,
+} from "@polkadot-hub-api/chain-connector"
 
 export abstract class NetworkConnector {
   network: ChainIdRelay
   client: Client | null = null
-  protected chains: Map<ChainId, ChainConnector> = new Map()
+  protected chains: Map<ChainId, ComposedChainClass> = new Map()
   protected isConnected = false
 
   protected constructor(network: ChainIdRelay, client?: Client) {
@@ -17,7 +20,7 @@ export abstract class NetworkConnector {
   abstract disconnect(): Promise<void>
   abstract loadChains(): Promise<string[]>
 
-  getChain(chainId: ChainId): ChainConnector | undefined {
+  getChain(chainId: ChainId): ComposedChainClass | undefined {
     return this.chains.get(chainId)
   }
 
