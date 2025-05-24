@@ -13,10 +13,18 @@ export const balances_getAccountBalance = async (
   if (account.length === 0) {
     throw new Error("No account provided")
   }
-
   const query = typedApi.query.Balances.Account
-
   const balance = await query.getValues(account.map((a) => [a]))
+  try {
+    const data = await Promise.all([
+      typedApi.query.Balances.Locks.getValues(account.map((a) => [a])),
+      typedApi.query.Balances.Reserves.getValues(account.map((a) => [a])),
+    ])
+    console.log("Locks", data[0][0])
+    console.log("reserves", data[1])
+  } catch (error) {
+    console.error(error)
+  }
 
   return balance.reduce(
     (

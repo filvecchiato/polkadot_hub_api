@@ -63,7 +63,7 @@ export async function system_getAccountBalance(
   const query = typedApi.query.System.Account
 
   const balance = await query.getValues(account.map((a) => [a]))
-
+  console.log({ balance: balance[0].data })
   return balance.reduce(
     (
       acc: {

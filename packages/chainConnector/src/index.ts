@@ -1,27 +1,40 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   CompatibilityLevel,
   CompatibilityToken,
   PolkadotClient,
-  SS58String,
+  // SS58String,
 } from "polkadot-api"
-import type { ApiOf, ChainAsset, ChainId, Descriptors, TChain } from "./types"
+import type {
+  ApiOf,
+  ChainAsset,
+  ChainId,
+  ComposedChainClass,
+  Descriptors,
+  TChain,
+} from "./types"
 import { DESCRIPTORS /*DESCRIPTORS_POLKADOT*/ } from "./constants"
 import type { AllAssetsSdkTypedApi } from "@polkadot-hub-api/pallet-sdk"
 import {
-  balances_getAccountBalance,
-  staking_getAccountBalance,
-  system_getAccountBalance,
-} from "@polkadot-hub-api/pallet-sdk"
-import { vesting_getAccountBalance } from "@polkadot-hub-api/pallet-sdk"
-// import { NativeBalanceSdkTypedApi } from "./descriptors/nativeBalanceDescriptors"
-import { BN } from "@polkadot/util"
+  AssetsMixin,
+  BalancesPalletMixin,
+  StakingPalletMixin,
+  SystemPalletMixin,
+  VestingPalletMixin,
+} from "./mixins"
+// import {
+//   balances_getAccountBalance,
+//   staking_getAccountBalance,
+//   system_getAccountBalance,
+// } from "@polkadot-hub-api/pallet-sdk"
+// import { vesting_getAccountBalance } from "@polkadot-hub-api/pallet-sdk"
+// // import { NativeBalanceSdkTypedApi } from "./descriptors/nativeBalanceDescriptors"
+// import { BN } from "@polkadot/util"
 
 export * from "./types"
 export * from "./constants"
 
 export class ChainConnector {
-  private static instance: ChainConnector
+  private static instance: ComposedChainClass | undefined
   client: PolkadotClient
   chainInfo: TChain
   pallets: string[] = []
@@ -68,7 +81,8 @@ export class ChainConnector {
       DESCRIPTORS[info.id as ChainId],
     )
 
-    this.instance = new ChainConnector(
+    // enhance chainConnector with mixins
+    let current = new ChainConnector(
       info,
       client,
       typedApi,
@@ -78,196 +92,167 @@ export class ChainConnector {
       chainInfo.pallets,
     )
 
+    // ALWAYS enhance with methods first and then with APIs
+    // mixin Pallet methods
+    current = VestingPalletMixin(
+      StakingPalletMixin(BalancesPalletMixin(SystemPalletMixin(current))),
+    )
+    // mixing assetsAPI
+    current = AssetsMixin(current)
+    this.instance = current as ComposedChainClass
     return this.instance
   }
 
-  async getBalances(): Promise<string> {
-    throw new Error("Not implemented")
-  }
-  async getBlockHash(): Promise<string> {
-    throw new Error("Not implemented")
-  }
+  // /**
+  //  * Get the balance of an account
+  //  * @param account - The account to get the balance for
+  //  * @returns The balance of the account
+  //  */
+  // async balanceOf(account: SS58String[]): Promise<{
+  //   total: bigint
+  //   allocated: bigint
+  //   transferrable: bigint
+  //   reserved: bigint
+  //   reservedDetails: {
+  //     value: bigint
+  //     flag: string
+  //   }[]
+  //   locked: bigint
+  //   lockedDetails: {
+  //     value: bigint
+  //     flag: string
+  //     timelock?: bigint
+  //   }[]
+  //   location: {
+  //     total: bigint
+  //     location: string
+  //     decimals: number
+  //   }
+  // }> {
+  //   if (
+  //     !this.pallets.includes("Balances") &&
+  //     !this.pallets.includes("System")
+  //   ) {
+  //     return this.emptyAccountBalance
+  //   }
+  //   console.log(this.chainInfo.name)
+  //   const [system, balances] = await Promise.allSettled([
+  //     // TODO: add checks for where the balances could be locked or cache the used method
+  //     system_getAccountBalance(this.api as any, account),
+  //     balances_getAccountBalance(this.api as any, account),
+  //   ])
 
-  get emptyAccountBalance(): {
-    total: bigint
-    allocated: bigint
-    transferrable: bigint
-    reserved: bigint
-    reservedDetails: {
-      value: bigint
-      flag: string
-    }[]
-    lockedDetails: {
-      value: bigint
-      flag: string
-      timelock?: bigint
-    }[]
-    locked: bigint
-    location: {
-      total: bigint
-      location: string
-      decimals: number
-    }
-  } {
-    return {
-      total: 0n,
-      allocated: 0n,
-      transferrable: 0n,
-      reserved: 0n,
-      reservedDetails: [],
-      lockedDetails: [],
-      locked: 0n,
-      location: {
-        total: 0n,
-        location: this.chainInfo.id,
-        decimals: this.asset.decimals,
-      },
-    }
-  }
+  //   // if every account checked does not have reserved/frozen/locked balance then skip checks and retur
 
-  /**
-   * Get the balance of an account
-   * @param account - The account to get the balance for
-   * @returns The balance of the account
-   */
-  async balanceOf(account: SS58String[]): Promise<{
-    total: bigint
-    allocated: bigint
-    transferrable: bigint
-    reserved: bigint
-    reservedDetails: {
-      value: bigint
-      flag: string
-    }[]
-    locked: bigint
-    lockedDetails: {
-      value: bigint
-      flag: string
-      timelock?: bigint
-    }[]
-    location: {
-      total: bigint
-      location: string
-      decimals: number
-    }
-  }> {
-    if (
-      !this.pallets.includes("Balances") &&
-      !this.pallets.includes("System")
-    ) {
-      return this.emptyAccountBalance
-    }
+  //   if (system.status === "rejected" && balances.status === "rejected") {
+  //     throw new Error(
+  //       `Failed to get balances: ${system.reason}, ${balances.reason}`,
+  //     )
+  //   }
 
-    const [system, balances] = await Promise.allSettled([
-      // TODO: add checks for where the balances could be locked or cache the used method
-      system_getAccountBalance(this.api as any, account),
-      balances_getAccountBalance(this.api as any, account),
-    ])
+  //   // const dotApi = this.client.getTypedApi(DESCRIPTORS_POLKADOT.polkadot)
 
-    // if every account checked does not have reserved/frozen/locked balance then skip checks and retur
+  //   // const [locks, reserved] = await Promise.allSettled([
+  //   //   dotApi.query.Balances.Locks.getValues(account.map((a) => [a])),
+  //   //   dotApi.query.Balances.Reserves.getValues(account.map((a) => [a])),
+  //   // ])
 
-    if (system.status === "rejected" && balances.status === "rejected") {
-      throw new Error(
-        `Failed to get balances: ${system.reason}, ${balances.reason}`,
-      )
-    }
+  //   // console.log({ locks, reserved })
+  //   // give precedence to system pallet
+  //   const systemBalance = system.status === "fulfilled" ? system.value : null
+  //   const balancesValue =
+  //     balances.status === "fulfilled" ? balances.value : null
 
-    // give precedence to system pallet
-    const systemBalance = system.status === "fulfilled" ? system.value : null
-    const balancesValue =
-      balances.status === "fulfilled" ? balances.value : null
+  //   const accountBalance = {
+  //     transferrable:
+  //       systemBalance?.transferrable || balancesValue?.transferrable || 0n,
+  //     reserved: systemBalance?.reserved || balancesValue?.reserved || 0n,
+  //     locked: systemBalance?.locked || balancesValue?.locked || 0n,
+  //   }
 
-    const accountBalance = {
-      transferrable:
-        systemBalance?.transferrable || balancesValue?.transferrable || 0n,
-      reserved: systemBalance?.reserved || balancesValue?.reserved || 0n,
-      locked: systemBalance?.locked || balancesValue?.locked || 0n,
-    }
+  //   if (
+  //     accountBalance.transferrable === 0n &&
+  //     accountBalance.reserved === 0n &&
+  //     accountBalance.locked === 0n
+  //   ) {
+  //     return this.emptyAccountBalance
+  //   }
 
-    if (
-      accountBalance.transferrable === 0n &&
-      accountBalance.reserved === 0n &&
-      accountBalance.locked === 0n
-    ) {
-      return this.emptyAccountBalance
-    }
+  //   const [vesting, staking] = await Promise.allSettled([
+  //     vesting_getAccountBalance(this.api as any, account),
+  //     staking_getAccountBalance(this.api as any, account),
+  //   ])
+  //   // const possibleLockingPallets = [
+  //   //   "Staking",
+  //   //   "Democracy",
+  //   //   "Vesting",
+  //   //   "Conviction",
+  //   //   "XCM"
+  //   //   "CONVICTION_VOTING",
+  //   //   "Elections-phragmen",
+  //   // ]
+  //   // const possibleFreezesPallets = ["Balances", "ForeignAssets", "Assets"]
 
-    const [vesting, staking] = await Promise.allSettled([
-      vesting_getAccountBalance(this.api as any, account),
-      staking_getAccountBalance(this.api as any, account),
-    ])
-    // this.client.getTypedApi(DESCRIPTORS_POLKADOT.polkadot).query.
-    // const possibleLockingPallets = [
-    //   "Staking",
-    //   "Democracy",
-    //   "Vesting",
-    //   "Conviction",
-    //   "XCM"
-    //   "CONVICTION_VOTING",
-    //   "Elections-phragmen",
-    // ]
-    // const possibleFreezesPallets = ["Balances", "ForeignAssets", "Assets"]
+  //   // TODO: make sure the response shape is the one agreed upon
 
-    // TODO: make sure the response shape is the one agreed upon
+  //   // vesting is locked assets
+  //   const vestingBalance = vesting.status === "fulfilled" ? vesting.value : null
+  //   const stakingBalance = staking.status === "fulfilled" ? staking.value : null
 
-    // vesting is locked assets
-    const vestingBalance = vesting.status === "fulfilled" ? vesting.value : null
-    const stakingBalance = staking.status === "fulfilled" ? staking.value : null
+  //   const lockedDetails: {
+  //     value: bigint
+  //     flag: string
+  //     timelock?: bigint
+  //   }[] = []
+  //   const reservedDetails: {
+  //     value: bigint
+  //     flag: string
+  //   }[] = []
 
-    const lockedDetails: {
-      value: bigint
-      flag: string
-      timelock?: bigint
-    }[] = []
-    const reservedDetails: {
-      value: bigint
-      flag: string
-    }[] = []
+  //   if (vestingBalance) {
+  //     const { locked, perBlock } = vestingBalance
+  //     if (locked > 0n) {
+  //       const timelock = new BN(locked.toString()).divRound(
+  //         new BN(perBlock.toString()),
+  //       )
 
-    if (vestingBalance) {
-      const { locked, perBlock } = vestingBalance
-      if (locked > 0n) {
-        const timelock = new BN(locked.toString()).divRound(
-          new BN(perBlock.toString()),
-        )
+  //       lockedDetails.push({
+  //         value: locked,
+  //         flag: "Vesting",
+  //         timelock: BigInt(timelock.toString()),
+  //       })
+  //     }
+  //   }
 
-        lockedDetails.push({
-          value: locked,
-          flag: "Vesting",
-          timelock: BigInt(timelock.toString()),
-        })
-      }
-    }
+  //   if (stakingBalance) {
+  //     stakingBalance.forEach((s) => {
+  //       lockedDetails.push({
+  //         value: s.total,
+  //         flag: "Staking",
+  //       })
+  //     })
+  //   }
+  //   const locked = new BN(accountBalance.locked.toString()).isub(
+  //     new BN(accountBalance.reserved.toString()),
+  //   )
 
-    if (stakingBalance) {
-      stakingBalance.forEach((s) => {
-        lockedDetails.push({
-          value: s.total,
-          flag: "Staking",
-        })
-      })
-    }
-    const locked = new BN(accountBalance.locked.toString()).isub(
-      new BN(accountBalance.reserved.toString()),
-    )
+  //   const total = new BN(accountBalance.transferrable.toString()).add(locked)
 
-    const total = new BN(accountBalance.transferrable.toString()).add(locked)
-
-    return {
-      transferrable: accountBalance.transferrable,
-      allocated: vestingBalance?.locked || 0n,
-      total: BigInt(total.toString()), // transferrable + reserved + locked + allocated,
-      reserved: accountBalance.reserved,
-      reservedDetails,
-      locked: accountBalance.locked,
-      lockedDetails,
-      location: {
-        total: BigInt(total.toString()),
-        location: this.chainInfo.id,
-        decimals: this.asset.decimals,
-      },
-    }
-  }
+  //   return {
+  //     transferrable: accountBalance.transferrable,
+  //     allocated: vestingBalance?.locked || 0n,
+  //     total: BigInt(total.toString()), // transferrable + reserved + locked + allocated,
+  //     reserved: accountBalance.reserved,
+  //     reservedDetails,
+  //     locked: accountBalance.locked,
+  //     lockedDetails,
+  //     location: {
+  //       total: BigInt(total.toString()),
+  //       location: this.chainInfo.id,
+  //       decimals: this.asset.decimals,
+  //     },
+  //   }
+  // }
 
   async getAssets() {
     const api = this.client.getTypedApi(

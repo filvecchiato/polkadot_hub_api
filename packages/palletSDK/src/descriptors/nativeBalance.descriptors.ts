@@ -1,10 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import { SdkDefinition } from "@polkadot-api/common-sdk-utils"
-import {
-  BalancesTypesReasons,
-  PreimagePalletHoldReason,
-  WestendRuntimeRuntimeFreezeReason,
-} from "@polkadot-hub-api/descriptors"
+import { BalancesTypesReasons } from "@polkadot-hub-api/descriptors"
 import {
   ApisTypedef,
   FixedSizeBinary,
@@ -52,19 +48,94 @@ export type I7lf1val3vmpq0 = AnonymousEnum<{
   SlashForMigrate: undefined
 }>
 
-export type HoldId = AnonymousEnum<{
-  Preimage: PreimagePalletHoldReason
-  DelegatedStaking: Ib6ve2drlnapui
-  StateTrieMigration: I7lf1val3vmpq0
-}>
+// export type HoldId = AnonymousEnum<{
+//   Preimage: PreimagePalletHoldReason
+//   DelegatedStaking: Ib6ve2drlnapui
+//   StateTrieMigration: I7lf1val3vmpq0
+// }>
 
+export type HoldReason = AnonymousEnum<{
+  isCouncil: boolean
+  asCouncil: AnonymousEnum<{
+    isProposalSubmission: boolean
+    type: "ProposalSubmission"
+  }>
+  isTechnicalCommittee: boolean
+  asTechnicalCommittee: AnonymousEnum<{
+    isProposalSubmission: boolean
+    type: "ProposalSubmission"
+  }>
+  isContracts: boolean
+  asContracts: AnonymousEnum<{
+    isCodeUploadDepositReserve: boolean
+    isStorageDepositReserve: boolean
+    type: "CodeUploadDepositReserve" | "StorageDepositReserve"
+  }>
+  isPreimage: boolean
+  asPreimage: AnonymousEnum<{
+    isPreimage: boolean
+    type: "Preimage"
+  }>
+  isNis: boolean
+  asNis: AnonymousEnum<{
+    isNftReceipt: boolean
+    type: "NftReceipt"
+  }>
+  isNftFractionalization: boolean
+  asNftFractionalization: AnonymousEnum<{
+    isFractionalized: boolean
+    type: "Fractionalized"
+  }>
+  isTransactionStorage: boolean
+  asTransactionStorage: AnonymousEnum<{
+    isStorageFeeHold: boolean
+    type: "StorageFeeHold"
+  }>
+  isStateTrieMigration: boolean
+  asStateTrieMigration: AnonymousEnum<{
+    isSlashForMigrate: boolean
+    type: "SlashForMigrate"
+  }>
+  isAllianceMotion: boolean
+  asAllianceMotion: AnonymousEnum<{
+    isProposalSubmission: boolean
+    type: "ProposalSubmission"
+  }>
+  isSafeMode: boolean
+  asSafeMode: AnonymousEnum<{
+    isEnterOrExtend: boolean
+    type: "EnterOrExtend"
+  }>
+  isRevive: boolean
+  asRevive: AnonymousEnum<{
+    isCodeUploadDepositReserve: boolean
+    isStorageDepositReserve: boolean
+    isAddressMapping: boolean
+    type:
+      | "CodeUploadDepositReserve"
+      | "StorageDepositReserve"
+      | "AddressMapping"
+  }>
+  type:
+    | "Council"
+    | "TechnicalCommittee"
+    | "Contracts"
+    | "Preimage"
+    | "Nis"
+    | "NftFractionalization"
+    | "TransactionStorage"
+    | "StateTrieMigration"
+    | "AllianceMotion"
+    | "SafeMode"
+    | "Revive"
+}>
 export type HoldData = {
-  id: HoldId
+  id: HoldReason
   amount: bigint
 }
 export type HoldsArray = Array<HoldData>
 export type FreezeData = {
-  id: WestendRuntimeRuntimeFreezeReason
+  id: HoldReason
   amount: bigint
 }
 export type FreezesArray = Array<FreezeData>
