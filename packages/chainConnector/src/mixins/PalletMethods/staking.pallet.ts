@@ -1,13 +1,18 @@
-import { ChainConnector } from "@/index"
-import { CompatibilityLevel, SS58String } from "polkadot-api"
+import { AllDescriptors, ChainConnector } from "@/index"
+import { CompatibilityLevel, SS58String, TypedApi } from "polkadot-api"
 
 export interface StakingPalletMethods {
-  staking_getAccountBalance(account: SS58String[]): Promise<{
-    total: bigint
-    transferrable: bigint
-    reserved: bigint
-    locked: bigint
-  }>
+  staking_getAccountBalance(account: SS58String[]): Promise<
+    {
+      stash: SS58String
+      total: bigint
+      active: bigint
+      unlocking: Array<{
+        value: bigint
+        era: number
+      }>
+    }[]
+  >
 }
 
 export function StakingPalletMixin<T extends ChainConnector>(
@@ -20,56 +25,59 @@ export function StakingPalletMixin<T extends ChainConnector>(
     return Base as T & StakingPalletMethods
   }
   return Object.assign(Base, {
-    async staking_getAccountBalance(account: SS58String[]): Promise<{
-      total: bigint
-      transferrable: bigint
-      reserved: bigint
-      locked: bigint
-    }> {
+    async staking_getAccountBalance(account: SS58String[]) {
       if (account.length === 0) {
         throw new Error("No account provided")
       }
+      const typedApi = Base.api as unknown as TypedApi<AllDescriptors>
 
-      const balance_Account = Base.api.query.System.Account
+      if (!typedApi.query.Staking) {
+        throw new Error("Staking pallet is not available in the API")
+      }
+
+      const staking_Bonded = typedApi.query.Staking.Bonded
 
       if (
-        !balance_Account.isCompatible(
+        !staking_Bonded.isCompatible(
           CompatibilityLevel.BackwardsCompatible,
           Base.compatibilityToken,
         )
       ) {
         throw new Error(
-          "System.Account is not compatible with the current runtime",
+          "Staking.Bonded is not compatible with the current runtime",
         )
       }
 
-      const balance = await balance_Account.getValues(account.map((a) => [a]))
+      const stash = await staking_Bonded
+        .getValues(account.map((a) => [a]))
+        .then((data) => data.filter((s) => s !== undefined).map((s) => s!))
 
-      return balance.reduce(
-        (
-          acc: {
-            transferrable: bigint
-            reserved: bigint
-            locked: bigint
-            total: bigint
-          },
-          b: { data: { free: bigint; reserved: bigint; frozen: bigint } },
-        ) => {
-          const { free, reserved, frozen } = b.data
-          return {
-            total: acc.total + BigInt(free) + BigInt(reserved),
-            transferrable: acc.transferrable + BigInt(free) - BigInt(frozen),
-            reserved: acc.reserved + BigInt(reserved),
-            locked: acc.locked + BigInt(frozen),
-          }
-        },
-        {
-          total: BigInt(0),
-          transferrable: BigInt(0),
-          reserved: BigInt(0),
-          locked: BigInt(0),
-        },
-      )
+      if (stash.length === 0) {
+        return []
+      }
+      const staking_Ledger = typedApi.query.Staking.Ledger
+      if (
+        !staking_Ledger.isCompatible(
+          CompatibilityLevel.BackwardsCompatible,
+          Base.compatibilityToken,
+        )
+      ) {
+        throw new Error(
+          "Staking.Ledger is not compatible with the current runtime",
+        )
+      }
+      const ledgers = await staking_Ledger
+        .getValues(stash.map((s) => [s!]))
+        .then((data) => data.filter((l) => l !== undefined).map((l) => l!))
+
+      const stashAccounts = ledgers.map((s) => ({
+        stash: s.stash,
+        total: s.total,
+        active: s.active,
+        unlocking: s.unlocking,
+      }))
+
+      return stashAccounts
     },
   })
 }
