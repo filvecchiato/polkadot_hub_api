@@ -1,5 +1,4 @@
 import {
-  CompatibilityLevel,
   CompatibilityToken,
   PolkadotClient,
   // SS58String,
@@ -13,22 +12,14 @@ import type {
   TChain,
 } from "./types"
 import { DESCRIPTORS /*DESCRIPTORS_POLKADOT*/ } from "./constants"
-import type { AllAssetsSdkTypedApi } from "@polkadot-hub-api/pallet-sdk"
 import {
-  AssetsMixin,
+  AssetsApiMixin,
+  AssetsPalletMixin,
   BalancesPalletMixin,
   StakingPalletMixin,
   SystemPalletMixin,
   VestingPalletMixin,
 } from "./mixins"
-// import {
-//   balances_getAccountBalance,
-//   staking_getAccountBalance,
-//   system_getAccountBalance,
-// } from "@polkadot-hub-api/pallet-sdk"
-// import { vesting_getAccountBalance } from "@polkadot-hub-api/pallet-sdk"
-// // import { NativeBalanceSdkTypedApi } from "./descriptors/nativeBalanceDescriptors"
-// import { BN } from "@polkadot/util"
 
 export * from "./types"
 export * from "./constants"
@@ -95,10 +86,14 @@ export class ChainConnector {
     // ALWAYS enhance with methods first and then with APIs
     // mixin Pallet methods
     current = VestingPalletMixin(
-      StakingPalletMixin(BalancesPalletMixin(SystemPalletMixin(current))),
+      VestingPalletMixin(
+        StakingPalletMixin(
+          AssetsPalletMixin(BalancesPalletMixin(SystemPalletMixin(current))),
+        ),
+      ),
     )
     // mixing assetsAPI
-    current = AssetsMixin(current)
+    current = AssetsApiMixin(current)
     this.instance = current as ComposedChainClass
     return this.instance
   }
@@ -253,36 +248,6 @@ export class ChainConnector {
   //     },
   //   }
   // }
-
-  async getAssets() {
-    const api = this.client.getTypedApi(
-      this.descriptors,
-    ) as unknown as AllAssetsSdkTypedApi
-
-    const queryAssets = api.query.Assets.Asset
-    const queryPoolAssets = api.query.PoolAssets.Asset
-    const [assets, pool] = await Promise.allSettled([
-      this.pallets.includes("Assets") &&
-      queryAssets.isCompatible(
-        CompatibilityLevel.BackwardsCompatible,
-        this.compatibilityToken,
-      )
-        ? api.query.Assets.Asset.getEntries()
-        : [],
-      this.pallets.includes("PoolAssets") &&
-      queryPoolAssets.isCompatible(
-        CompatibilityLevel.BackwardsCompatible,
-        this.compatibilityToken,
-      )
-        ? api.query.PoolAssets.Asset.getEntries()
-        : [],
-    ])
-
-    return {
-      assets: assets.status === "fulfilled" ? assets.value : [],
-      pool: pool.status === "fulfilled" ? pool.value : [],
-    }
-  }
 
   static async getInitChainInfo(
     client: PolkadotClient,

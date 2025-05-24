@@ -19,24 +19,10 @@ import {
 } from "@polkadot-hub-api/descriptors"
 import {
   TDescriptors,
-  TDescriptorsAssetHub,
   TDescriptorsKusama,
   TDescriptorsPolkadot,
-  TDescriptorsRelay,
   TDescriptorsWestend,
 } from "./types"
-
-export const DESCRIPTORS_RELAY: TDescriptorsRelay = {
-  polkadot,
-  kusama,
-  westend,
-}
-
-export const DESCRIPTORS_ASSET_HUB: TDescriptorsAssetHub = {
-  kah,
-  wah,
-  pah,
-}
 
 // TODO add other system chains
 export const DESCRIPTORS: TDescriptors = {

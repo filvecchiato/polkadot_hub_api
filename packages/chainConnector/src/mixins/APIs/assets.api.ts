@@ -9,7 +9,7 @@ export interface AssetsApiClass {
   getBalances(): Promise<unknown>
 }
 
-export function AssetsMixin<T extends PalletComposedChain>(
+export function AssetsApiMixin<T extends PalletComposedChain>(
   Base: T,
 ): T & AssetsApiClass {
   if (!Base.pallets.includes("Balances") || !Base.pallets.includes("System")) {
