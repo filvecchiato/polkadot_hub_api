@@ -19,20 +19,21 @@ describe("account queries", () => {
     expect(account).toBeDefined()
     expect(account.listAddresses()).not.toHaveLength(0)
 
-    await account.balance(wsConnector)
-    // expect(balances?.total).toEqual(
-    //   balances?.transferrable + balances?.reserved + balances?.locked,
-    // )
-    // expect(balances).toBeDefined()
-    // const totLocations = balances.locations.reduce(
-    //   (acc: bigint, loc) => acc + loc.total,
-    //   0n,
-    // )
+    const balances = await account.balance(wsConnector)
+    expect(balances?.total).toEqual(
+      balances?.transferrable + balances?.reserved + balances?.locked,
+    )
+    console.log("Balances:", balances)
+    expect(balances).toBeDefined()
+    const totLocations = balances?.locations?.reduce(
+      (acc: bigint, loc) => acc + loc.total,
+      0n,
+    )
 
-    // expect(balances.total).toEqual(totLocations)
+    expect(balances?.total).toEqual(totLocations)
 
-    // expect(balances).toHaveProperty("total")
-    // expect(balances).toHaveProperty("reserved")
-    // expect(balances).toHaveProperty("locked")
+    expect(balances).toHaveProperty("total")
+    expect(balances).toHaveProperty("reserved")
+    expect(balances).toHaveProperty("locked")
   }, 50000)
 })

@@ -53,13 +53,14 @@ export class Account {
 
       const balances =
         "balanceOf" in chainConnector &&
-        ((await chainConnector.balanceOf!(this.addresses)) as object)
+        (await chainConnector.balanceOf!(this.addresses))
       if (!balances) {
-        return {}
-      }
-      return {
-        ...balances,
-        locations: [],
+        throw new Error(`Chain ${chain} does not support balanceOf method`)
+      } else {
+        return {
+          ...balances,
+          locations: [balances.location],
+        }
       }
     } else {
       const balances = await Promise.allSettled(

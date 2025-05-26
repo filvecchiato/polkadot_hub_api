@@ -1,8 +1,24 @@
 import { type SS58String } from "polkadot-api"
-import type { PalletComposedChain } from "../../index"
+import type { PalletComposedChain, TDescriptors } from "../../index"
 
 export interface AssetsApiClass {
-  balanceOf(account: SS58String[]): Promise<unknown>
+  balanceOf(account: SS58String[]): Promise<{
+    total: bigint
+    transferrable: bigint
+    reserved: bigint
+    locked: bigint
+    reservedDetails: { value: bigint; id: string }[]
+    lockedDetails: {
+      value: bigint
+      id: string
+      reason?: string
+    }[]
+    location: {
+      total: bigint
+      location: keyof TDescriptors
+      decimals: number
+    }
+  }>
   getAssetInfo(): Promise<unknown>
   getAssets(): Promise<unknown>
   getAssetBalance(): Promise<unknown>
@@ -26,17 +42,17 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
       reserved: bigint
       reservedDetails: {
         value: bigint
-        flag: string
+        id: string
       }[]
       lockedDetails: {
         value: bigint
-        flag: string
+        id: string
         timelock?: bigint
       }[]
       locked: bigint
       location: {
         total: bigint
-        location: string
+        location: keyof TDescriptors
         decimals: number
       }
     } {
@@ -68,7 +84,7 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
           ? Base.balances_getAccountBalanceWithDetails!(account)
           : null,
       ])
-      console.log({ sys_Balance, bal_Balance })
+
       if (
         sys_Balance.status === "rejected" &&
         bal_Balance.status === "rejected"
@@ -99,30 +115,33 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
         return this.emptyAccountBalance
       }
 
-      console.log({
-        chain: Base.chainInfo.name,
-        sys_Balance:
-          sys_Balance.status === "fulfilled" ? sys_Balance.value : null,
-        bal_Balance:
-          bal_Balance.status === "fulfilled" ? bal_Balance.value : null,
-      })
-
       // Query Vesting and other balance-related pallets if needed (locks are present)
-      return {}
-      // return {
-      //   transferrable: accountBalance.transferrable,
-      //   allocated: vestingBalance?.locked || 0n,
-      //   total: BigInt(total.toString()), // transferrable + reserved + locked + allocated,
-      //   reserved: accountBalance.reserved,
-      //   reservedDetails,
-      //   locked: accountBalance.locked,
-      //   lockedDetails,
-      //   location: {
-      //     total: BigInt(total.toString()),
-      //     location: this.chainInfo.id,
-      //     decimals: this.asset.decimals,
-      //   },
-      // }
+      return {
+        transferrable: accountBalance.transferrable,
+        allocated: 0n,
+        total:
+          accountBalance.locked +
+          accountBalance.reserved +
+          accountBalance.transferrable, // transferrable + reserved + locked + allocated,
+        reserved: accountBalance.reserved,
+        reservedDetails:
+          bal_Balance.status === "fulfilled"
+            ? bal_Balance.value?.reservedDetails || []
+            : [],
+        locked: accountBalance.locked,
+        lockedDetails:
+          bal_Balance.status === "fulfilled"
+            ? bal_Balance.value?.lockedDetails || []
+            : [],
+        location: {
+          total:
+            accountBalance.locked +
+            accountBalance.reserved +
+            accountBalance.transferrable,
+          location: Base.chainInfo.id,
+          decimals: Base.asset.decimals,
+        },
+      }
     },
 
     async getAssetInfo() {
