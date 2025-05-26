@@ -15,7 +15,7 @@ export function SystemPalletMixin<T extends ChainConnector>(
 ): T & SystemPalletMethods {
   if (!Base.pallets.includes("System")) {
     console.info(
-      "System pallet is not included in the current runtime, skipping System Pallet Methods mixin",
+      `System pallet is not included in the current ${Base.chainInfo.name} runtime, skipping System Pallet Methods mixin.`,
     )
     return Base as T & SystemPalletMethods
   }

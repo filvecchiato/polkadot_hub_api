@@ -10,7 +10,7 @@ export function ForeignAssetsPalletMixin<T extends ChainConnector>(
 ): T & ForeignAssetsPalletMethods {
   if (!Base.pallets.includes("ForeignAssets")) {
     console.info(
-      "Foreign Assets pallet is not included in the current runtime, skipping Foreign Assets Pallet Methods mixin",
+      `Foreign Assets pallet is not included in the current ${Base.chainInfo.name} runtime, skipping Foreign Assets Pallet Methods mixin.`,
     )
     return Base as T & ForeignAssetsPalletMethods
   }

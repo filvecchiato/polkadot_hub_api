@@ -20,7 +20,7 @@ export function StakingPalletMixin<T extends ChainConnector>(
 ): T & StakingPalletMethods {
   if (!Base.pallets.includes("Staking")) {
     console.info(
-      "Staking pallet is not included in the current runtime, skipping Staking Pallet Methods mixin",
+      `Staking pallet is not included in the current ${Base.chainInfo.name} runtime, skipping Staking Pallet Methods mixin.`,
     )
     return Base as T & StakingPalletMethods
   }

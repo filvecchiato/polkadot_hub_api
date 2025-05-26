@@ -14,7 +14,7 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
 ): T & AssetsApiClass {
   if (!Base.pallets.includes("Balances") || !Base.pallets.includes("System")) {
     console.info(
-      "Balances and System pallets are not included in the chain connector, skipping AssetsAPI mixin",
+      `Balances and System pallets are not included in the current ${Base.chainInfo.name} runtime, skipping AssetsAPI mixin`,
     )
     return Base as T & AssetsApiClass
   }

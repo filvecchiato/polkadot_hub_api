@@ -1,5 +1,5 @@
 import { ChainConnector } from "@/index"
-import { CompatibilityLevel, FixedSizeBinary, SS58String } from "polkadot-api"
+import { CompatibilityLevel, SS58String } from "polkadot-api"
 
 export interface BalancesPalletMethods {
   balances_getAccountBalance(account: SS58String[]): Promise<{
@@ -13,10 +13,10 @@ export interface BalancesPalletMethods {
     transferrable: bigint
     reserved: bigint
     locked: bigint
-    reservedDetails: { value: bigint; id: FixedSizeBinary<8> }[]
+    reservedDetails: { value: bigint; id: string }[]
     lockedDetails: {
       value: bigint
-      id: FixedSizeBinary<8>
+      id: string
       reason?: string
     }[]
     freezesDetails: { value: bigint }[]
@@ -29,7 +29,7 @@ export function BalancesPalletMixin<T extends ChainConnector>(
 ): T & BalancesPalletMethods {
   if (!Base.pallets.includes("Balances")) {
     console.info(
-      "Balances pallet is not included in the current runtime, skipping Balances Pallet Methods mixin",
+      `Balances pallet is not included in the current ${Base.chainInfo.name} runtime, skipping Balances Pallet Methods mixin.`,
     )
     return Base as T & BalancesPalletMethods
   }
@@ -91,10 +91,10 @@ export function BalancesPalletMixin<T extends ChainConnector>(
       transferrable: bigint
       reserved: bigint
       locked: bigint
-      reservedDetails: { value: bigint; id: FixedSizeBinary<8> }[]
+      reservedDetails: { value: bigint; id: string }[]
       lockedDetails: {
         value: bigint
-        id: FixedSizeBinary<8>
+        id: string
         reason?: string
       }[]
       freezesDetails: { value: bigint }[]
@@ -126,7 +126,7 @@ export function BalancesPalletMixin<T extends ChainConnector>(
                 if (r.length === 0) return
                 return {
                   value: r[0].amount,
-                  id: r[0].id,
+                  id: r[0].id.asText(),
                 }
               })
               .filter((reserve) => !!reserve)
@@ -161,7 +161,7 @@ export function BalancesPalletMixin<T extends ChainConnector>(
                 if (l.length === 0) return
                 return {
                   value: l[0].amount,
-                  id: l[0].id,
+                  id: l[0].id.asText(),
                   reason: l[0].reasons.toString(),
                 }
               })

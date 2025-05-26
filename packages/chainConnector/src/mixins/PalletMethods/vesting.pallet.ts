@@ -13,7 +13,7 @@ export function VestingPalletMixin<T extends ChainConnector>(
 ): T & VestingPalletMethods {
   if (!Base.pallets.includes("Vesting")) {
     console.info(
-      "Vesting pallet is not included in the current runtime, skipping Vesting Pallet Methods mixin",
+      `Vesting pallet is not included in the current ${Base.chainInfo.name} runtime, skipping Vesting Pallet Methods mixin.`,
     )
     return Base as T & VestingPalletMethods
   }

@@ -10,7 +10,7 @@ export function AssetsPalletMixin<T extends ChainConnector>(
 ): T & AssetsPalletMethods {
   if (!Base.pallets.includes("Assets")) {
     console.info(
-      "Assets pallet is not included in the current runtime, skipping Assets Pallet Methods mixin",
+      `Assets pallet is not included in the current ${Base.chainInfo.name} runtime, skipping Assets Pallet Methods mixin.`,
     )
     return Base as T & AssetsPalletMethods
   }
