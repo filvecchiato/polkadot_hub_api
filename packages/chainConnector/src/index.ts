@@ -20,6 +20,8 @@ import {
   SystemPalletMixin,
   VestingPalletMixin,
 } from "./mixins"
+import { ForeignAssetsPalletMixin } from "./mixins/PalletMethods/foreignAssets.pallet"
+import { PoolAssetsPalletMixin } from "./mixins/PalletMethods/poolAssets.pallet"
 
 export * from "./types"
 export * from "./constants"
@@ -88,7 +90,13 @@ export class ChainConnector {
     current = VestingPalletMixin(
       VestingPalletMixin(
         StakingPalletMixin(
-          AssetsPalletMixin(BalancesPalletMixin(SystemPalletMixin(current))),
+          AssetsPalletMixin(
+            ForeignAssetsPalletMixin(
+              PoolAssetsPalletMixin(
+                BalancesPalletMixin(SystemPalletMixin(current)),
+              ),
+            ),
+          ),
         ),
       ),
     )

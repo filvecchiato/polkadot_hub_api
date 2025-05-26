@@ -27,6 +27,8 @@ import {
   SystemPalletMethods,
   VestingPalletMethods,
 } from "./mixins"
+import { PoolAssetsPalletMethods } from "./mixins/PalletMethods/poolAssets.pallet"
+import { ForeignAssetsPalletMethods } from "./mixins/PalletMethods/foreignAssets.pallet"
 
 export type TDescriptorsRelay = {
   polkadot: typeof polkadot
@@ -137,6 +139,8 @@ export type PalletComposedChain = ChainConnector &
       BalancesPalletMethods &
       VestingPalletMethods &
       StakingPalletMethods &
-      AssetsPalletMethods
+      AssetsPalletMethods &
+      PoolAssetsPalletMethods &
+      ForeignAssetsPalletMethods
   >
 export type ComposedChainClass = PalletComposedChain & Partial<AssetsApiClass>
