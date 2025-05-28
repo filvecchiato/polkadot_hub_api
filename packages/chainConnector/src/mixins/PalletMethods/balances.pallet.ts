@@ -118,55 +118,53 @@ export function BalancesPalletMixin<T extends ChainConnector>(
       }
 
       const { total, transferrable, reserved, locked } = balance.value
-
       const reservedDetails =
         reserves.status === "fulfilled"
           ? reserves.value
               .map((r) => {
-                if (r.length === 0) return
-                return {
-                  value: r[0].amount,
-                  id: r[0].id.asText(),
-                }
+                return r.map((reserve) => ({
+                  value: reserve.amount,
+                  id: reserve.id.asText().trim(),
+                }))
               })
-              .filter((reserve) => !!reserve)
+              .flat()
           : []
 
       const freezesDetails =
         freezes.status === "fulfilled"
           ? freezes.value
               .map((f) => {
-                if (f.length === 0) return
-                return {
-                  value: f[0].amount,
-                }
+                return f.map((freeze) => ({
+                  value: freeze.amount,
+                }))
               })
-              .filter((f) => !!f)
+              .flat()
           : []
       const holdsDetails =
         holds.status === "fulfilled"
           ? holds.value
               .map((h) => {
-                if (h.length === 0) return
-                return {
-                  value: h[0].amount,
-                }
+                return h.map((hold) => ({
+                  value: hold.amount,
+                }))
               })
-              .filter((h) => !!h)
+              .flat()
           : []
       const lockedDetails =
         locks.status === "fulfilled"
           ? locks.value
               .map((l) => {
-                if (l.length === 0) return
-                return {
-                  value: l[0].amount,
-                  id: l[0].id.asText(),
-                  reason: l[0].reasons.toString(),
-                }
+                return l.map((lock) => {
+                  return {
+                    value: lock.amount,
+                    id: lock.id.asText().trim(),
+                    reason: lock.reasons.type,
+                  }
+                })
               })
-              .filter((lock) => !!lock) // filter out empty locks
+              .flat()
           : []
+
       return {
         total,
         transferrable,

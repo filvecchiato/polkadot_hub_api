@@ -91,6 +91,7 @@ export class Account {
               locked,
               location,
               lockedDetails,
+              reservedDetails,
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } = balance.value as any
             acc.transferrable += BigInt(transferrable)
@@ -98,6 +99,7 @@ export class Account {
             acc.locked += BigInt(locked)
             acc.total += BigInt(total)
             acc.lockedDetails.push(...lockedDetails)
+            reservedDetails.push(...reservedDetails)
             acc.locations.push(location)
           }
           return acc
@@ -112,6 +114,7 @@ export class Account {
             flag: string
             timelock?: bigint
           }[],
+          reservedDetails: [] as { value: bigint; id: string }[],
           locations: [] as {
             total: bigint
             location: string

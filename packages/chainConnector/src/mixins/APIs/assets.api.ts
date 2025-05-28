@@ -116,6 +116,24 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
       }
 
       // Query Vesting and other balance-related pallets if needed (locks are present)
+
+      const locks = []
+      // const reserved = []
+
+      if (balancesValue?.lockedDetails) {
+        for (const lock of balancesValue.lockedDetails) {
+          const method = `${lock.id}_getAccountBalance`
+          if (method in Base) {
+            const fn = Base[method as keyof typeof Base]
+            if (typeof fn === "function") {
+              locks.push(fn(account))
+            }
+          }
+        }
+      }
+
+      const locksData = await Promise.allSettled(locks)
+      console.log("res", locksData)
       return {
         transferrable: accountBalance.transferrable,
         allocated: 0n,
@@ -131,7 +149,8 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
         locked: accountBalance.locked,
         lockedDetails:
           bal_Balance.status === "fulfilled"
-            ? bal_Balance.value?.lockedDetails || []
+            ? // TODO: if data in lock add a call back to get details of lock
+              bal_Balance.value?.lockedDetails || []
             : [],
         location: {
           total:
