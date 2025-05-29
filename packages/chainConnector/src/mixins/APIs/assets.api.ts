@@ -11,7 +11,7 @@ export interface AssetsApiClass {
     lockedDetails: {
       value: bigint
       id: string
-      callback?: () => Promise<unknown>
+      details?: () => Promise<unknown>
     }[]
     location: {
       total: bigint
@@ -126,8 +126,9 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
             if (typeof fn === "function") {
               // add the function as a callback to the original object without executing it
               locksDetails.push({
-                ...lock,
-                callback: async () => {
+                value: lock.value || 0n,
+                id: lock.id,
+                details: async () => {
                   return fn(account)
                 },
               })
