@@ -6,6 +6,14 @@ export interface PoolAssetsPalletMethods {
   poolAssets_getAssets(): Promise<{
     poolAssets: TAsset[]
   }>
+  poolAssets_getAssetBalance(
+    account: string[],
+    assetId: number,
+  ): Promise<{
+    id: number
+    pallet: string
+    balances: unknown[]
+  } | null>
 }
 
 export function PoolAssetsPalletMixin<T extends ChainConnector>(
@@ -20,16 +28,16 @@ export function PoolAssetsPalletMixin<T extends ChainConnector>(
   return Object.assign(Base, {
     async poolAssets_getAssets() {
       const api = Base.api as unknown as TypedApi<AllDescriptors>
-      if (!api.query.Assets) {
+      if (!api.query.PoolAssets) {
         throw new Error(
           "Pool Assets pallet is not available in the current runtime",
         )
       }
 
-      const assets_asset = api.query.PoolAssets.Asset
+      const poolAssets_asset = api.query.PoolAssets.Asset
 
       if (
-        !assets_asset.isCompatible(
+        !poolAssets_asset.isCompatible(
           CompatibilityLevel.BackwardsCompatible,
           Base.compatibilityToken,
         )
@@ -38,17 +46,62 @@ export function PoolAssetsPalletMixin<T extends ChainConnector>(
           "PoolAssets.Asset is not compatible with the current runtime",
         )
       }
-      const [assets] = await Promise.allSettled([assets_asset.getEntries()])
-
+      const [assets] = await Promise.allSettled([poolAssets_asset.getEntries()])
       return {
         poolAssets:
           assets.status === "fulfilled"
             ? assets.value.map((a) => ({
-                id: a.keyArgs[0].toString(),
+                id: a.keyArgs[0],
                 ...a.value,
               }))
             : [],
       }
+    },
+    async poolAssets_getAssetBalance(account: string[], assetId: number) {
+      const id = typeof assetId === "number" ? assetId : Number(assetId)
+
+      if (account.length === 0) {
+        throw new Error("No account provided")
+      }
+      if (isNaN(id)) {
+        throw new Error("Invalid asset ID provided")
+      }
+
+      const api = Base.api as unknown as TypedApi<AllDescriptors>
+      if (!api.query.Assets) {
+        throw new Error("Assets pallet is not available in the current runtime")
+      }
+
+      const poolAssets_accountBalance = api.query.PoolAssets.Account
+
+      if (
+        !poolAssets_accountBalance.isCompatible(
+          CompatibilityLevel.BackwardsCompatible,
+          Base.compatibilityToken,
+        )
+      ) {
+        throw new Error(
+          "Assets.Account is not compatible with the current runtime",
+        )
+      }
+
+      const balances = await poolAssets_accountBalance.getValues(
+        account.map((a) => [id, a]),
+      )
+      const cleanedBalances = balances.filter(
+        (b) => b !== undefined && b !== null,
+      )
+
+      return cleanedBalances.length > 0
+        ? {
+            id: id,
+            pallet: "PoolAssets",
+            balances: cleanedBalances.map((b, i) => ({
+              address: account[i],
+              ...b,
+            })),
+          }
+        : null
     },
   })
 }

@@ -1,7 +1,7 @@
 import { SS58String } from "polkadot-api"
 
 export type TAsset = {
-  id: string
+  id: number
   owner: SS58String
   issuer: SS58String
   admin: SS58String

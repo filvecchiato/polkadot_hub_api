@@ -13,8 +13,9 @@ describe("account queries", () => {
     expect(wsConnector.getStatus()).toBe("connected")
 
     const account = new Account([
-      // "15Q7FYu3X5gphRvL58kkVQD6sa4LvT3PKNo8615HtSo2MQAS",
       "13aUbVbnthMvYuSLUbfK6eTQWaDWLriRrP89ExD17Ep19BkK",
+      "12dvmstTqsjrPrPdouMpbsgaaQjPGYFh7gMaiNgZ7Rzaacok",
+      "16bZYfxvkUGT5WbjwyJkEmZYAsBdZhMeonnaxtcuUrhzpKHm",
     ])
     expect(account).toBeDefined()
     expect(account.listAddresses()).not.toHaveLength(0)
@@ -37,14 +38,14 @@ describe("account queries", () => {
 
     for (const chain of wsConnector.getChains()) {
       const chainConnector = wsConnector.getChain(chain)
-      if (chainConnector?.getAssets) {
-        const assets = await chainConnector?.getAssets()
-        const sortedAssets =
-          assets.assets?.sort((a, b) => b.accounts - a.accounts) || []
-        sortedAssets.length = 20
-      } else {
-        console.log(`Chain ${chain} does not support getAssets method`)
+      if (chainConnector && "getBalances" in chainConnector) {
+        const balances = await chainConnector?.getBalances!(
+          account.listAddresses(),
+        )
+        console.dir(balances, { depth: null })
       }
     }
-  }, 50000)
+
+    // await
+  }, 550000)
 })

@@ -6,6 +6,14 @@ export interface AssetsPalletMethods {
   assets_getAssets(): Promise<{
     assets: TAsset[]
   }>
+  assets_getAssetBalance(
+    account: string[],
+    assetId: number,
+  ): Promise<{
+    id: number
+    pallet: string
+    balances: unknown[]
+  } | null>
 }
 
 export function AssetsPalletMixin<T extends ChainConnector>(
@@ -42,11 +50,57 @@ export function AssetsPalletMixin<T extends ChainConnector>(
         assets:
           assets.status === "fulfilled"
             ? assets.value.map((a) => ({
-                id: a.keyArgs[0].toString(),
+                id: a.keyArgs[0],
                 ...a.value,
               }))
             : [],
       }
+    },
+    async assets_getAssetBalance(account: string[], assetId: string | number) {
+      const id = typeof assetId === "number" ? assetId : Number(assetId)
+
+      if (account.length === 0) {
+        throw new Error("No account provided")
+      }
+      if (isNaN(id)) {
+        throw new Error("Invalid asset ID provided")
+      }
+
+      const api = Base.api as unknown as TypedApi<AllDescriptors>
+      if (!api.query.Assets) {
+        throw new Error("Assets pallet is not available in the current runtime")
+      }
+
+      const assets_accountBalance = api.query.Assets.Account
+
+      if (
+        !assets_accountBalance.isCompatible(
+          CompatibilityLevel.BackwardsCompatible,
+          Base.compatibilityToken,
+        )
+      ) {
+        throw new Error(
+          "Assets.Account is not compatible with the current runtime",
+        )
+      }
+
+      const balances = await assets_accountBalance.getValues(
+        account.map((a) => [id, a]),
+      )
+      const cleanedBalances = balances.filter(
+        (b) => b !== undefined && b !== null,
+      )
+
+      return cleanedBalances.length > 0
+        ? {
+            id: id,
+            pallet: "Assets",
+            balances: cleanedBalances.map((b, i) => ({
+              address: account[i],
+              ...b,
+            })),
+          }
+        : null
     },
   })
 }

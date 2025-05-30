@@ -26,7 +26,7 @@ export interface AssetsApiClass {
     poolAssets?: TAsset[]
   }>
   getAssetBalance(): Promise<unknown>
-  getBalances(): Promise<unknown>
+  getBalances(account: SS58String[]): Promise<unknown>
 }
 
 export function AssetsApiMixin<T extends PalletComposedChain>(
@@ -200,7 +200,11 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
           poolAssets,
         }
       },
-      async getAssetBalance(account: SS58String[], assetId: string | number) {
+      async getAssetBalance(
+        account: SS58String[],
+        assetId: string | number,
+        type?: "assets" | "poolAssets",
+      ) {
         const id = typeof assetId === "number" ? assetId : Number(assetId)
 
         if (account.length === 0) {
@@ -209,21 +213,42 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
         if (isNaN(id)) {
           throw new Error("Invalid asset ID provided")
         }
-
+        const balances = []
         if ("assets_getAssetBalance" in Base) {
           // try assets pallet
+
+          if (!type || type === "assets") {
+            balances.push(Base.assets_getAssetBalance!(account, id))
+          }
         }
 
         if ("poolAssets_getAssetBalance" in Base) {
           // try pool assets pallet
+          if (!type || type === "poolAssets") {
+            balances.push(Base.poolAssets_getAssetBalance!(account, id))
+          }
         }
-        if ("foreignAssets_getAssetBalance" in Base) {
-          // try foreign assets pallet
-        }
-        throw new Error("getAssetBalance is not implemented")
+
+        const balancesData = await Promise.all(balances)
+
+        const data = balancesData.filter((b) => b !== null && b !== undefined)
+        return data.length > 0 ? data : null
       },
-      async getBalances() {
-        throw new Error("getBalances is not implemented")
+      async getBalances(account: SS58String[]) {
+        // getassets, then traverse top assets and poolAssets to find balances of account
+        const assets = await this.getAssets()
+        console.log("got assets")
+        const balances = await Promise.allSettled([
+          ...assets.assets.map((asset) => {
+            return this.getAssetBalance(account, asset.id, "assets")
+          }),
+          ...assets.poolAssets.map((asset) => {
+            return this.getAssetBalance(account, asset.id, "poolAssets")
+          }),
+        ])
+        return balances
+          .map((b) => (b.status === "fulfilled" ? b.value : null))
+          .filter((b) => b !== null && b !== undefined)
       },
     })
   } else {
