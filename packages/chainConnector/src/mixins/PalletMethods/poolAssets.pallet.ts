@@ -1,8 +1,11 @@
 import { AllDescriptors, ChainConnector } from "@/index"
 import { CompatibilityLevel, TypedApi } from "polkadot-api"
+import { TAsset } from "./types"
 
 export interface PoolAssetsPalletMethods {
-  poolAssets_getAssets(): Promise<unknown>
+  poolAssets_getAssets(): Promise<{
+    poolAssets: TAsset[]
+  }>
 }
 
 export function PoolAssetsPalletMixin<T extends ChainConnector>(
@@ -15,7 +18,7 @@ export function PoolAssetsPalletMixin<T extends ChainConnector>(
     return Base as T & PoolAssetsPalletMethods
   }
   return Object.assign(Base, {
-    async poolAssets_getAssets(): Promise<unknown> {
+    async poolAssets_getAssets() {
       const api = Base.api as unknown as TypedApi<AllDescriptors>
       if (!api.query.Assets) {
         throw new Error(
@@ -38,7 +41,13 @@ export function PoolAssetsPalletMixin<T extends ChainConnector>(
       const [assets] = await Promise.allSettled([assets_asset.getEntries()])
 
       return {
-        assets: assets.status === "fulfilled" ? assets.value : [],
+        poolAssets:
+          assets.status === "fulfilled"
+            ? assets.value.map((a) => ({
+                id: a.keyArgs[0].toString(),
+                ...a.value,
+              }))
+            : [],
       }
     },
   })

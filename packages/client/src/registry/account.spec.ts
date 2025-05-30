@@ -23,7 +23,6 @@ describe("account queries", () => {
     expect(balances?.total).toEqual(
       balances?.transferrable + balances?.reserved + balances?.locked,
     )
-    console.log("Balances:", balances)
     expect(balances).toBeDefined()
     const totLocations = balances?.locations?.reduce(
       (acc: bigint, loc) => acc + loc.total,
@@ -35,5 +34,17 @@ describe("account queries", () => {
     expect(balances).toHaveProperty("total")
     expect(balances).toHaveProperty("reserved")
     expect(balances).toHaveProperty("locked")
+
+    for (const chain of wsConnector.getChains()) {
+      const chainConnector = wsConnector.getChain(chain)
+      if (chainConnector?.getAssets) {
+        const assets = await chainConnector?.getAssets()
+        const sortedAssets =
+          assets.assets?.sort((a, b) => b.accounts - a.accounts) || []
+        sortedAssets.length = 20
+      } else {
+        console.log(`Chain ${chain} does not support getAssets method`)
+      }
+    }
   }, 50000)
 })

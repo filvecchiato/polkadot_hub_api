@@ -1,5 +1,6 @@
 import { type SS58String } from "polkadot-api"
 import type { PalletComposedChain, TDescriptors } from "../../index"
+import { TAsset } from "../PalletMethods/types"
 
 export interface AssetsApiClass {
   balanceOf(account: SS58String[]): Promise<{
@@ -20,7 +21,10 @@ export interface AssetsApiClass {
     }
   }>
   getAssetInfo(): Promise<unknown>
-  getAssets(): Promise<unknown>
+  getAssets(): Promise<{
+    assets?: TAsset[]
+    poolAssets?: TAsset[]
+  }>
   getAssetBalance(): Promise<unknown>
   getBalances(): Promise<unknown>
 }
@@ -166,9 +170,56 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
         throw new Error("getAssetInfo is not implemented")
       },
       async getAssets() {
-        throw new Error("getAssets is not implemented")
+        const assetsPromises = []
+
+        if ("assets_getAssets" in Base) {
+          assetsPromises.push(Base.assets_getAssets!())
+        }
+        if ("poolAssets_getAssets" in Base) {
+          assetsPromises.push(Base.poolAssets_getAssets!())
+        }
+        // if ("foreignAssets_getAssets" in Base) {
+        //   assetsPromises.push(Base.foreignAssets_getAssets!())
+        // }
+        const assets = await Promise.allSettled(assetsPromises)
+
+        const successfulAssets = assets
+          .map((a) => (a.status === "fulfilled" ? a.value : null))
+          .filter((a) => a !== null)
+
+        const assetsPallet =
+          successfulAssets.find((a) => "assets" in a)?.assets || []
+        // const foreignAssets =
+        //   successfulAssets.find((a) => "foreignAssets" in a)?.foreignAssets ||
+        //   []
+        const poolAssets =
+          successfulAssets.find((a) => "poolAssets" in a)?.poolAssets || []
+
+        return {
+          assets: assetsPallet,
+          poolAssets,
+        }
       },
-      async getAssetBalance() {
+      async getAssetBalance(account: SS58String[], assetId: string | number) {
+        const id = typeof assetId === "number" ? assetId : Number(assetId)
+
+        if (account.length === 0) {
+          throw new Error("No account provided")
+        }
+        if (isNaN(id)) {
+          throw new Error("Invalid asset ID provided")
+        }
+
+        if ("assets_getAssetBalance" in Base) {
+          // try assets pallet
+        }
+
+        if ("poolAssets_getAssetBalance" in Base) {
+          // try pool assets pallet
+        }
+        if ("foreignAssets_getAssetBalance" in Base) {
+          // try foreign assets pallet
+        }
         throw new Error("getAssetBalance is not implemented")
       },
       async getBalances() {

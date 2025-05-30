@@ -2,7 +2,9 @@ import { AllDescriptors, ChainConnector } from "@/index"
 import { CompatibilityLevel, TypedApi } from "polkadot-api"
 
 export interface ForeignAssetsPalletMethods {
-  foreignAssets_getAssets(): Promise<unknown>
+  foreignAssets_getAssets(): Promise<{
+    foreignAssets: object[]
+  }>
 }
 
 export function ForeignAssetsPalletMixin<T extends ChainConnector>(
@@ -15,7 +17,7 @@ export function ForeignAssetsPalletMixin<T extends ChainConnector>(
     return Base as T & ForeignAssetsPalletMethods
   }
   return Object.assign(Base, {
-    async foreignAssets_getAssets(): Promise<unknown> {
+    async foreignAssets_getAssets() {
       const api = Base.api as unknown as TypedApi<AllDescriptors>
       if (!api.query.Assets) {
         throw new Error(
@@ -38,7 +40,7 @@ export function ForeignAssetsPalletMixin<T extends ChainConnector>(
       const [assets] = await Promise.allSettled([assets_asset.getEntries()])
 
       return {
-        assets: assets.status === "fulfilled" ? assets.value : [],
+        foreignAssets: assets.status === "fulfilled" ? assets.value : [],
       }
     },
   })

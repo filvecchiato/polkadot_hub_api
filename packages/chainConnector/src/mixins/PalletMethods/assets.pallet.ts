@@ -1,8 +1,11 @@
 import { AllDescriptors, ChainConnector } from "@/index"
 import { CompatibilityLevel, TypedApi } from "polkadot-api"
+import { TAsset } from "./types"
 
 export interface AssetsPalletMethods {
-  assets_getAssets(): Promise<unknown>
+  assets_getAssets(): Promise<{
+    assets: TAsset[]
+  }>
 }
 
 export function AssetsPalletMixin<T extends ChainConnector>(
@@ -15,7 +18,7 @@ export function AssetsPalletMixin<T extends ChainConnector>(
     return Base as T & AssetsPalletMethods
   }
   return Object.assign(Base, {
-    async assets_getAssets(): Promise<unknown> {
+    async assets_getAssets() {
       const api = Base.api as unknown as TypedApi<AllDescriptors>
       if (!api.query.Assets) {
         throw new Error("Assets pallet is not available in the current runtime")
@@ -36,7 +39,13 @@ export function AssetsPalletMixin<T extends ChainConnector>(
       const [assets] = await Promise.allSettled([assets_asset.getEntries()])
 
       return {
-        assets: assets.status === "fulfilled" ? assets.value : [],
+        assets:
+          assets.status === "fulfilled"
+            ? assets.value.map((a) => ({
+                id: a.keyArgs[0].toString(),
+                ...a.value,
+              }))
+            : [],
       }
     },
   })
