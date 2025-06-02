@@ -1,5 +1,5 @@
 import { AllDescriptors, ChainConnector } from "@/index"
-import { CompatibilityLevel, TypedApi } from "polkadot-api"
+import { CompatibilityLevel, Enum, SS58String, TypedApi } from "polkadot-api"
 import { TAsset } from "./types"
 
 export interface PoolAssetsPalletMethods {
@@ -14,6 +14,21 @@ export interface PoolAssetsPalletMethods {
     pallet: string
     balances: unknown[]
   } | null>
+  poolAssets_getAssetsBalance(account: string[]): Promise<
+    {
+      id: number
+      pallet: string
+      balance: bigint
+      status: Enum<{ Liquid: undefined; Frozen: undefined; Blocked: undefined }>
+      reason?: Enum<{
+        Consumer: undefined
+        Sufficient: undefined
+        DepositHeld: bigint
+        DepositRefunded: undefined
+        DepositFrom: [SS58String, bigint]
+      }>
+    }[]
+  >
 }
 
 export function PoolAssetsPalletMixin<T extends ChainConnector>(
@@ -102,6 +117,51 @@ export function PoolAssetsPalletMixin<T extends ChainConnector>(
             })),
           }
         : null
+    },
+    async poolAssets_getAssetsBalance(account: string[]) {
+      if (account.length === 0) {
+        throw new Error("No account provided")
+      }
+
+      if (account.length > 1) {
+        throw new Error("Only one address is supported at a time")
+      }
+
+      const api = Base.api as unknown as TypedApi<AllDescriptors>
+      if (!api.query.Assets) {
+        throw new Error("Assets pallet is not available in the current runtime")
+      }
+
+      const assets_Account = api.query.Assets.Account
+
+      if (
+        !assets_Account.isCompatible(
+          CompatibilityLevel.BackwardsCompatible,
+          Base.compatibilityToken,
+        )
+      ) {
+        throw new Error(
+          "Assets.Asset is not compatible with the current runtime",
+        )
+      }
+
+      const assets = await this.poolAssets_getAssets()
+
+      const balances = await assets_Account.getValues(
+        assets.poolAssets.map((a) => [a.id, account[0]]),
+      )
+      return balances
+        .map((b, i) => {
+          if (b === undefined || b === null) {
+            return null
+          }
+          return {
+            id: assets.poolAssets[i].id,
+            pallet: "PoolAssets",
+            ...b,
+          }
+        })
+        .filter((b) => b !== undefined && b !== null)
     },
   })
 }

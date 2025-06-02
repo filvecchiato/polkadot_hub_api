@@ -228,27 +228,21 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
             balances.push(Base.poolAssets_getAssetBalance!(account, id))
           }
         }
-
         const balancesData = await Promise.all(balances)
 
         const data = balancesData.filter((b) => b !== null && b !== undefined)
         return data.length > 0 ? data : null
       },
       async getBalances(account: SS58String[]) {
-        // getassets, then traverse top assets and poolAssets to find balances of account
-        const assets = await this.getAssets()
-        console.log("got assets")
         const balances = await Promise.allSettled([
-          ...assets.assets.map((asset) => {
-            return this.getAssetBalance(account, asset.id, "assets")
-          }),
-          ...assets.poolAssets.map((asset) => {
-            return this.getAssetBalance(account, asset.id, "poolAssets")
-          }),
+          "assets_getAssetsBalance" in Base
+            ? Base.assets_getAssetsBalance!(account)
+            : Promise.reject(),
+          "poolAssets_getAssetsBalance" in Base
+            ? Base.poolAssets_getAssetsBalance!(account)
+            : Promise.reject(),
         ])
-        return balances
-          .map((b) => (b.status === "fulfilled" ? b.value : null))
-          .filter((b) => b !== null && b !== undefined)
+        return balances.map((b) => (b.status === "fulfilled" ? b.value : null))
       },
     })
   } else {
