@@ -1,11 +1,19 @@
 import { AllDescriptors, ChainConnector } from "@/index"
-import { CompatibilityLevel, Enum, SS58String, TypedApi } from "polkadot-api"
-import { TAsset } from "./types"
+import { CompatibilityLevel, TypedApi } from "polkadot-api"
+import { TAddressAssetBalance, TAsset } from "./types"
 
 export interface AssetsPalletMethods {
-  assets_getAssets(): Promise<{
+  assets_getAssets(assetId?: number): Promise<{
     assets: TAsset[]
   }>
+  assets_getAssetMetadata(assetId: number): Promise<{
+    id: number
+    name: string
+    symbol: string
+    decimals: number
+    deposit: bigint
+    isFrozen: boolean
+  } | null>
   assets_getAssetBalance(
     account: string[],
     assetId: number,
@@ -14,21 +22,7 @@ export interface AssetsPalletMethods {
     pallet: string
     balances: unknown[]
   } | null>
-  assets_getAssetsBalance(account: string[]): Promise<
-    {
-      id: number
-      pallet: string
-      balance: bigint
-      status: Enum<{ Liquid: undefined; Frozen: undefined; Blocked: undefined }>
-      reason?: Enum<{
-        Consumer: undefined
-        Sufficient: undefined
-        DepositHeld: bigint
-        DepositRefunded: undefined
-        DepositFrom: [SS58String, bigint]
-      }>
-    }[]
-  >
+  assets_getAssetsBalance(account: string[]): Promise<TAddressAssetBalance[]>
 }
 
 export function AssetsPalletMixin<T extends ChainConnector>(
@@ -41,7 +35,7 @@ export function AssetsPalletMixin<T extends ChainConnector>(
     return Base as T & AssetsPalletMethods
   }
   return Object.assign(Base, {
-    async assets_getAssets() {
+    async assets_getAssets(assetId?: number) {
       const api = Base.api as unknown as TypedApi<AllDescriptors>
       if (!api.query.Assets) {
         throw new Error("Assets pallet is not available in the current runtime")
@@ -59,16 +53,62 @@ export function AssetsPalletMixin<T extends ChainConnector>(
           "Assets.Asset is not compatible with the current runtime",
         )
       }
-      const [assets] = await Promise.allSettled([assets_asset.getEntries()])
+
+      const assets: {
+        keyArgs: [number]
+        value: object
+      }[] = []
+      if (assetId && typeof assetId === "number") {
+        const asset = await assets_asset.getValue(assetId)
+        if (asset !== undefined && asset !== null) {
+          assets.push({
+            keyArgs: [assetId],
+            value: asset,
+          })
+        }
+      } else {
+        const assetsData = await assets_asset.getEntries()
+        assets.push(...assetsData)
+      }
 
       return {
-        assets:
-          assets.status === "fulfilled"
-            ? assets.value.map((a) => ({
-                id: a.keyArgs[0],
-                ...a.value,
-              }))
-            : [],
+        assets: assets.map((a) => ({
+          ...(a.value as TAsset),
+          id: a.keyArgs[0],
+        })),
+      }
+    },
+    async assets_getAssetMetadata(assetId: number) {
+      const api = Base.api as unknown as TypedApi<AllDescriptors>
+      if (!api.query.Assets) {
+        throw new Error("Assets pallet is not available in the current runtime")
+      }
+
+      const assets_assetMetadata = api.query.Assets.Metadata
+
+      if (
+        !assets_assetMetadata.isCompatible(
+          CompatibilityLevel.BackwardsCompatible,
+          Base.compatibilityToken,
+        )
+      ) {
+        throw new Error(
+          "Assets.Asset is not compatible with the current runtime",
+        )
+      }
+
+      const asset = await assets_assetMetadata.getValue(assetId)
+      if (asset === undefined || asset === null) {
+        return null
+      }
+
+      return {
+        id: assetId,
+        name: asset.name.asText(),
+        symbol: asset.symbol.asText(),
+        deposit: asset.deposit,
+        decimals: asset.decimals,
+        isFrozen: asset.is_frozen,
       }
     },
     async assets_getAssetBalance(account: string[], assetId: string | number) {
@@ -158,7 +198,14 @@ export function AssetsPalletMixin<T extends ChainConnector>(
           return {
             id: assets.assets[i].id,
             pallet: "Assets",
+            address: account,
             ...b,
+            info: async () => {
+              return await this.assets_getAssets(assets.assets[i].id)
+            },
+            metadata: async () => {
+              return await this.assets_getAssetMetadata(assets.assets[i].id)
+            },
           }
         })
         .filter((b) => b !== undefined && b !== null)

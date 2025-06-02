@@ -1,6 +1,6 @@
 import { type SS58String } from "polkadot-api"
 import type { PalletComposedChain, TDescriptors } from "../../index"
-import { TAsset } from "../PalletMethods/types"
+import { TAddressAssetBalance, TAsset } from "../PalletMethods/types"
 
 export interface AssetsApiClass {
   balanceOf(account: SS58String[]): Promise<{
@@ -20,13 +20,12 @@ export interface AssetsApiClass {
       decimals: number
     }
   }>
-  getAssetInfo(): Promise<unknown>
   getAssets(): Promise<{
     assets?: TAsset[]
     poolAssets?: TAsset[]
   }>
   getAssetBalance(): Promise<unknown>
-  getBalances(account: SS58String[]): Promise<unknown>
+  getBalances(account: SS58String[]): Promise<TAddressAssetBalance[]>
 }
 
 export function AssetsApiMixin<T extends PalletComposedChain>(
@@ -166,9 +165,6 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
     Base.pallets.includes("ForeignAssets")
   ) {
     enhancedChain = Object.assign(Base, {
-      async getAssetInfo() {
-        throw new Error("getAssetInfo is not implemented")
-      },
       async getAssets() {
         const assetsPromises = []
 
@@ -178,9 +174,6 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
         if ("poolAssets_getAssets" in Base) {
           assetsPromises.push(Base.poolAssets_getAssets!())
         }
-        // if ("foreignAssets_getAssets" in Base) {
-        //   assetsPromises.push(Base.foreignAssets_getAssets!())
-        // }
         const assets = await Promise.allSettled(assetsPromises)
 
         const successfulAssets = assets
@@ -189,9 +182,6 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
 
         const assetsPallet =
           successfulAssets.find((a) => "assets" in a)?.assets || []
-        // const foreignAssets =
-        //   successfulAssets.find((a) => "foreignAssets" in a)?.foreignAssets ||
-        //   []
         const poolAssets =
           successfulAssets.find((a) => "poolAssets" in a)?.poolAssets || []
 
@@ -234,15 +224,34 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
         return data.length > 0 ? data : null
       },
       async getBalances(account: SS58String[]) {
+        if (account.length === 0) {
+          throw new Error("No account provided")
+        }
+
+        if (
+          !("assets_getAssetsBalance" in Base) &&
+          !("poolAssets_getAssetsBalance" in Base)
+        ) {
+          throw new Error(
+            "Neither Assets nor PoolAssets pallets are available in the current runtime",
+          )
+        }
+
+        const assetsPromises = account.map((address) =>
+          Base.assets_getAssetsBalance!([address]),
+        )
+        const poolAssetsPromises = account.map((address) =>
+          Base.poolAssets_getAssetsBalance!([address]),
+        )
+
         const balances = await Promise.allSettled([
-          "assets_getAssetsBalance" in Base
-            ? Base.assets_getAssetsBalance!(account)
-            : Promise.reject(),
-          "poolAssets_getAssetsBalance" in Base
-            ? Base.poolAssets_getAssetsBalance!(account)
-            : Promise.reject(),
+          ...assetsPromises,
+          ...poolAssetsPromises,
         ])
-        return balances.map((b) => (b.status === "fulfilled" ? b.value : null))
+
+        return balances
+          .map((b) => (b.status === "fulfilled" ? b.value : null))
+          .flat()
       },
     })
   } else {

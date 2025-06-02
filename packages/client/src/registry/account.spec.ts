@@ -39,10 +39,15 @@ describe("account queries", () => {
     for (const chain of wsConnector.getChains()) {
       const chainConnector = wsConnector.getChain(chain)
       if (chainConnector && "getBalances" in chainConnector) {
-        const balances = await chainConnector?.getBalances!([
-          "16bZYfxvkUGT5WbjwyJkEmZYAsBdZhMeonnaxtcuUrhzpKHm",
-        ])
-        console.dir(balances, { depth: null })
+        const balances = await chainConnector?.getBalances!(
+          account.listAddresses(),
+        )
+        for (const bal of balances) {
+          console.dir(bal, { depth: null })
+          const info = await bal.info()
+          console.log(info)
+          console.log(await bal.metadata())
+        }
       }
     }
 

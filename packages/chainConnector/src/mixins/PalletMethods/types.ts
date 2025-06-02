@@ -1,4 +1,4 @@
-import { SS58String } from "polkadot-api"
+import { Enum, SS58String } from "polkadot-api"
 
 export type TAsset = {
   id: number
@@ -16,4 +16,31 @@ export type TAsset = {
     type: string
     value?: unknown
   }
+}
+
+export type TAddressAssetBalance = {
+  id: number
+  pallet: string
+  balance: bigint
+  address: SS58String[]
+  status: Enum<{ Liquid: undefined; Frozen: undefined; Blocked: undefined }>
+  reason?: Enum<{
+    Consumer: undefined
+    Sufficient: undefined
+    DepositHeld: bigint
+    DepositRefunded: undefined
+    DepositFrom: [SS58String, bigint]
+  }>
+  info: () => Promise<{
+    assets?: TAsset[]
+    poolAssets?: TAsset[]
+  }>
+  metadata: () => Promise<{
+    id: number
+    name: string
+    symbol: string
+    decimals: number
+    deposit: bigint
+    isFrozen: boolean
+  } | null>
 }
