@@ -44,3 +44,11 @@ export type TAddressAssetBalance = {
     isFrozen: boolean
   } | null>
 }
+
+export enum ELockId {
+  Vesting = "vesting",
+  Staking = "staking",
+  Democracy = "democrac",
+  ElectionsPhragmen = "phrelect",
+  Assembly = "assembly",
+}

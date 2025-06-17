@@ -85,6 +85,9 @@ export class ChainConnector {
       chainInfo.pallets,
     )
 
+    // TODO: add DelegateStaking for reserves inspections
+    // TODO: add pyconvot for locks inspections
+
     // ALWAYS enhance with methods first and then with APIs
     // mixin Pallet methods
     current = VestingPalletMixin(

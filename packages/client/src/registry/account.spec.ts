@@ -15,7 +15,7 @@ describe("account queries", () => {
     const account = new Account([
       "13aUbVbnthMvYuSLUbfK6eTQWaDWLriRrP89ExD17Ep19BkK",
       "12dvmstTqsjrPrPdouMpbsgaaQjPGYFh7gMaiNgZ7Rzaacok",
-      "16bZYfxvkUGT5WbjwyJkEmZYAsBdZhMeonnaxtcuUrhzpKHm",
+      "152ewMmA7Jr2HY7VMqTwBkyiTbJqXrMFQsioy4QA647URNiS",
     ])
     expect(account).toBeDefined()
     expect(account.listAddresses()).not.toHaveLength(0)
@@ -35,21 +35,21 @@ describe("account queries", () => {
     expect(balances).toHaveProperty("total")
     expect(balances).toHaveProperty("reserved")
     expect(balances).toHaveProperty("locked")
-
-    for (const chain of wsConnector.getChains()) {
-      const chainConnector = wsConnector.getChain(chain)
-      if (chainConnector && "getBalances" in chainConnector) {
-        const balances = await chainConnector?.getBalances!(
-          account.listAddresses(),
-        )
-        for (const bal of balances) {
-          console.dir(bal, { depth: null })
-          const info = await bal.info()
-          console.log(info)
-          console.log(await bal.metadata())
-        }
-      }
-    }
+    console.log("Balances:", balances)
+    // for (const chain of wsConnector.getChains()) {
+    //   const chainConnector = wsConnector.getChain(chain)
+    //   if (chainConnector && "getBalances" in chainConnector) {
+    //     const balances = await chainConnector?.getBalances!(
+    //       account.listAddresses(),
+    //     )
+    //     for (const bal of balances) {
+    //       console.dir(bal, { depth: null })
+    //       const info = await bal.info()
+    //       console.log(info)
+    //       console.log(await bal.metadata())
+    //     }
+    //   }
+    // }
 
     // await
   }, 550000)

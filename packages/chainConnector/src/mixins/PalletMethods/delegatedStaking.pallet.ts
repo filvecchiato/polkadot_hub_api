@@ -1,16 +1,16 @@
 import { ChainConnector } from "@/index"
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface DelegateStakingPalletMethods {}
+export interface DelegatedStakingPalletMethods {}
 
-export function DelegateStakingPalletMixin<T extends ChainConnector>(
+export function DelegatedStakingPalletMixin<T extends ChainConnector>(
   Base: T,
-): T & DelegateStakingPalletMethods {
+): T & DelegatedStakingPalletMethods {
   if (!Base.pallets.includes("ConvictionVoting")) {
     console.info(
       `ConvictionVoting pallet is not included in the current ${Base.chainInfo.name} runtime, skipping Conviction Voting Pallet Methods mixin.`,
     )
-    return Base as T & DelegateStakingPalletMethods
+    return Base as T & DelegatedStakingPalletMethods
   }
   return Object.assign(Base, {})
 }

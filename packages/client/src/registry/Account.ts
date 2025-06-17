@@ -94,6 +94,7 @@ export class Account {
               reservedDetails,
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } = balance.value as any
+            // TODO: fix this type and get reserves details in final shape
             acc.transferrable += BigInt(transferrable)
             acc.reserved += BigInt(reserved)
             acc.locked += BigInt(locked)

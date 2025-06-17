@@ -19,8 +19,8 @@ export interface BalancesPalletMethods {
       id: string
       reason?: string
     }[]
-    freezesDetails: { value: bigint }[]
-    holdsDetails: { value: bigint }[]
+    freezesDetails: { value: bigint; id: string }[]
+    holdsDetails: { value: bigint; id: string }[]
   }>
 }
 
@@ -97,8 +97,8 @@ export function BalancesPalletMixin<T extends ChainConnector>(
         id: string
         reason?: string
       }[]
-      freezesDetails: { value: bigint }[]
-      holdsDetails: { value: bigint }[]
+      freezesDetails: { value: bigint; id: string }[]
+      holdsDetails: { value: bigint; id: string }[]
     }> {
       if (account.length === 0) {
         throw new Error("No account provided")
@@ -113,12 +113,6 @@ export function BalancesPalletMixin<T extends ChainConnector>(
           Base.api.query.Balances.Holds.getValues(account.map((a) => [a])),
         ])
 
-      console.log({
-        locks,
-        reserves,
-        freezes,
-        holds,
-      })
       if (balance.status === "rejected") {
         throw new Error(`Failed to get balance: ${balance.reason}`)
       }
@@ -130,7 +124,7 @@ export function BalancesPalletMixin<T extends ChainConnector>(
               .map((r) => {
                 return r.map((reserve) => ({
                   value: reserve.amount,
-                  id: reserve.id.asText().trim(),
+                  id: reserve.id?.asText().trim(),
                 }))
               })
               .flat()
@@ -140,9 +134,17 @@ export function BalancesPalletMixin<T extends ChainConnector>(
         freezes.status === "fulfilled"
           ? freezes.value
               .map((f) => {
-                return f.map((freeze) => ({
-                  value: freeze.amount,
-                }))
+                return f.map((freeze) => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  const f = freeze as any
+                  return {
+                    value: f.amount,
+                    id: f.id
+                      ? f.id.type.charAt(0).toLowerCase() +
+                        f.id.type.substring(1)
+                      : undefined,
+                  }
+                })
               })
               .flat()
           : []
@@ -150,9 +152,17 @@ export function BalancesPalletMixin<T extends ChainConnector>(
         holds.status === "fulfilled"
           ? holds.value
               .map((h) => {
-                return h.map((hold) => ({
-                  value: hold.amount,
-                }))
+                return h.map((hold) => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  const h = hold as any
+                  return {
+                    value: h.amount,
+                    id: h.id
+                      ? h.id.type.charAt(0).toLowerCase() +
+                        h.id.type.substring(1)
+                      : undefined,
+                  }
+                })
               })
               .flat()
           : []
@@ -163,29 +173,16 @@ export function BalancesPalletMixin<T extends ChainConnector>(
                 return l.map((lock) => {
                   return {
                     value: lock.amount,
-                    id: lock.id.asText().trim(),
+                    id:
+                      lock.id.asText().trim().charAt(0).toLowerCase() +
+                      lock.id.asText().trim().substring(1),
                     reason: lock.reasons.type,
                   }
                 })
               })
               .flat()
           : []
-      console.log(
-        holds.status === "fulfilled"
-          ? holds.value
-              .map((h) => {
-                return h.map((hold) => {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  const h = hold as any
-                  return {
-                    value: h["amount"],
-                    id: h["id"].asText().trim(),
-                  }
-                })
-              })
-              .flat()
-          : [],
-      )
+
       return {
         total,
         transferrable,

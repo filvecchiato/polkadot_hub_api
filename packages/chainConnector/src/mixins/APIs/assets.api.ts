@@ -104,6 +104,7 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
           reserved: sysBalance?.reserved || balancesValue?.reserved || 0n,
           locked: sysBalance?.locked || balancesValue?.locked || 0n,
         }
+        console.log(balancesValue)
 
         if (
           accountBalance.transferrable === 0n &&
@@ -114,8 +115,13 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
         }
 
         const locksDetails = []
-        if (balancesValue?.lockedDetails) {
-          for (const lock of balancesValue.lockedDetails) {
+        const locks = [
+          ...(balancesValue?.lockedDetails || []),
+          ...(balancesValue?.freezesDetails || []),
+        ]
+
+        if (locks.length) {
+          for (const lock of locks) {
             const method = `${lock.id}_getAccountBalance`
             if (method in Base) {
               const fn = Base[method as keyof typeof Base]
@@ -127,10 +133,54 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
                     return fn(account)
                   },
                 })
+              } else {
+                locksDetails.push({
+                  value: lock.value || 0n,
+                  id: lock.id,
+                })
               }
+            } else {
+              locksDetails.push({
+                value: lock.value || 0n,
+                id: lock.id,
+              })
             }
           }
         }
+        const reservesDetails = []
+        const reserves = [
+          ...(balancesValue?.reservedDetails || []),
+          ...(balancesValue?.holdsDetails || []),
+        ]
+        console.log({ reserves })
+        if (reserves.length) {
+          for (const reserve of reserves) {
+            const method = `${reserve.id}_getAccountBalance`
+            if (method in Base) {
+              const fn = Base[method as keyof typeof Base]
+              if (typeof fn === "function") {
+                reservesDetails.push({
+                  value: reserve.value || 0n,
+                  id: reserve.id,
+                  details: async () => {
+                    return fn(account)
+                  },
+                })
+              } else {
+                reservesDetails.push({
+                  value: reserve.value || 0n,
+                  id: reserve.id,
+                })
+              }
+            } else {
+              reservesDetails.push({
+                value: reserve.value || 0n,
+                id: reserve.id,
+              })
+            }
+          }
+        }
+        console.log({ locksDetails, reservesDetails })
         return {
           transferrable: accountBalance.transferrable,
           allocated: 0n,
@@ -139,7 +189,7 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
             accountBalance.reserved +
             accountBalance.transferrable, // transferrable + reserved + locked + allocated,
           reserved: accountBalance.reserved,
-          reservedDetails: balancesValue?.reservedDetails || [],
+          reservedDetails: reservesDetails,
           locked: accountBalance.locked,
           lockedDetails: locksDetails,
           location: {
