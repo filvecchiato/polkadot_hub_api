@@ -113,6 +113,12 @@ export function BalancesPalletMixin<T extends ChainConnector>(
           Base.api.query.Balances.Holds.getValues(account.map((a) => [a])),
         ])
 
+      console.log({
+        locks,
+        reserves,
+        freezes,
+        holds,
+      })
       if (balance.status === "rejected") {
         throw new Error(`Failed to get balance: ${balance.reason}`)
       }
@@ -164,7 +170,22 @@ export function BalancesPalletMixin<T extends ChainConnector>(
               })
               .flat()
           : []
-
+      console.log(
+        holds.status === "fulfilled"
+          ? holds.value
+              .map((h) => {
+                return h.map((hold) => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  const h = hold as any
+                  return {
+                    value: h["amount"],
+                    id: h["id"].asText().trim(),
+                  }
+                })
+              })
+              .flat()
+          : [],
+      )
       return {
         total,
         transferrable,
