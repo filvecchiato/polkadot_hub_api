@@ -16,6 +16,8 @@ import {
   AssetsApiMixin,
   AssetsPalletMixin,
   BalancesPalletMixin,
+  ConvictionVotingPalletMixin,
+  DelegatedStakingPalletMixin,
   StakingPalletMixin,
   SystemPalletMixin,
   VestingPalletMixin,
@@ -85,18 +87,17 @@ export class ChainConnector {
       chainInfo.pallets,
     )
 
-    // TODO: add DelegateStaking for reserves inspections
-    // TODO: add pyconvot for locks inspections
-
     // ALWAYS enhance with methods first and then with APIs
     // mixin Pallet methods
-    current = VestingPalletMixin(
-      VestingPalletMixin(
-        StakingPalletMixin(
-          AssetsPalletMixin(
-            ForeignAssetsPalletMixin(
-              PoolAssetsPalletMixin(
-                BalancesPalletMixin(SystemPalletMixin(current)),
+    current = DelegatedStakingPalletMixin(
+      ConvictionVotingPalletMixin(
+        VestingPalletMixin(
+          StakingPalletMixin(
+            AssetsPalletMixin(
+              ForeignAssetsPalletMixin(
+                PoolAssetsPalletMixin(
+                  BalancesPalletMixin(SystemPalletMixin(current)),
+                ),
               ),
             ),
           ),

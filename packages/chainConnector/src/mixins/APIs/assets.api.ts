@@ -104,7 +104,6 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
           reserved: sysBalance?.reserved || balancesValue?.reserved || 0n,
           locked: sysBalance?.locked || balancesValue?.locked || 0n,
         }
-        console.log(balancesValue)
 
         if (
           accountBalance.transferrable === 0n &&
@@ -152,7 +151,7 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
           ...(balancesValue?.reservedDetails || []),
           ...(balancesValue?.holdsDetails || []),
         ]
-        console.log({ reserves })
+
         if (reserves.length) {
           for (const reserve of reserves) {
             const method = `${reserve.id}_getAccountBalance`
@@ -180,7 +179,7 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
             }
           }
         }
-        console.log({ locksDetails, reservesDetails })
+
         return {
           transferrable: accountBalance.transferrable,
           allocated: 0n,
