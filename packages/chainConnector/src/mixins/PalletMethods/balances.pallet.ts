@@ -140,8 +140,10 @@ export function BalancesPalletMixin<T extends ChainConnector>(
                   return {
                     value: f.amount,
                     id: f.id
-                      ? f.id.type.charAt(0).toLowerCase() +
-                        f.id.type.substring(1)
+                      ? (
+                          f.id.type.charAt(0).toLowerCase() +
+                          f.id.type.substring(1)
+                        ).trim()
                       : undefined,
                   }
                 })
@@ -158,8 +160,10 @@ export function BalancesPalletMixin<T extends ChainConnector>(
                   return {
                     value: h.amount,
                     id: h.id
-                      ? h.id.type.charAt(0).toLowerCase() +
-                        h.id.type.substring(1)
+                      ? (
+                          h.id.type.charAt(0).toLowerCase() +
+                          h.id.type.substring(1)
+                        ).trim()
                       : undefined,
                   }
                 })
@@ -173,9 +177,10 @@ export function BalancesPalletMixin<T extends ChainConnector>(
                 return l.map((lock) => {
                   return {
                     value: lock.amount,
-                    id:
+                    id: (
                       lock.id.asText().trim().charAt(0).toLowerCase() +
-                      lock.id.asText().trim().substring(1),
+                      lock.id.asText().trim().substring(1)
+                    ).trim(),
                     reason: lock.reasons.type,
                   }
                 })

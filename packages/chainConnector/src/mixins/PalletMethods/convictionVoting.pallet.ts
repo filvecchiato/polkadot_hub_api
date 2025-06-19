@@ -3,6 +3,7 @@ import { CompatibilityLevel, SS58String, TypedApi } from "polkadot-api"
 
 export interface ConvictionVotingPalletMethods {
   pyconvot_getAccountBalance(account: SS58String[]): Promise<unknown>
+  pyconvot_getLockDetails(account: SS58String[]): Promise<unknown>
 }
 
 export function ConvictionVotingPalletMixin<T extends ChainConnector>(
@@ -69,6 +70,13 @@ export function ConvictionVotingPalletMixin<T extends ChainConnector>(
         },
         { depth: null },
       )
+      return null
+    },
+    async pyconvot_getLockDetails(account: SS58String[]): Promise<unknown> {
+      if (account.length === 0) {
+        throw new Error("No account provided")
+      }
+
       return null
     },
   })

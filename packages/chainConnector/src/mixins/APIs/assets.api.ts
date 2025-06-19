@@ -121,7 +121,7 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
 
         if (locks.length) {
           for (const lock of locks) {
-            const method = `${lock.id}_getAccountBalance`
+            const method = `${lock.id}_getLockDetails`
             if (method in Base) {
               const fn = Base[method as keyof typeof Base]
               if (typeof fn === "function") {
@@ -154,7 +154,7 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
 
         if (reserves.length) {
           for (const reserve of reserves) {
-            const method = `${reserve.id}_getAccountBalance`
+            const method = `${reserve.id}_getHoldDetails`
             if (method in Base) {
               const fn = Base[method as keyof typeof Base]
               if (typeof fn === "function") {

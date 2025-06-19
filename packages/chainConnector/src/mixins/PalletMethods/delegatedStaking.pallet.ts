@@ -1,7 +1,10 @@
 import { ChainConnector } from "@/index"
+import { SS58String } from "polkadot-api"
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface DelegatedStakingPalletMethods {}
+export interface DelegatedStakingPalletMethods {
+  delegatedStaking_getAccountBalance(account: SS58String[]): Promise<unknown>
+  delegatedStaking_getHoldDetails(account: SS58String[]): Promise<unknown>
+}
 
 export function DelegatedStakingPalletMixin<T extends ChainConnector>(
   Base: T,
@@ -12,5 +15,24 @@ export function DelegatedStakingPalletMixin<T extends ChainConnector>(
     )
     return Base as T & DelegatedStakingPalletMethods
   }
-  return Object.assign(Base, {})
+  return Object.assign(Base, {
+    async delegatedStaking_getAccountBalance(
+      account: SS58String[],
+    ): Promise<unknown> {
+      if (account.length === 0) {
+        throw new Error("No account provided")
+      }
+
+      return null
+    },
+    async delegatedStaking_getHoldDetails(
+      account: SS58String[],
+    ): Promise<unknown> {
+      if (account.length === 0) {
+        throw new Error("No account provided")
+      }
+
+      return null
+    },
+  })
 }

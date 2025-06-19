@@ -6,6 +6,7 @@ export interface VestingPalletMethods {
     locked: bigint
     perBlock: bigint
   }>
+  vesting_getLockDetails(account: SS58String[]): Promise<unknown>
 }
 
 export function VestingPalletMixin<T extends ChainConnector>(
@@ -78,6 +79,34 @@ export function VestingPalletMixin<T extends ChainConnector>(
           perBlock: 0n,
         },
       )
+    },
+    async vesting_getLockDetails(account: SS58String[]) {
+      if (account.length === 0) {
+        throw new Error("No account provided")
+      }
+
+      const api = Base.api as unknown as TypedApi<AllDescriptors>
+      if (!api.query.Vesting) {
+        throw new Error(
+          "Vesting pallet is not available in the current runtime",
+        )
+      }
+      const vesting_Account = api.query.Vesting.Vesting
+
+      if (
+        !vesting_Account.isCompatible(
+          CompatibilityLevel.BackwardsCompatible,
+          Base.compatibilityToken,
+        )
+      ) {
+        throw new Error(
+          "Vesting.Vesting is not compatible with the current runtime",
+        )
+      }
+
+      return vesting_Account.getValues(account.map((a) => [a])).then((data) => {
+        return data.filter((d) => d !== undefined).map((d) => d!)
+      })
     },
   })
 }

@@ -13,6 +13,7 @@ export interface StakingPalletMethods {
       }>
     }[]
   >
+  staking_getLockDetails(account: SS58String[]): Promise<unknown>
 }
 
 export function StakingPalletMixin<T extends ChainConnector>(
@@ -78,6 +79,36 @@ export function StakingPalletMixin<T extends ChainConnector>(
       }))
 
       return stashAccounts
+    },
+    async staking_getLockDetails(account: SS58String[]) {
+      if (account.length === 0) {
+        throw new Error("No account provided")
+      }
+
+      const typedApi = Base.api as unknown as TypedApi<AllDescriptors>
+
+      if (!typedApi.query.Staking) {
+        throw new Error("Staking pallet is not available in the API")
+      }
+
+      const staking_Ledger = typedApi.query.Staking.Ledger
+
+      if (
+        !staking_Ledger.isCompatible(
+          CompatibilityLevel.BackwardsCompatible,
+          Base.compatibilityToken,
+        )
+      ) {
+        throw new Error(
+          "Staking.Ledger is not compatible with the current runtime",
+        )
+      }
+
+      const ledgers = await staking_Ledger
+        .getValues(account.map((a) => [a]))
+        .then((data) => data.filter((l) => l !== undefined).map((l) => l!))
+
+      return ledgers
     },
   })
 }
