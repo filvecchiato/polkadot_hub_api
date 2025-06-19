@@ -106,7 +106,17 @@ export function StakingPalletMixin<T extends ChainConnector>(
 
       const ledgers = await staking_Ledger
         .getValues(account.map((a) => [a]))
-        .then((data) => data.filter((l) => l !== undefined).map((l) => l!))
+        .then((data) =>
+          data
+            .filter((l) => l !== undefined)
+            .map((l) => l!)
+            .map((s) => ({
+              stash: s.stash,
+              bonded: s.total,
+              active: s.active,
+              unlocking: s.unlocking,
+            })),
+        )
 
       return ledgers
     },

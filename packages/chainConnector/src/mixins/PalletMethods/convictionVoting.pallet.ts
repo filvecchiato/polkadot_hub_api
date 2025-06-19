@@ -21,14 +21,21 @@ export function ConvictionVotingPalletMixin<T extends ChainConnector>(
         throw new Error("No account provided")
       }
 
+      return null
+    },
+    async pyconvot_getLockDetails(account: SS58String[]): Promise<unknown> {
+      if (account.length === 0) {
+        throw new Error("No account provided")
+      }
+
       const api = Base.api as unknown as TypedApi<AllDescriptors>
       if (!api.query.ConvictionVoting) {
         throw new Error(
           "Conviction Voting pallet is not available in the current runtime",
         )
       }
-      const convictionVoting_VoteLockingPeriod =
-        await api.constants.ConvictionVoting.VoteLockingPeriod()
+      // const convictionVoting_VoteLockingPeriod =
+      //   await api.constants.ConvictionVoting.VoteLockingPeriod()
 
       const convictionVoting_votingFor = api.query.ConvictionVoting.VotingFor
       // get tracks
@@ -61,23 +68,9 @@ export function ConvictionVotingPalletMixin<T extends ChainConnector>(
       const queries = account
         .map((a, i) => locks[i].map((lock) => [a, lock[0]]))
         .flat() as unknown as [SS58String, number][]
-      const data = await convictionVoting_votingFor.getValues(queries)
-      console.dir(
-        {
-          locks,
-          convictionVoting_VoteLockingPeriod,
-          data,
-        },
-        { depth: null },
-      )
-      return null
-    },
-    async pyconvot_getLockDetails(account: SS58String[]): Promise<unknown> {
-      if (account.length === 0) {
-        throw new Error("No account provided")
-      }
+      const votes = await convictionVoting_votingFor.getValues(queries)
 
-      return null
+      return votes
     },
   })
 }

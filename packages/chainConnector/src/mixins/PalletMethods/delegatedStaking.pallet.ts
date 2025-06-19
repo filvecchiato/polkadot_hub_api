@@ -1,5 +1,5 @@
-import { ChainConnector } from "@/index"
-import { SS58String } from "polkadot-api"
+import { AllDescriptors, ChainConnector } from "@/index"
+import { CompatibilityLevel, SS58String, TypedApi } from "polkadot-api"
 
 export interface DelegatedStakingPalletMethods {
   delegatedStaking_getAccountBalance(account: SS58String[]): Promise<unknown>
@@ -9,9 +9,9 @@ export interface DelegatedStakingPalletMethods {
 export function DelegatedStakingPalletMixin<T extends ChainConnector>(
   Base: T,
 ): T & DelegatedStakingPalletMethods {
-  if (!Base.pallets.includes("ConvictionVoting")) {
+  if (!Base.pallets.includes("DelegatedStaking")) {
     console.info(
-      `ConvictionVoting pallet is not included in the current ${Base.chainInfo.name} runtime, skipping Conviction Voting Pallet Methods mixin.`,
+      `DelegatedStaking pallet is not included in the current ${Base.chainInfo.name} runtime, skipping Delegated Staking Pallet Methods mixin.`,
     )
     return Base as T & DelegatedStakingPalletMethods
   }
@@ -32,7 +32,30 @@ export function DelegatedStakingPalletMixin<T extends ChainConnector>(
         throw new Error("No account provided")
       }
 
-      return null
+      const api = Base.api as unknown as TypedApi<AllDescriptors>
+      if (!api.query.DelegatedStaking) {
+        throw new Error(
+          "Delegated Staking pallet is not available in the current runtime",
+        )
+      }
+
+      const delegatedStaking_HoldDetails = api.query.DelegatedStaking.Delegators
+
+      if (
+        !delegatedStaking_HoldDetails.isCompatible(
+          CompatibilityLevel.BackwardsCompatible,
+          Base.compatibilityToken,
+        )
+      ) {
+        throw new Error(
+          "DelegatedStaking.Delegators is not compatible with the current runtime",
+        )
+      }
+
+      const holdDetails = await delegatedStaking_HoldDetails
+        .getValues(account.map((a) => [a]))
+        .then((data) => data.filter((h) => h !== undefined).map((h) => h!))
+      return holdDetails
     },
   })
 }

@@ -31,7 +31,7 @@ export interface AssetsApiClass {
 export function AssetsApiMixin<T extends PalletComposedChain>(
   Base: T,
 ): T & AssetsApiClass {
-  let enhancedChain = Base as T
+  let enhancedChain = Base
   if (Base.pallets.includes("Balances") || Base.pallets.includes("System")) {
     enhancedChain = Object.assign(Base, {
       get emptyAccountBalance(): {
