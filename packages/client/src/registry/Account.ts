@@ -113,8 +113,8 @@ export class Account {
           total: BigInt(0),
           lockedDetails: [] as {
             value: bigint
-            flag: string
-            timelock?: bigint
+            id: string
+            details: () => Promise<unknown>
           }[],
           reservedDetails: [] as { value: bigint; id: string }[],
           locations: [] as {

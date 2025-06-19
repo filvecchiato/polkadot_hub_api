@@ -36,21 +36,8 @@ describe("account queries", () => {
     expect(balances).toHaveProperty("reserved")
     expect(balances).toHaveProperty("locked")
     console.log("Balances:", balances)
-    // for (const chain of wsConnector.getChains()) {
-    //   const chainConnector = wsConnector.getChain(chain)
-    //   if (chainConnector && "getBalances" in chainConnector) {
-    //     const balances = await chainConnector?.getBalances!(
-    //       account.listAddresses(),
-    //     )
-    //     for (const bal of balances) {
-    //       console.dir(bal, { depth: null })
-    //       const info = await bal.info()
-    //       console.log(info)
-    //       console.log(await bal.metadata())
-    //     }
-    //   }
-    // }
-
-    // await
+    for (const lock of balances?.lockedDetails || []) {
+      console.log(await lock.details!())
+    }
   }, 550000)
 })

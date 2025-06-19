@@ -122,30 +122,30 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
         if (locks.length) {
           for (const lock of locks) {
             const method = `${lock.id}_getLockDetails`
+            const lockDetail: {
+              value: bigint
+              id: string
+              details: () => Promise<unknown>
+            } = {
+              value: lock.value || 0n,
+              id: lock.id,
+              details: async () => {
+                return Promise.reject("No details available for this lock")
+              },
+            }
+
             if (method in Base) {
               const fn = Base[method as keyof typeof Base]
               if (typeof fn === "function") {
-                locksDetails.push({
-                  value: lock.value || 0n,
-                  id: lock.id,
-                  details: async () => {
-                    return fn(account)
-                  },
-                })
-              } else {
-                locksDetails.push({
-                  value: lock.value || 0n,
-                  id: lock.id,
-                })
+                lockDetail.details = async () => {
+                  return fn(account)
+                }
               }
-            } else {
-              locksDetails.push({
-                value: lock.value || 0n,
-                id: lock.id,
-              })
             }
+            locksDetails.push(lockDetail)
           }
         }
+
         const reservesDetails = []
         const reserves = [
           ...(balancesValue?.reservedDetails || []),
@@ -155,28 +155,27 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
         if (reserves.length) {
           for (const reserve of reserves) {
             const method = `${reserve.id}_getHoldDetails`
+            const reserveDetail: {
+              value: bigint
+              id: string
+              details?: () => Promise<unknown>
+            } = {
+              value: reserve.value || 0n,
+              id: reserve.id,
+              details: async () => {
+                return Promise.reject("No details available for this reserve")
+              },
+            }
+
             if (method in Base) {
               const fn = Base[method as keyof typeof Base]
               if (typeof fn === "function") {
-                reservesDetails.push({
-                  value: reserve.value || 0n,
-                  id: reserve.id,
-                  details: async () => {
-                    return fn(account)
-                  },
-                })
-              } else {
-                reservesDetails.push({
-                  value: reserve.value || 0n,
-                  id: reserve.id,
-                })
+                reserveDetail.details = async () => {
+                  return fn(account)
+                }
               }
-            } else {
-              reservesDetails.push({
-                value: reserve.value || 0n,
-                id: reserve.id,
-              })
             }
+            reservesDetails.push(reserveDetail)
           }
         }
 
