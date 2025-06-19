@@ -100,7 +100,9 @@ export class Account {
             acc.total += BigInt(total)
             acc.lockedDetails.push(...lockedDetails)
             acc.reservedDetails.push(...reservedDetails)
-            acc.locations.push(location)
+            if (location.total > 0n) {
+              acc.locations.push(location)
+            }
           }
           return acc
         },

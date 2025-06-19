@@ -23,6 +23,8 @@ import {
   AssetsApiClass,
   AssetsPalletMethods,
   BalancesPalletMethods,
+  ConvictionVotingPalletMethods,
+  DelegatedStakingPalletMethods,
   StakingPalletMethods,
   SystemPalletMethods,
   VestingPalletMethods,
@@ -141,6 +143,9 @@ export type PalletComposedChain = ChainConnector &
       StakingPalletMethods &
       AssetsPalletMethods &
       PoolAssetsPalletMethods &
-      ForeignAssetsPalletMethods
+      ForeignAssetsPalletMethods &
+      ConvictionVotingPalletMethods &
+      DelegatedStakingPalletMethods
   >
+
 export type ComposedChainClass = PalletComposedChain & Partial<AssetsApiClass>
