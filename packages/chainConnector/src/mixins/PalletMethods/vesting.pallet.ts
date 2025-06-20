@@ -104,6 +104,34 @@ export function VestingPalletMixin<T extends ChainConnector>(
         )
       }
 
+      // get locked tokens for vesting: if no vesting id skip else continue
+      // get current block number
+      const vestingData = await vesting_Account
+        .getValues(account.map((a) => [a]))
+        .then((data) => {
+          return data.filter((d) => d !== undefined).map((d) => d!)
+        })
+
+      if (vestingData.length === 0) {
+        return []
+      }
+
+      for (const data of vestingData) {
+        for (const vesting of data) {
+          const blocks = vesting.locked / vesting.per_block
+          console.log(
+            `${vesting.locked} locked tokens, which will be released in ${blocks} blocks.`,
+          )
+          console.log(
+            `time to relase all tokens: ${Number(blocks) / 600} hours (assuming 1 block = 6 seconds).`,
+          )
+          console.log(
+            `Per block release: ${vesting.starting_block + Number(blocks)} tokens.`,
+          )
+        }
+      }
+
+      // get current block and current vestiing, calculate remaining vesting
       return vesting_Account.getValues(account.map((a) => [a])).then((data) => {
         return data.filter((d) => d !== undefined).map((d) => d!)
       })

@@ -13,9 +13,11 @@ describe("account queries", () => {
     expect(wsConnector.getStatus()).toBe("connected")
 
     const account = new Account([
+      "123VwdDkJeUd8K1g9gS5rZHKy1vQg1N64ZNcYYBk2J5ZEkfs",
       "13aUbVbnthMvYuSLUbfK6eTQWaDWLriRrP89ExD17Ep19BkK",
-      "12dvmstTqsjrPrPdouMpbsgaaQjPGYFh7gMaiNgZ7Rzaacok",
-      "152ewMmA7Jr2HY7VMqTwBkyiTbJqXrMFQsioy4QA647URNiS",
+      "14ruQdbF3SqZh8Wkbeu1Y6XkG3Dvdckiof58vhKYmrBFUWxs",
+      "129EYiTbv2J4LkYqRNssUfMuxNLYN8TW2LgfG1Gqyj8wCcs7",
+      "142zGifFwRrDbFLJD7LvbyoHQAqDaXeHjkxJbUVwmDYBD7Gf",
     ])
     expect(account).toBeDefined()
     expect(account.listAddresses()).not.toHaveLength(0)
@@ -35,9 +37,9 @@ describe("account queries", () => {
     expect(balances).toHaveProperty("total")
     expect(balances).toHaveProperty("reserved")
     expect(balances).toHaveProperty("locked")
-    console.log("Balances:", balances)
+    // console.log("Balances:", balances)
     for (const lock of balances?.lockedDetails || []) {
-      console.log(await lock.details!())
+      console.dir(await lock.details!(), { depth: null })
     }
   }, 550000)
 })

@@ -52,3 +52,13 @@ export enum ELockId {
   ElectionsPhragmen = "phrelect",
   Assembly = "assembly",
 }
+
+export enum CONVICTION_MULTIPLIERS {
+  "None",
+  "Locked1x",
+  "Locked2x",
+  "Locked3x",
+  "Locked4x",
+  "Locked5x",
+  "Locked6x",
+}
