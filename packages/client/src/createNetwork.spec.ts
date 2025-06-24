@@ -3,33 +3,28 @@ import { createNetworkConnector } from "./createNetworkConnector"
 import { WellKnownChains } from "./connectors/utils"
 
 describe("createNetwork", () => {
-  it("should be able to create a network for ws connector", () => {
-    const wsConnector = createNetworkConnector("polkadot", "websocket")
+  it("should be able to create a network for ws connector", async () => {
+    const wsConnector = await createNetworkConnector("polkadot", "websocket")
 
     expect(wsConnector).toBeDefined()
     expect(wsConnector.network).toBe("polkadot")
   })
 
-  it("should be able to create a network for smoldot connector", () => {
-    const wsConnector = createNetworkConnector("polkadot", "smoldot")
+  it("should be able to create a network for smoldot connector", async () => {
+    const wsConnector = await createNetworkConnector("polkadot", "smoldot")
 
     expect(wsConnector).toBeDefined()
     expect(wsConnector.network).toBe("polkadot")
   })
 
-  it("should throw an error if connector type is not supported", () => {
-    expect(() => createNetworkConnector("polkadot", "unknown")).toThrowError(
-      `Connector type "unknown" not supported`,
-    )
+  it("should throw an error if connector type is not supported", async () => {
+    await expect(() =>
+      createNetworkConnector("polkadot", "unknown"),
+    ).rejects.toThrowError(`Connector type "unknown" not supported`)
   })
 
   it("should be able to connect to the network once created with smoldot", async () => {
-    const smConnector = createNetworkConnector("polkadot", "smoldot")
-
-    expect(smConnector.getStatus()).toBe("disconnected")
-    expect(smConnector.getChains().length).toEqual(0)
-
-    await smConnector.connect()
+    const smConnector = await createNetworkConnector("polkadot", "smoldot")
 
     const expectedChains = Object.entries(WellKnownChains)
       .filter(([, val]) => {
@@ -45,11 +40,7 @@ describe("createNetwork", () => {
   }, 100000)
 
   it("should be able to connect to the network once created with websocket", async () => {
-    const wsConnector = createNetworkConnector("polkadot", "websocket")
-
-    expect(wsConnector.getStatus()).toBe("disconnected")
-    expect(wsConnector.getChains().length).toEqual(0)
-    await wsConnector.connect()
+    const wsConnector = await createNetworkConnector("polkadot", "websocket")
 
     expect(wsConnector.getStatus()).toBe("connected")
     const expectedChains = Object.entries(WellKnownChains).filter(([, val]) => {
@@ -60,7 +51,7 @@ describe("createNetwork", () => {
   }, 15000)
 
   it("should be able to disconnect from the network", async () => {
-    const wsConnector = createNetworkConnector("polkadot", "websocket")
+    const wsConnector = await createNetworkConnector("polkadot", "websocket")
 
     expect(wsConnector.getStatus()).toBe("connected")
 
@@ -69,12 +60,16 @@ describe("createNetwork", () => {
   })
 
   it("should be able to get a chain from the network", async () => {
-    const wsConnector = createNetworkConnector("polkadot", "smoldot")
-
-    await wsConnector.connect()
+    const wsConnector = await createNetworkConnector("polkadot", "smoldot")
 
     const chain = wsConnector.getChain("pah")
 
     expect(chain).toBeDefined()
+  })
+
+  it("should have enhanced methods", async () => {
+    const wsConnector = await createNetworkConnector("polkadot", "smoldot")
+
+    expect(wsConnector.getBalances).toBeDefined()
   })
 })

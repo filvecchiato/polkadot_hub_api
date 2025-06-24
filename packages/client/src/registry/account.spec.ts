@@ -4,11 +4,10 @@ import { Account } from "./Account"
 
 describe("account queries", () => {
   it("should be able to create an account and use a ws connector", async () => {
-    const wsConnector = createNetworkConnector("polkadot", "websocket")
+    const wsConnector = await createNetworkConnector("polkadot", "websocket")
 
     expect(wsConnector).toBeDefined()
     expect(wsConnector.network).toBe("polkadot")
-    await wsConnector.connect()
 
     expect(wsConnector.getStatus()).toBe("connected")
 
@@ -39,6 +38,7 @@ describe("account queries", () => {
     expect(balances).toHaveProperty("locked")
     // console.log("Balances:", balances)
     for (const lock of balances?.lockedDetails || []) {
+      console.log("Lock details:", lock)
       console.dir(await lock.details!(), { depth: null })
     }
   }, 550000)

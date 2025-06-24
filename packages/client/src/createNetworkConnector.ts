@@ -1,10 +1,18 @@
 import "./connectors" // ensures registration happens
 import { ConnectorRegistry } from "./registry/ConnectorRegistry"
-import { NetworkConnector } from "./connectors/types"
+import { EnhancedNetworkConnector, enhanceWithApis } from "./mixins"
 
-export function createNetworkConnector(
+export async function createNetworkConnector(
   network: string,
   type: string,
-): NetworkConnector {
-  return ConnectorRegistry.getConnector(network, type)
+): Promise<EnhancedNetworkConnector> {
+  const connector = ConnectorRegistry.getConnector(network, type)
+  if (!connector) {
+    throw new Error(`Connector type "${type}" not supported`)
+  }
+
+  await connector.connect()
+  // register methods available as runtime mixins
+
+  return enhanceWithApis(connector)
 }
