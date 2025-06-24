@@ -1,14 +1,13 @@
 {
-  "name": "@polkadot-hub-api/tests",
+  "name": "@polkadot-hub-api/types",
   "version": "0.1.0",
-  "description": "tests for the polkadot-hub-api",
+  "description": "Polkadot hub API types package",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "lint": "eslint src",
-    "test": "vitest run"
+    "lint": "eslint src"
   },
   "keywords": [],
   "author": "Filippo Vecchiato <filippo@parity.io",
@@ -16,11 +15,12 @@
   "dependencies": {
     "polkadot-api": "^1.9.9",
     "@polkadot-hub-api/descriptors": "workspace:^",
-    "@polkadot-hub-api/chain-connector": "workspace:^",
-    "@polkadot-hub-api/client": "workspace:^",
-    "vitest": "3.1.4"
+    "@polkadot/util": "^13.5.1"
   },
   "peerDependencies": {
     "polkadot-api": "^1.9.9"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

@@ -1,10 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NetworkConnector } from "@/connectors"
 import { TDescriptors } from "@polkadot-hub-api/chain-connector"
-import {
-  TAddressAssetBalance,
-  TAsset,
-} from "@polkadot-hub-api/chain-connector/dist/mixins/PalletMethods/types"
+import { TAddressAssetBalance, TAsset } from "@polkadot-hub-api/types"
 
 export interface NetworkApiAssets {
   balanceOf(account: string): Promise<{
