@@ -1,4 +1,5 @@
-import { AllDescriptors, ChainConnector } from "@/index"
+import { ChainConnector } from "@/index"
+import { AllDescriptors } from "@polkadot-hub-api/types"
 // import { VotingConviction } from "@polkadot-hub-api/descriptors"
 import { CompatibilityLevel, SS58String, TypedApi } from "polkadot-api"
 // import { ReferendumInfo } from "./types"

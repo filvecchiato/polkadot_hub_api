@@ -1,16 +1,12 @@
-import {
-  CompatibilityToken,
-  PolkadotClient,
-  // SS58String,
-} from "polkadot-api"
+import { CompatibilityToken, PolkadotClient } from "polkadot-api"
 import type {
   ApiOf,
   ChainAsset,
   ChainId,
-  ComposedChainClass,
   Descriptors,
   TChain,
-} from "./types"
+} from "@polkadot-hub-api/types"
+import { ComposedChainClass } from "@/types"
 import { DESCRIPTORS /*DESCRIPTORS_POLKADOT*/ } from "./constants"
 import { enhanceWithApis, enhanceWithPalletsMethods } from "./mixins"
 

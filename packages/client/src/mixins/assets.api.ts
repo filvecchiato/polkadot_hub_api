@@ -1,26 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NetworkConnector } from "@/connectors"
-import { TDescriptors } from "@polkadot-hub-api/chain-connector"
-import { TAddressAssetBalance, TAsset } from "@polkadot-hub-api/types"
+import { TDescriptors } from "@polkadot-hub-api/types"
+import {
+  TAddressAssetBalance,
+  TAsset,
+  TAccountBalance,
+} from "@polkadot-hub-api/types"
 
 export interface NetworkApiAssets {
-  balanceOf(account: string): Promise<{
-    total: bigint
-    transferrable: bigint
-    reserved: bigint
-    locked: bigint
-    reservedDetails: { value: bigint; id: string }[]
-    lockedDetails: {
-      value: bigint
-      id: string
-      details?: () => Promise<unknown>
-    }[]
-    location: {
-      total: bigint
-      location: keyof TDescriptors
-      decimals: number
-    }
-  }>
+  balanceOf(account: string): Promise<TAccountBalance>
   getAssets(): Promise<{
     assets?: TAsset[]
     poolAssets?: TAsset[]

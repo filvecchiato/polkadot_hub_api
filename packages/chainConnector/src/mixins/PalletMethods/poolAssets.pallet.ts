@@ -1,4 +1,5 @@
-import { AllDescriptors, ChainConnector } from "@/index"
+import { ChainConnector } from "@/index"
+import { AllDescriptors } from "@polkadot-hub-api/types"
 import { CompatibilityLevel, TypedApi } from "polkadot-api"
 import { TAddressAssetBalance, TAsset } from "@polkadot-hub-api/types"
 

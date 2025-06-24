@@ -1,5 +1,5 @@
 import { PolkadotClient } from "polkadot-api"
-import type { ChainId, TChain } from "@polkadot-hub-api/chain-connector"
+import type { ChainId, TChain } from "@polkadot-hub-api/types"
 import { ChainConnector } from "@polkadot-hub-api/chain-connector"
 
 export class ChainRegistry {

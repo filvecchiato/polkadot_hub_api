@@ -1,4 +1,5 @@
-import { AllDescriptors, ChainConnector } from "@/index"
+import { ChainConnector } from "@/index"
+import { AllDescriptors } from "@polkadot-hub-api/types"
 import { CompatibilityLevel, SS58String, TypedApi } from "polkadot-api"
 
 export interface StakingPalletMethods {

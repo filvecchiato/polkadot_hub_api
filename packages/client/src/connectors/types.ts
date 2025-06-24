@@ -1,9 +1,6 @@
 import { Client } from "polkadot-api/smoldot"
-import type {
-  ChainId,
-  ChainIdRelay,
-  ComposedChainClass,
-} from "@polkadot-hub-api/chain-connector"
+import type { ChainId, ChainIdRelay } from "@polkadot-hub-api/types"
+import { ComposedChainClass } from "@polkadot-hub-api/chain-connector"
 
 export abstract class NetworkConnector {
   network: ChainIdRelay

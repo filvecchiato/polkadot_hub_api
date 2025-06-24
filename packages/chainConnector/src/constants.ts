@@ -17,12 +17,7 @@ import {
   wpl,
   wct,
 } from "@polkadot-hub-api/descriptors"
-import {
-  TDescriptors,
-  TDescriptorsKusama,
-  TDescriptorsPolkadot,
-  TDescriptorsWestend,
-} from "./types"
+import { TDescriptors } from "@polkadot-hub-api/types"
 
 // TODO add other system chains
 export const DESCRIPTORS: TDescriptors = {
@@ -42,31 +37,5 @@ export const DESCRIPTORS: TDescriptors = {
   wpl,
   wcl,
   kct,
-  wct,
-}
-
-export const DESCRIPTORS_POLKADOT: TDescriptorsPolkadot = {
-  polkadot,
-  pah,
-  pbh,
-  pcl,
-  pct,
-  ppl,
-}
-
-export const DESCRIPTORS_KUSAMA: TDescriptorsKusama = {
-  kusama,
-  kah,
-  kbh,
-  kct,
-  kpl,
-}
-
-export const DESCRIPTORS_WESTEND: TDescriptorsWestend = {
-  westend,
-  wah,
-  wbh,
-  wcl,
-  wpl,
   wct,
 }

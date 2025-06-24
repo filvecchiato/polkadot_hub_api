@@ -1,6 +1,10 @@
 import { type SS58String } from "polkadot-api"
-import type { PalletComposedChain, TDescriptors } from "../../index"
-import { TAddressAssetBalance, TAsset } from "@polkadot-hub-api/types"
+import type { PalletComposedChain } from "../../index"
+import {
+  TAddressAssetBalance,
+  TAsset,
+  TDescriptors,
+} from "@polkadot-hub-api/types"
 
 export interface AssetsApiClass {
   balanceOf(account: SS58String[]): Promise<{

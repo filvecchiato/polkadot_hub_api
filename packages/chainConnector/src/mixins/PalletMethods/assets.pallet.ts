@@ -1,6 +1,7 @@
-import { AllDescriptors, ChainConnector } from "@/index"
+import type { AllDescriptors } from "@polkadot-hub-api/types"
 import { CompatibilityLevel, TypedApi } from "polkadot-api"
 import { TAddressAssetBalance, TAsset } from "@polkadot-hub-api/types"
+import { ChainConnector } from "@/index"
 
 export interface AssetsPalletMethods {
   assets_getAssets(assetId?: number): Promise<{
