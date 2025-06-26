@@ -14,9 +14,10 @@
   "author": "Filippo Vecchiato <filippo@parity.io",
   "license": "MIT",
   "dependencies": {
-    "polkadot-api": "^1.9.9",
     "@polkadot-hub-api/descriptors": "workspace:^",
-    "@polkadot/util": "^13.5.1"
+    "@polkadot/util": "^13.5.1",
+    "polkadot-api": "^1.9.9",
+    "winston": "^3.17.0"
   },
   "peerDependencies": {
     "polkadot-api": "^1.9.9"
