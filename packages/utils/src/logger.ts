@@ -90,7 +90,18 @@ export class LoggerFactory {
   }
 
   public static loadConfigAndApply(projectRoot: string = process.cwd()): void {
-    const configFilePath = path.join(projectRoot, "../../.phapirc")
+    const rootSplit = projectRoot.split("/")
+    const root = rootSplit.lastIndexOf("packages")
+    let file = ".phapirc"
+    if (root >= 0) {
+      const diff = rootSplit.length - root
+      let navigation = ""
+      for (let i = 0; i < diff; i++) {
+        navigation += "../"
+      }
+      file = path.join(navigation, file)
+    }
+    const configFilePath = path.join(projectRoot, file)
 
     try {
       if (fs.existsSync(configFilePath)) {
