@@ -1,6 +1,9 @@
 import { ChainConnector } from "@/index"
 import { AllDescriptors } from "@polkadot-hub-api/types"
 import { CompatibilityLevel, SS58String, TypedApi } from "polkadot-api"
+import { LoggerFactory } from "@polkadot-hub-api/utils"
+
+const log = LoggerFactory.getLogger("ChainConnector")
 
 export interface VestingPalletMethods {
   vesting_getAccountBalance(account: SS58String[]): Promise<{
@@ -14,7 +17,7 @@ export function VestingPalletMixin<T extends ChainConnector>(
   Base: T,
 ): T & VestingPalletMethods {
   if (!Base.pallets.includes("Vesting")) {
-    console.info(
+    log.info(
       `Vesting pallet is not included in the current ${Base.chainInfo.name} runtime, skipping Vesting Pallet Methods mixin.`,
     )
     return Base as T & VestingPalletMethods
@@ -120,13 +123,13 @@ export function VestingPalletMixin<T extends ChainConnector>(
       for (const data of vestingData) {
         for (const vesting of data) {
           const blocks = vesting.locked / vesting.per_block
-          console.log(
+          log.info(
             `${vesting.locked} locked tokens, which will be released in ${blocks} blocks.`,
           )
-          console.log(
+          log.info(
             `time to relase all tokens: ${Number(blocks) / 600} hours (assuming 1 block = 6 seconds).`,
           )
-          console.log(
+          log.info(
             `Per block release: ${vesting.starting_block + Number(blocks)} tokens.`,
           )
         }

@@ -1,4 +1,4 @@
-import winston, { transports, format } from "winston"
+import winston, { transports, format, Logger } from "winston"
 import { LogLevel } from "./types"
 import fs from "fs"
 import path from "path"
@@ -39,6 +39,7 @@ const winstonLevels = {
 export class LoggerFactory {
   private static defaultLogLevel: LogLevel = LogLevel.INFO
   private static loggers: Map<string, winston.Logger> = new Map()
+  private static localConfigLoaded = false
 
   static setDefaultLogLevel(level: LogLevel): void {
     this.defaultLogLevel = level
@@ -48,7 +49,12 @@ export class LoggerFactory {
     return this.defaultLogLevel
   }
 
-  public static getLogger(name?: string, level?: LogLevel): winston.Logger {
+  public static getLogger(name?: string, level?: LogLevel): Logger {
+    if (!this.localConfigLoaded) {
+      this.loadConfigAndApply() // Load config only once
+      this.localConfigLoaded = true
+    }
+
     if (!name) {
       name = "default" // Default logger name if none is provided
     }
@@ -76,7 +82,7 @@ export class LoggerFactory {
     return LoggerFactory.getLogger()
   }
 
-  public static configureLogger(name: string, level: LogLevel): winston.Logger {
+  public static configureLogger(name: string, level: LogLevel): Logger {
     const logger = LoggerFactory.getLogger(name) // Get existing or create new with current default
     logger.level = level
     this.loggers.set(name, logger) // Update the logger in the map
@@ -84,7 +90,7 @@ export class LoggerFactory {
   }
 
   public static loadConfigAndApply(projectRoot: string = process.cwd()): void {
-    const configFilePath = path.join(projectRoot, ".phapirc")
+    const configFilePath = path.join(projectRoot, "../../.phapirc")
 
     try {
       if (fs.existsSync(configFilePath)) {
@@ -122,9 +128,6 @@ export class LoggerFactory {
                   LoggerFactory.configureLogger(
                     loggerName,
                     LogLevel[level as keyof typeof LogLevel],
-                  )
-                  console.log(
-                    `[LoggerConfig] Logger "${loggerName}" level set to: ${level}`,
                   )
                 } else {
                   console.warn(

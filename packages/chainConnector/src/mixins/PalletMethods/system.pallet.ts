@@ -1,5 +1,8 @@
 import { ChainConnector } from "@/index"
 import { CompatibilityLevel, SS58String } from "polkadot-api"
+import { LoggerFactory } from "@polkadot-hub-api/utils"
+
+const log = LoggerFactory.getLogger("ChainConnector")
 
 export interface SystemPalletMethods {
   system_getAccountBalance(account: SS58String[]): Promise<{
@@ -14,7 +17,7 @@ export function SystemPalletMixin<T extends ChainConnector>(
   Base: T,
 ): T & SystemPalletMethods {
   if (!Base.pallets.includes("System")) {
-    console.info(
+    log.info(
       `System pallet is not included in the current ${Base.chainInfo.name} runtime, skipping System Pallet Methods mixin.`,
     )
     return Base as T & SystemPalletMethods

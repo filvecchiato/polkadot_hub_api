@@ -1,5 +1,8 @@
 import { ChainConnector } from "@/index"
 import { CompatibilityLevel, SS58String } from "polkadot-api"
+import { LoggerFactory } from "@polkadot-hub-api/utils"
+
+const log = LoggerFactory.getLogger("ChainConnector")
 
 export interface BalancesPalletMethods {
   balances_getAccountBalance(account: SS58String[]): Promise<{
@@ -28,7 +31,7 @@ export function BalancesPalletMixin<T extends ChainConnector>(
   Base: T,
 ): T & BalancesPalletMethods {
   if (!Base.pallets.includes("Balances")) {
-    console.info(
+    log.info(
       `Balances pallet is not included in the current ${Base.chainInfo.name} runtime, skipping Balances Pallet Methods mixin.`,
     )
     return Base as T & BalancesPalletMethods

@@ -1,0 +1,10 @@
+{
+  "log": {
+    "defaultLevel": "WARN",
+    "loggers": {
+      "Client": "WARN",
+      "ChainConnector": "WARN",
+      "Tests": "DEBUG"
+    }
+  }
+}

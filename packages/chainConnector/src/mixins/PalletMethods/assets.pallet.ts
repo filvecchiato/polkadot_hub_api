@@ -2,6 +2,9 @@ import type { AllDescriptors } from "@polkadot-hub-api/types"
 import { CompatibilityLevel, TypedApi } from "polkadot-api"
 import { TAddressAssetBalance, TAsset } from "@polkadot-hub-api/types"
 import { ChainConnector } from "@/index"
+import { LoggerFactory } from "@polkadot-hub-api/utils"
+
+const log = LoggerFactory.getLogger("ChainConnector")
 
 export interface AssetsPalletMethods {
   assets_getAssets(assetId?: number): Promise<{
@@ -30,7 +33,7 @@ export function AssetsPalletMixin<T extends ChainConnector>(
   Base: T,
 ): T & AssetsPalletMethods {
   if (!Base.pallets.includes("Assets")) {
-    console.info(
+    log.info(
       `Assets pallet is not included in the current ${Base.chainInfo.name} runtime, skipping Assets Pallet Methods mixin.`,
     )
     return Base as T & AssetsPalletMethods

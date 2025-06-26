@@ -1,6 +1,9 @@
 import { ChainConnector } from "@/index"
 import { AllDescriptors } from "@polkadot-hub-api/types"
 import { CompatibilityLevel, SS58String, TypedApi } from "polkadot-api"
+import { LoggerFactory } from "@polkadot-hub-api/utils"
+
+const log = LoggerFactory.getLogger("ChainConnector")
 
 export interface StakingPalletMethods {
   staking_getAccountBalance(account: SS58String[]): Promise<
@@ -21,7 +24,7 @@ export function StakingPalletMixin<T extends ChainConnector>(
   Base: T,
 ): T & StakingPalletMethods {
   if (!Base.pallets.includes("Staking")) {
-    console.info(
+    log.info(
       `Staking pallet is not included in the current ${Base.chainInfo.name} runtime, skipping Staking Pallet Methods mixin.`,
     )
     return Base as T & StakingPalletMethods

@@ -7,6 +7,7 @@ import terser from "@rollup/plugin-terser"
 import pkg from "./package.json" assert { type: "json" }
 import path from "path"
 import alias from "@rollup/plugin-alias"
+import json from "@rollup/plugin-json"
 
 const commonOptions = {
   input: ["src/index.ts"],
@@ -47,6 +48,7 @@ export default [
       typescript(),
       terser(),
       esbuild(),
+      json(),
     ],
     external: [Object.keys(pkg.dependencies || {})],
   },

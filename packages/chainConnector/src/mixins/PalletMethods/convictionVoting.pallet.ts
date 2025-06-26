@@ -4,6 +4,10 @@ import { AllDescriptors } from "@polkadot-hub-api/types"
 import { CompatibilityLevel, SS58String, TypedApi } from "polkadot-api"
 // import { ReferendumInfo } from "./types"
 
+import { LoggerFactory } from "@polkadot-hub-api/utils"
+
+const log = LoggerFactory.getLogger("ChainConnector")
+
 export interface ConvictionVotingPalletMethods {
   pyconvot_getAccountBalance(account: SS58String[]): Promise<unknown>
   pyconvot_getLockDetails(account: SS58String[]): Promise<unknown>
@@ -87,7 +91,7 @@ export function ConvictionVotingPalletMixin<T extends ChainConnector>(
   Base: T,
 ): T & ConvictionVotingPalletMethods {
   if (!Base.pallets.includes("ConvictionVoting")) {
-    console.info(
+    log.info(
       `ConvictionVoting pallet is not included in the current ${Base.chainInfo.name} runtime, skipping Conviction Voting Pallet Methods mixin.`,
     )
     return Base as T & ConvictionVotingPalletMethods
@@ -116,7 +120,7 @@ export function ConvictionVotingPalletMixin<T extends ChainConnector>(
       const convictionVoting_votingFor = api.query.ConvictionVoting.VotingFor
       // get tracks
       const currentBlock = await api.query.System.Number.getValue()
-      console.info(`Current block number: ${currentBlock}`)
+      log.info(`Current block number: ${currentBlock}`)
       const convictionVoting_votingClasses =
         api.query.ConvictionVoting.ClassLocksFor
       if (
@@ -190,7 +194,7 @@ export function ConvictionVotingPalletMixin<T extends ChainConnector>(
       // const enhancedReferendaResults = referendaResults
       //   .map((r, i) => {
       //     if (r === undefined) {
-      //       console.warn(
+      //       log.warn(
       //         `Referendum result not found for referendumId ${referendaOfInterestArray[i]}`,
       //       )
       //       return undefined
@@ -238,7 +242,7 @@ export function ConvictionVotingPalletMixin<T extends ChainConnector>(
               amount: v.value.prior[1],
               timelock: v.value.prior[0],
             })
-            // console.dir(
+            // log.dir(
             //   {
             //     votes: v.value.votes.map(([referendumId, vote]) => {
             //       const referendumResult = enhancedReferendaResults.find(
@@ -309,7 +313,7 @@ export function ConvictionVotingPalletMixin<T extends ChainConnector>(
       //       (rr) => rr.id === v.referendumId,
       //     )
       //     if (!referendumResult) {
-      //       console.warn(
+      //       log.warn(
       //         `Referendum result not found for referendumId ${v.referendumId}`,
       //       )
       //       return null

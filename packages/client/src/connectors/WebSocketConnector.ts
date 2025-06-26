@@ -9,6 +9,9 @@ import { getWsProvider as NodeWsProvider } from "polkadot-api/ws-provider/node"
 import { ChainRegistry } from "../registry/ChainRegistry"
 
 // TODO generate instance with a client depening on network and type
+import { LoggerFactory } from "@polkadot-hub-api/utils"
+
+const log = LoggerFactory.getLogger("PolkadotHubClient")
 
 export class WsHubConnector extends NetworkConnector {
   private static instances = new Map<string, WsHubConnector>()
@@ -44,7 +47,7 @@ export class WsHubConnector extends NetworkConnector {
 
     for (const [chainId, { info }] of chains) {
       if (!info.wsUrl.length) {
-        console.log("No ws endpoints found for chain")
+        log.warn("No ws endpoints found for chain")
         continue
       }
 
@@ -60,7 +63,7 @@ export class WsHubConnector extends NetworkConnector {
   }
 
   async disconnect(): Promise<void> {
-    console.log(`[${this.network}] Disconnecting Substrate Connect...`)
+    log.info(`[${this.network}] Disconnecting Substrate Connect...`)
 
     if (this.status === "disconnected" && this.chains.size === 0) {
       return

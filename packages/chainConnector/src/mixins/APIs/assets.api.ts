@@ -5,6 +5,9 @@ import {
   TAsset,
   TDescriptors,
 } from "@polkadot-hub-api/types"
+import { LoggerFactory } from "@polkadot-hub-api/utils"
+
+const log = LoggerFactory.getLogger("ChainConnector")
 
 export interface AssetsApiClass {
   balanceOf(account: SS58String[]): Promise<{
@@ -206,7 +209,7 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
       },
     })
   } else {
-    console.info(
+    log.info(
       `Balances and System pallets are not included in the current ${Base.chainInfo.name} runtime, skipping Native AssetsAPI mixin`,
     )
   }
@@ -307,7 +310,7 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
       },
     })
   } else {
-    console.info(
+    log.info(
       `Assets, PoolAssets, and ForeignAssets pallets are not included in the current ${Base.chainInfo.name} runtime, skipping Fungible AssetsAPI mixin`,
     )
   }

@@ -1,6 +1,9 @@
 import { ChainConnector } from "@/index"
 import { AllDescriptors } from "@polkadot-hub-api/types"
 import { CompatibilityLevel, TypedApi } from "polkadot-api"
+import { LoggerFactory } from "@polkadot-hub-api/utils"
+
+const log = LoggerFactory.getLogger("ChainConnector")
 
 export interface ForeignAssetsPalletMethods {
   foreignAssets_getAssets(): Promise<{
@@ -12,7 +15,7 @@ export function ForeignAssetsPalletMixin<T extends ChainConnector>(
   Base: T,
 ): T & ForeignAssetsPalletMethods {
   if (!Base.pallets.includes("ForeignAssets")) {
-    console.info(
+    log.info(
       `Foreign Assets pallet is not included in the current ${Base.chainInfo.name} runtime, skipping Foreign Assets Pallet Methods mixin.`,
     )
     return Base as T & ForeignAssetsPalletMethods

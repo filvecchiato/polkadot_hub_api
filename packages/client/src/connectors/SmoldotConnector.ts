@@ -10,7 +10,10 @@ import { ChainRegistry } from "../registry/ChainRegistry"
 import { createClient } from "polkadot-api"
 import { getSmProvider } from "polkadot-api/sm-provider"
 import { resolve } from "import-meta-resolve"
-// TODO generate instance with a client depening on network and type
+
+import { LoggerFactory } from "@polkadot-hub-api/utils"
+
+const log = LoggerFactory.getLogger("PolkadotHubClient")
 
 export class SmHubConnector extends NetworkConnector {
   private static instances = new Map<ChainId, SmHubConnector>()
@@ -94,7 +97,7 @@ export class SmHubConnector extends NetworkConnector {
   }
 
   async disconnect(): Promise<void> {
-    console.log(`[${this.network}] Disconnecting Substrate Connect...`)
+    log.info(`[${this.network}] Disconnecting Substrate Connect...`)
 
     if (this.status === "disconnected" && this.chains.size === 0) {
       return
