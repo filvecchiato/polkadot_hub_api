@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NetworkConnector } from "@/connectors"
-import { TDescriptors } from "@polkadot-hub-api/types"
 import {
   TAddressAssetBalance,
   TAsset,
@@ -21,23 +20,7 @@ export function NetworkApiAssets<T extends NetworkConnector>(
   Base: T,
 ): T & NetworkApiAssets {
   return Object.assign(Base, {
-    async balanceOf(_account: string): Promise<{
-      total: bigint
-      transferrable: bigint
-      reserved: bigint
-      locked: bigint
-      reservedDetails: { value: bigint; id: string }[]
-      lockedDetails: {
-        value: bigint
-        id: string
-        details?: () => Promise<unknown>
-      }[]
-      location: {
-        total: bigint
-        location: keyof TDescriptors
-        decimals: number
-      }
-    }> {
+    async balanceOf(_account: string): Promise<TAccountBalance> {
       throw new Error(
         "balanceOf method is not implemented in the base class. Please implement it in the derived class.",
       )

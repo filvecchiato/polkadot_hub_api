@@ -1,6 +1,7 @@
 import { type SS58String } from "polkadot-api"
 import type { PalletComposedChain } from "../../index"
 import {
+  TAccountBalance,
   TAddressAssetBalance,
   TAsset,
   TDescriptors,
@@ -10,23 +11,7 @@ import { LoggerFactory } from "@polkadot-hub-api/utils"
 const log = LoggerFactory.getLogger("ChainConnector")
 
 export interface AssetsApiClass {
-  balanceOf(account: SS58String[]): Promise<{
-    total: bigint
-    transferrable: bigint
-    reserved: bigint
-    locked: bigint
-    reservedDetails: { value: bigint; id: string }[]
-    lockedDetails: {
-      value: bigint
-      id: string
-      details?: () => Promise<unknown>
-    }[]
-    location: {
-      total: bigint
-      location: keyof TDescriptors
-      decimals: number
-    }
-  }>
+  balanceOf(account: SS58String[]): Promise<TAccountBalance>
   getAssets(): Promise<{
     assets?: TAsset[]
     poolAssets?: TAsset[]
@@ -56,11 +41,11 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
           timelock?: bigint
         }[]
         locked: bigint
-        location: {
+        locations: {
           total: bigint
           location: keyof TDescriptors
           decimals: number
-        }
+        }[]
       } {
         return {
           total: 0n,
@@ -70,14 +55,16 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
           reservedDetails: [],
           lockedDetails: [],
           locked: 0n,
-          location: {
-            total: 0n,
-            location: Base.chainInfo.id,
-            decimals: Base.asset.decimals,
-          },
+          locations: [
+            {
+              total: 0n,
+              location: Base.chainInfo.id,
+              decimals: Base.asset.decimals,
+            },
+          ],
         }
       },
-      async balanceOf(account: SS58String[]) {
+      async balanceOf(account: SS58String[]): Promise<TAccountBalance> {
         if (account.length === 0) {
           throw new Error("No account provided")
         }
@@ -188,7 +175,6 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
 
         return {
           transferrable: accountBalance.transferrable,
-          allocated: 0n,
           total:
             accountBalance.locked +
             accountBalance.reserved +
@@ -197,14 +183,16 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
           reservedDetails: reservesDetails,
           locked: accountBalance.locked,
           lockedDetails: locksDetails,
-          location: {
-            total:
-              accountBalance.locked +
-              accountBalance.reserved +
-              accountBalance.transferrable,
-            location: Base.chainInfo.id,
-            decimals: Base.asset.decimals,
-          },
+          locations: [
+            {
+              total:
+                accountBalance.locked +
+                accountBalance.reserved +
+                accountBalance.transferrable,
+              location: Base.chainInfo.id,
+              decimals: Base.asset.decimals,
+            },
+          ],
         }
       },
     })

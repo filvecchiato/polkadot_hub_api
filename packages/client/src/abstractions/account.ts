@@ -1,7 +1,7 @@
 import { SS58String } from "polkadot-api"
 import { u8aToHex } from "@polkadot/util"
 import { decodeAddress } from "@polkadot/util-crypto"
-import type { ChainId } from "@polkadot-hub-api/types"
+import type { ChainId, TAccountBalance } from "@polkadot-hub-api/types"
 import { EnhancedNetworkConnector } from "@/mixins"
 import { NetworkConnector } from ".."
 
@@ -63,7 +63,7 @@ export class Account {
       } else {
         return {
           ...balances,
-          locations: [balances.location],
+          locations: [balances.locations[0]], // only return first location
         }
       }
     } else {
@@ -93,19 +93,19 @@ export class Account {
               transferrable,
               reserved,
               locked,
-              location,
+              locations,
               lockedDetails,
               reservedDetails,
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            } = balance.value as any
-            acc.transferrable += BigInt(transferrable)
-            acc.reserved += BigInt(reserved)
-            acc.locked += BigInt(locked)
-            acc.total += BigInt(total)
+            } = balance.value
+            console.log(balance.value)
+            acc.transferrable += transferrable
+            acc.reserved += reserved
+            acc.locked += locked
+            acc.total += total
             acc.lockedDetails.push(...lockedDetails)
             acc.reservedDetails.push(...reservedDetails)
-            if (location.total > 0n) {
-              acc.locations.push(location)
+            if (locations[0]?.total > 0n) {
+              acc.locations.push(...locations)
             }
           }
           return acc
@@ -115,18 +115,10 @@ export class Account {
           reserved: BigInt(0),
           locked: BigInt(0),
           total: BigInt(0),
-          lockedDetails: [] as {
-            value: bigint
-            id: string
-            details: () => Promise<unknown>
-          }[],
-          reservedDetails: [] as { value: bigint; id: string }[],
-          locations: [] as {
-            total: bigint
-            location: string
-            decimals: number
-          }[],
-        },
+          reservedDetails: [],
+          lockedDetails: [],
+          locations: [],
+        } as TAccountBalance,
       )
       if (
         successfulBalances.total !==

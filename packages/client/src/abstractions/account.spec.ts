@@ -26,7 +26,7 @@ describe("account queries", () => {
       balances?.transferrable + balances?.reserved + balances?.locked,
     )
     expect(balances).toBeDefined()
-    const totLocations = balances?.locations?.reduce(
+    const totLocations = balances?.locations.reduce(
       (acc: bigint, loc) => acc + loc.total,
       0n,
     )

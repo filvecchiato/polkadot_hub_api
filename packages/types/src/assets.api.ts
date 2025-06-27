@@ -12,11 +12,11 @@ export type TAccountBalance = {
     id: string
     details?: () => Promise<unknown>
   }[]
-  location: {
+  locations: {
     total: bigint
     location: keyof TDescriptors
     decimals: number
-  }
+  }[]
 }
 
 export type TAsset = {
