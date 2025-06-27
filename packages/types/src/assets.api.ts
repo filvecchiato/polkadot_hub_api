@@ -4,6 +4,7 @@ import { TDescriptors } from "./chains"
 export type TAccountBalance = {
   total: bigint
   transferrable: bigint
+  allocated: bigint // tokens not available for transfer but available for other operations like staking/voting/etc
   reserved: bigint
   locked: bigint
   reservedDetails: { value: bigint; id: string }[]

@@ -14,6 +14,7 @@ export interface BalancesPalletMethods {
   balances_getAccountBalanceWithDetails(account: SS58String[]): Promise<{
     total: bigint
     transferrable: bigint
+    allocated?: bigint // Not always available, depends on the chain
     reserved: bigint
     locked: bigint
     reservedDetails: { value: bigint; id: string }[]
@@ -93,6 +94,7 @@ export function BalancesPalletMixin<T extends ChainConnector>(
       total: bigint
       transferrable: bigint
       reserved: bigint
+      allocated?: bigint // Not always available, depends on the chain
       locked: bigint
       reservedDetails: { value: bigint; id: string }[]
       lockedDetails: {
@@ -196,6 +198,7 @@ export function BalancesPalletMixin<T extends ChainConnector>(
         transferrable,
         reserved,
         locked,
+        allocated: 0n, // TODO: implement
         reservedDetails,
         lockedDetails,
         freezesDetails,

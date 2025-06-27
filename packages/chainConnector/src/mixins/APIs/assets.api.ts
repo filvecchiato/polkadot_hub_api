@@ -4,7 +4,6 @@ import {
   TAccountBalance,
   TAddressAssetBalance,
   TAsset,
-  TDescriptors,
 } from "@polkadot-hub-api/types"
 import { LoggerFactory } from "@polkadot-hub-api/utils"
 
@@ -26,27 +25,7 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
   let enhancedChain = Base
   if (Base.pallets.includes("Balances") || Base.pallets.includes("System")) {
     enhancedChain = Object.assign(Base, {
-      get emptyAccountBalance(): {
-        total: bigint
-        allocated: bigint
-        transferrable: bigint
-        reserved: bigint
-        reservedDetails: {
-          value: bigint
-          id: string
-        }[]
-        lockedDetails: {
-          value: bigint
-          id: string
-          timelock?: bigint
-        }[]
-        locked: bigint
-        locations: {
-          total: bigint
-          location: keyof TDescriptors
-          decimals: number
-        }[]
-      } {
+      get emptyAccountBalance(): TAccountBalance {
         return {
           total: 0n,
           allocated: 0n,
@@ -175,6 +154,7 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
 
         return {
           transferrable: accountBalance.transferrable,
+          allocated: 0n, // TODO: implement allocated balance if needed
           total:
             accountBalance.locked +
             accountBalance.reserved +

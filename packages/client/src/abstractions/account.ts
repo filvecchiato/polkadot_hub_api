@@ -93,6 +93,7 @@ export class Account {
               transferrable,
               reserved,
               locked,
+              allocated,
               locations,
               lockedDetails,
               reservedDetails,
@@ -102,6 +103,7 @@ export class Account {
             acc.reserved += reserved
             acc.locked += locked
             acc.total += total
+            acc.allocated += allocated || BigInt(0)
             acc.lockedDetails.push(...lockedDetails)
             acc.reservedDetails.push(...reservedDetails)
             if (locations[0]?.total > 0n) {
@@ -114,6 +116,7 @@ export class Account {
           transferrable: BigInt(0),
           reserved: BigInt(0),
           locked: BigInt(0),
+          allocated: BigInt(0),
           total: BigInt(0),
           reservedDetails: [],
           lockedDetails: [],
