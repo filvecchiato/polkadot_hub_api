@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest"
 import { createNetworkConnector } from "../createNetworkConnector"
-import { Account } from "./Account"
+import { Account } from "./account"
 
 describe("account queries", () => {
   it("should be able to create an account and use a ws connector", async () => {

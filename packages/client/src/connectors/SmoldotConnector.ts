@@ -13,7 +13,7 @@ import { resolve } from "import-meta-resolve"
 
 import { LoggerFactory } from "@polkadot-hub-api/utils"
 
-const log = LoggerFactory.getLogger("PolkadotHubClient")
+const log = LoggerFactory.getLogger()
 
 export class SmHubConnector extends NetworkConnector {
   private static instances = new Map<ChainId, SmHubConnector>()

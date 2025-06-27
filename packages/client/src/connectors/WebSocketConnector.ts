@@ -11,7 +11,7 @@ import { ChainRegistry } from "../registry/ChainRegistry"
 // TODO generate instance with a client depening on network and type
 import { LoggerFactory } from "@polkadot-hub-api/utils"
 
-const log = LoggerFactory.getLogger("PolkadotHubClient")
+const log = LoggerFactory.getLogger()
 
 export class WsHubConnector extends NetworkConnector {
   private static instances = new Map<string, WsHubConnector>()
