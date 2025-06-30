@@ -7,8 +7,9 @@ export type TAccountBalance = {
   allocated: bigint // tokens not available for transfer but available for other operations like staking/voting/etc
   reserved: bigint
   locked: bigint
-  reservedDetails: { value: bigint; id: string }[]
+  reservedDetails: { value: bigint; id: string; chainId: keyof TDescriptors }[]
   lockedDetails: {
+    chainId: keyof TDescriptors
     value: bigint
     id: string
     details?: () => Promise<unknown>

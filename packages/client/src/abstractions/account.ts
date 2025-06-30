@@ -63,7 +63,7 @@ export class Account {
       } else {
         return {
           ...balances,
-          locations: [balances.locations[0]], // only return first location
+          locations: balances.locations,
         }
       }
     } else {
@@ -98,7 +98,7 @@ export class Account {
               lockedDetails,
               reservedDetails,
             } = balance.value
-            console.log(balance.value)
+
             acc.transferrable += transferrable
             acc.reserved += reserved
             acc.locked += locked

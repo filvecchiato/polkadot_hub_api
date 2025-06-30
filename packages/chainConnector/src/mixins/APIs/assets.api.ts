@@ -4,6 +4,7 @@ import {
   TAccountBalance,
   TAddressAssetBalance,
   TAsset,
+  TDescriptors,
 } from "@polkadot-hub-api/types"
 import { LoggerFactory } from "@polkadot-hub-api/utils"
 
@@ -98,10 +99,12 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
             const lockDetail: {
               value: bigint
               id: string
+              chainId: keyof TDescriptors
               details: () => Promise<unknown>
             } = {
               value: lock.value || 0n,
               id: lock.id,
+              chainId: Base.chainInfo.id,
               details: async () => {
                 return Promise.reject("No details available for this lock")
               },
@@ -131,10 +134,12 @@ export function AssetsApiMixin<T extends PalletComposedChain>(
             const reserveDetail: {
               value: bigint
               id: string
+              chainId: keyof TDescriptors
               details?: () => Promise<unknown>
             } = {
               value: reserve.value || 0n,
               id: reserve.id,
+              chainId: Base.chainInfo.id,
               details: async () => {
                 return Promise.reject("No details available for this reserve")
               },
