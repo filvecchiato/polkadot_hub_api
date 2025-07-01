@@ -12,7 +12,7 @@
   },
   "keywords": [],
   "author": "Filippo Vecchiato <filippo@parity.io",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "polkadot-api": "^1.9.9",
     "@polkadot-hub-api/descriptors": "workspace:^",
