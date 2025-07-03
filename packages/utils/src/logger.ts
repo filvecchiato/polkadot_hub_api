@@ -25,7 +25,7 @@ const customFormat = format.combine(
   }),
 )
 
-function findRcFileInParentDirs(
+export function findFileInParentDirs(
   fileName: string,
   startDir: string = process.cwd(),
 ): string | null {
@@ -49,7 +49,9 @@ function findRcFileInParentDirs(
   }
 }
 
-const configrc = findRcFileInParentDirs(".phapirc")
+// TODO: load the configRegistry and get the log config
+
+const configrc = findFileInParentDirs(".phapirc")
 
 let defaultLogLevel: LogLevel = LogLevel.INFO
 const definedLoggers: [string, LogLevel][] = []

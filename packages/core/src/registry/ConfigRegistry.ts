@@ -1,3 +1,4 @@
+import { LogLevel } from "@polkadot-hub-api/utils"
 import { ChainDefinition } from "polkadot-api"
 import { JsonRpcProvider } from "polkadot-api/ws-provider/node"
 
@@ -6,22 +7,44 @@ export type ChainConfig = {
   readonly provider: JsonRpcProvider
 }
 
-export function defineConfig(
-  chainsDefinitions: Record<string, ChainConfig>,
-): Record<string, ChainConfig> {
-  return ConfigRegistry.setConfig(chainsDefinitions)
+export function defineConfig({
+  chainsDefinitions,
+  logging,
+}: {
+  chainsDefinitions: Record<string, ChainConfig>
+  logging?: {
+    defaultLogLevel?: LogLevel
+    loggers?: Record<string, LogLevel>
+  }
+}): Record<string, ChainConfig> {
+  return ConfigRegistry.setConfig(chainsDefinitions, logging)
 }
 
 export class ConfigRegistry {
   private static chainsConfig: Record<string, ChainConfig>
+  private static loggingConfig:
+    | {
+        defaultLogLevel?: LogLevel
+        loggers?: Record<string, LogLevel>
+      }
+    | undefined
 
   static setConfig(
     chains: Record<string, ChainConfig>,
+    logging?: {
+      defaultLogLevel?: LogLevel
+      loggers?: Record<string, LogLevel>
+    },
   ): Record<string, ChainConfig> {
     // read from file (search hubApi.congfig.ts in the root directory)
     if (!this.chainsConfig) {
       this.chainsConfig = chains
     }
+
+    if (!this.loggingConfig && logging) {
+      this.loggingConfig = logging
+    }
+
     return this.chainsConfig
   }
 
@@ -30,5 +53,19 @@ export class ConfigRegistry {
       throw new Error("Configuration not set. Call setConfig() first.")
     }
     return this.chainsConfig as Record<string, ChainConfig>
+  }
+
+  static get logConfig():
+    | {
+        defaultLogLevel?: LogLevel
+        loggers?: Record<string, LogLevel>
+      }
+    | undefined {
+    if (!this.loggingConfig) {
+      return {
+        defaultLogLevel: LogLevel.INFO, // Default log level if not set
+      }
+    }
+    return this.loggingConfig
   }
 }

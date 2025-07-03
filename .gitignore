@@ -21,3 +21,5 @@ logs/
 pnpm-lock.yaml
 
 .turbo
+
+hubApi.config.ts
