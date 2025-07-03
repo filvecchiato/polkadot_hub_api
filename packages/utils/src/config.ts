@@ -1,4 +1,4 @@
-import { LogLevel } from "@polkadot-hub-api/utils"
+import { LogLevel } from "./types"
 import { ChainDefinition } from "polkadot-api"
 import { JsonRpcProvider } from "polkadot-api/ws-provider/node"
 

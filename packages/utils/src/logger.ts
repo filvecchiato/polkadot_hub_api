@@ -1,7 +1,6 @@
 import winston, { transports, format, Logger } from "winston"
 import { LogLevel } from "./types"
-import fs from "fs"
-import path from "path"
+import { ConfigRegistry } from "./config"
 
 const customFormat = format.combine(
   format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
@@ -25,55 +24,20 @@ const customFormat = format.combine(
   }),
 )
 
-export function findFileInParentDirs(
-  fileName: string,
-  startDir: string = process.cwd(),
-): string | null {
-  let currentDir = path.resolve(startDir)
-
-  while (true) {
-    const filePath = path.join(currentDir, fileName)
-
-    // Check if the file exists in the current directory
-    if (fs.existsSync(filePath)) {
-      return filePath
-    }
-
-    const parentDir = path.dirname(currentDir)
-
-    if (parentDir === currentDir) {
-      return null
-    }
-
-    currentDir = parentDir
-  }
-}
-
-// TODO: load the configRegistry and get the log config
-
-const configrc = findFileInParentDirs(".phapirc")
-
 let defaultLogLevel: LogLevel = LogLevel.INFO
 const definedLoggers: [string, LogLevel][] = []
-if (configrc) {
-  const config = JSON.parse(fs.readFileSync(configrc, "utf-8"))
-  const logConfig = config.log
+if (ConfigRegistry.logConfig) {
   // Set global default level if defined in config
-  if (
-    logConfig.defaultLevel &&
-    LogLevel[logConfig.defaultLevel as keyof typeof LogLevel] !== undefined
-  ) {
-    defaultLogLevel = LogLevel[logConfig.defaultLevel as keyof typeof LogLevel]
+  const logConfig = ConfigRegistry.logConfig
+  if (logConfig.defaultLogLevel) {
+    defaultLogLevel = logConfig.defaultLogLevel
   }
   // Configure specific loggers
   if (logConfig.loggers && typeof logConfig.loggers === "object") {
     for (const loggerName in logConfig.loggers) {
       const level = logConfig.loggers[loggerName]
-      if (LogLevel[level as keyof typeof LogLevel] !== undefined) {
-        definedLoggers.push([
-          loggerName,
-          LogLevel[level as keyof typeof LogLevel],
-        ])
+      if (logConfig.loggers[loggerName]) {
+        definedLoggers.push([loggerName, level])
       }
     }
   }
