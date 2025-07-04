@@ -3,7 +3,7 @@ import { u8aToHex } from "@polkadot/util"
 import { decodeAddress } from "@polkadot/util-crypto"
 import type { ChainId, TAccountBalance } from "@polkadot-hub-api/types"
 import { EnhancedNetworkConnector } from "@/mixins"
-import { NetworkConnector } from ".."
+import { PolkadotHubApi } from ".."
 
 export class Account {
   private addresses: SS58String[]
@@ -35,7 +35,7 @@ export class Account {
   }
 
   async balance(
-    networkConnector: EnhancedNetworkConnector<NetworkConnector>,
+    networkConnector: EnhancedNetworkConnector<PolkadotHubApi> | PolkadotHubApi,
     chain?: ChainId,
   ) {
     if (networkConnector.getStatus() !== "connected") {

@@ -1,2 +1,2 @@
-export * from "./ConnectorRegistry"
+// export * from "./ConnectorRegistry"
 export * from "./ChainRegistry"

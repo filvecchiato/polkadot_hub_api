@@ -1,10 +1,11 @@
 import { describe, it, expect } from "vitest"
-import { createNetworkConnector } from "../createNetworkConnector"
+// import { createNetworkConnector } from "../createNetworkConnector"
 import { Account } from "./account"
+import { PolkadotHubApi } from ".."
 
 describe("account queries", () => {
   it("should be able to create an account and use a ws connector", async () => {
-    const wsConnector = await createNetworkConnector("polkadot", "websocket")
+    const wsConnector = new PolkadotHubApi()
 
     expect(wsConnector).toBeDefined()
     expect(wsConnector.network).toBe("polkadot")

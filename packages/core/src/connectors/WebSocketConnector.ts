@@ -1,10 +1,9 @@
-import { Client } from "polkadot-api/smoldot"
-import type { ChainId, ChainIdRelay } from "@polkadot-hub-api/types"
+import {
+  type ChainIdRelay,
+  type WellKnownChainIds,
+  type WellknownRelayChainId,
+} from "@polkadot-hub-api/types"
 import { NetworkConnector } from "./types"
-import { WellKnownChains } from "./utils"
-import { createClient } from "polkadot-api"
-import { withPolkadotSdkCompat } from "polkadot-api/polkadot-sdk-compat"
-import { getWsProvider as NodeWsProvider } from "polkadot-api/ws-provider/node"
 // import { getWsProvider as WebWsProvider } from "polkadot-api/ws-provider/web"
 import { ChainRegistry } from "../registry/ChainRegistry"
 
@@ -18,8 +17,8 @@ export class WsHubConnector extends NetworkConnector {
 
   private status = "disconnected"
 
-  protected constructor(network: ChainIdRelay, client?: Client) {
-    super(network, client)
+  protected constructor(network: WellknownRelayChainId) {
+    super(network)
   }
 
   static getType(): string {
@@ -37,29 +36,12 @@ export class WsHubConnector extends NetworkConnector {
     return
   }
 
-  async loadChains(): Promise<string[]> {
+  loadChains(): WellKnownChainIds[] {
     // load chains from the registry
 
     // get all chains for the network
-    const chains = Object.entries(WellKnownChains).filter(([, val]) => {
-      return val.network === this.network
-    })
-
-    for (const [chainId, { info }] of chains) {
-      if (!info.wsUrl.length) {
-        log.warn("No ws endpoints found for chain")
-        continue
-      }
-
-      const chainClient = createClient(
-        withPolkadotSdkCompat(NodeWsProvider(info.wsUrl)),
-      )
-      // create a client for the chain
-      const chainConnector = await ChainRegistry.getOrCreate(info, chainClient)
-
-      this.chains.set(chainId as ChainId, chainConnector)
-    }
-    return Array.from(this.chains.keys())
+    // TODO: implement this
+    return []
   }
 
   async disconnect(): Promise<void> {
@@ -69,7 +51,6 @@ export class WsHubConnector extends NetworkConnector {
       return
     }
     // destroy client and chains
-    this.client?.terminate()
     this.chains.forEach((chain) => {
       ChainRegistry.removeChain(chain.chainInfo.id)
     })

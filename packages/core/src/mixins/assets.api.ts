@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { NetworkConnector } from "@/connectors"
+import { type PolkadotHubApi } from "@/connectors"
 import {
   TAddressAssetBalance,
   TAsset,
@@ -16,7 +16,7 @@ export interface NetworkApiAssets {
   getBalances(account: string): Promise<TAddressAssetBalance[]>
 }
 
-export function NetworkApiAssets<T extends NetworkConnector>(
+export function NetworkApiAssets<T extends PolkadotHubApi>(
   Base: T,
 ): T & NetworkApiAssets {
   return Object.assign(Base, {
