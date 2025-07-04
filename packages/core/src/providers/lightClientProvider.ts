@@ -19,7 +19,7 @@ export function createLightClientProvider() {
   const getSmoldot = async () => {
     return (await startSubstrateConnectWorker()) ?? startSmoldotWorker()
   }
-
+  // TODO add check for worker support on node or browser
   return {
     addRelayChain<TRelayChainId extends WellknownRelayChainId>(
       options: AddChainOptions<TRelayChainId>,

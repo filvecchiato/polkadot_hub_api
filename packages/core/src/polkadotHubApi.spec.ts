@@ -1,5 +1,4 @@
 import { describe, it, expect } from "vitest"
-import {} from "./createNetworkConnector"
 // import { wellKnownChains, WellknownParachainId } from "@polkadot-hub-api/types"
 import { PolkadotHubApi } from "."
 

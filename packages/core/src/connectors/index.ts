@@ -11,7 +11,8 @@ import { ComposedChainClass } from "@polkadot-hub-api/chain-connector"
 
 import { wellKnownChains } from "@polkadot-hub-api/types"
 import { ChainRegistry } from "../registry/ChainRegistry"
-import { enhanceWithApis } from "@/mixins"
+import { enhanceWithApis } from "../mixins"
+import { ConfigRegistry } from "@polkadot-hub-api/utils"
 
 export class PolkadotHubApi {
   network: WellknownRelayChainId
@@ -21,9 +22,14 @@ export class PolkadotHubApi {
   constructor(network?: WellknownRelayChainId) {
     this.network = network ?? "polkadot"
 
+    if (!ConfigRegistry.config) {
+      throw new Error(
+        "Configuration not set. Call defineConfig() first to set the chains configuration.",
+      )
+    }
     this.loadChains()
-
-    return enhanceWithApis<PolkadotHubApi>(this)
+    // TODO: enhance in another way
+    return enhanceWithApis(this)
   }
 
   connect(): Promise<void> {
@@ -48,7 +54,6 @@ export class PolkadotHubApi {
     ) as WellknownParachainId[]
     // first load relay chain
     const relay = wellKnownChains[this.network][0]()
-
     const relayChain = ChainRegistry.get(relay.info.id)
 
     if (!relayChain) {

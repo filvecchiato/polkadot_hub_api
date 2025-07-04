@@ -18,7 +18,7 @@ export function defineConfig({
 }
 
 export class ConfigRegistry {
-  private static chainsConfig: Record<string, ChainConfig>
+  private static chainsConfig: Record<string, ChainConfig> | undefined
   private static loggingConfig:
     | {
         defaultLogLevel?: LogLevel
@@ -47,7 +47,7 @@ export class ConfigRegistry {
 
   static get config(): Record<string, ChainConfig> {
     if (!this.chainsConfig) {
-      throw new Error("Configuration not set. Call setConfig() first.")
+      throw new Error("Configuration not set. Call defineConfig() first.")
     }
     return this.chainsConfig as Record<string, ChainConfig>
   }
