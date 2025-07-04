@@ -5,18 +5,12 @@ import { ChainConnector } from "@polkadot-hub-api/chain-connector"
 export class ChainRegistry {
   private static registry = new Map<string, ChainConnector>()
 
-  static async getOrCreate<T extends ChainConnector>(
-    info: TChain,
-    client?: PolkadotClient,
-  ) {
+  static set<T extends ChainConnector>(info: TChain, client: PolkadotClient) {
     if (this.registry.has(info.id)) {
       return this.registry.get(info.id)! as T
     }
 
-    if (!client) {
-      throw new Error("Client is required to create a new chain")
-    }
-
+    // TODO: update this method and return the correct chain
     const chain = ChainConnector.init(info, client)
 
     return chain
@@ -30,9 +24,9 @@ export class ChainRegistry {
     return [...this.registry.keys()]
   }
 
-  static removeChain(chianId: ChainId) {
-    this.registry.get(chianId)?.client.destroy()
-    return this.registry.delete(chianId)
+  static removeChain(chainId: ChainId) {
+    this.registry.get(chainId)?.client.destroy()
+    return this.registry.delete(chainId)
   }
 
   static clear() {

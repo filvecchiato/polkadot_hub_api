@@ -1,31 +1,33 @@
-import { Client } from "polkadot-api/smoldot"
-import type { ChainId, ChainIdRelay } from "@polkadot-hub-api/types"
+import type {
+  ChainId,
+  ChainIdRelay,
+  WellKnownChainIds,
+  WellknownParachainId,
+} from "@polkadot-hub-api/types"
 import { NetworkConnector } from "./types"
-import { startFromWorker as webStartFromWorker } from "polkadot-api/smoldot/from-worker"
-import { Worker as ThreadWorker } from "worker_threads"
-import { startFromWorker as NodeStartFromWorker } from "polkadot-api/smoldot/from-node-worker"
-import { fileURLToPath } from "url"
-import { WellKnownChains } from "./utils"
+// import { startFromWorker as webStartFromWorker } from "polkadot-api/smoldot/from-worker"
+// import { Worker as ThreadWorker } from "worker_threads"
+// import { startFromWorker as NodeStartFromWorker } from "polkadot-api/smoldot/from-node-worker"
+// import { fileURLToPath } from "url"
 import { ChainRegistry } from "../registry/ChainRegistry"
-import { createClient } from "polkadot-api"
-import { getSmProvider } from "polkadot-api/sm-provider"
-import { resolve } from "import-meta-resolve"
+// import { resolve } from "import-meta-resolve"
 
+import { wellKnownChains } from "@polkadot-hub-api/types"
 import { LoggerFactory } from "@polkadot-hub-api/utils"
 
 const log = LoggerFactory.getLogger()
 
-export class SmHubConnector extends NetworkConnector {
-  private static instances = new Map<ChainId, SmHubConnector>()
+export class lighClientConnector extends NetworkConnector {
+  private static instances = new Map<ChainId, lighClientConnector>()
 
   private status = "disconnected"
 
-  protected constructor(network: ChainIdRelay, client?: Client) {
-    super(network, client)
+  protected constructor(network: ChainIdRelay) {
+    super(network)
   }
 
   static getType(): string {
-    return "smoldot"
+    return "lightClient"
   }
 
   async connect(): Promise<void> {
@@ -35,62 +37,31 @@ export class SmHubConnector extends NetworkConnector {
       return
     }
 
-    await this.loadChains()
+    this.loadChains()
     this.status = "connected"
     return
   }
 
-  async loadChains(): Promise<ChainId[]> {
-    // load chains from the registry
-    if (!this.client) {
-      throw new Error("Client is required to create a smoldot connector")
-    }
-
-    const networkChains = Object.entries(WellKnownChains).filter(([, val]) => {
-      return val.network === this.network
-    })
+  loadChains(): WellKnownChainIds[] {
+    const networkChains = Object.keys(
+      wellKnownChains[this.network][1],
+    ) as WellknownParachainId[]
     // first load relay chain
-    const relay = networkChains.find(([key]) => {
-      return key === this.network
-    })
+    const relay = wellKnownChains[this.network][0]()
 
-    if (!relay || !relay[1].smoldot) {
-      throw new Error("No relay chain found or no smoldot config available")
+    const relayChain = ChainRegistry.get(relay.info.id)
+
+    if (!relayChain) {
+      throw new Error(`Relay chain ${relay.info.id} not found in registry.`)
     }
 
-    const smRelayChain = await this.client.addChain({
-      chainSpec: relay[1].smoldot,
-    })
-
-    const client = createClient(getSmProvider(smRelayChain))
-
-    const relayChain = await ChainRegistry.getOrCreate(relay[1].info, client)
-
-    this.chains.set(this.network, relayChain)
-    const promises = []
-
-    for (const entry of networkChains) {
-      const [chainId, { smoldot: chainSmoldot, info }] = entry
-
-      if (!chainSmoldot || chainId === this.network) {
-        continue
+    networkChains.forEach((parachain) => {
+      const chainConnector = ChainRegistry.get(parachain)
+      if (!chainConnector) {
+        throw new Error(`Parachain ${parachain} not found in registry.`)
       }
-      // TODO: once there are many chains, this might not be an option anymore
-      promises.push(
-        this.client!.addChain({
-          chainSpec: chainSmoldot,
-          potentialRelayChains: [smRelayChain],
-        }).then(async (chain) => {
-          const client = createClient(getSmProvider(chain))
-          return await ChainRegistry.getOrCreate(info, client)
-        }),
-      )
-    }
-    const chainConnectors = await Promise.allSettled(promises)
-    chainConnectors.forEach((chainConnector) => {
-      if (chainConnector.status === "fulfilled") {
-        this.chains.set(chainConnector.value.chainInfo.id, chainConnector.value)
-      }
+
+      this.chains.set(parachain, chainConnector)
     })
 
     return Array.from(this.chains.keys())
@@ -103,7 +74,6 @@ export class SmHubConnector extends NetworkConnector {
       return
     }
 
-    this.client?.terminate()
     this.chains.forEach((chain) => {
       ChainRegistry.removeChain(chain.chainInfo.id)
     })
@@ -116,23 +86,23 @@ export class SmHubConnector extends NetworkConnector {
   }
 
   //   TODO make sure it tests for browser environments
-  static getInstance(network: ChainIdRelay): SmHubConnector {
+  static getInstance(network: ChainIdRelay): lighClientConnector {
     if (!this.instances.has(network)) {
-      if (typeof window === "undefined") {
-        resolve("polkadot-api/smoldot/node-worker", import.meta.url).then(
-          (resolvedUrl) => {
-            const smClient = NodeStartFromWorker(
-              new ThreadWorker(fileURLToPath(resolvedUrl)),
-            )
-            this.instances.set(network, new SmHubConnector(network, smClient))
-          },
-        )
-      } else {
-        const smClient = webStartFromWorker(
-          new Worker(new URL("polkadot-api/smoldot/worker", import.meta.url)),
-        )
-        this.instances.set(network, new SmHubConnector(network, smClient))
-      }
+      // if (typeof window === "undefined") {
+      //   resolve("polkadot-api/smoldot/node-worker", import.meta.url).then(
+      //     (resolvedUrl) => {
+      //       // const smClient = NodeStartFromWorker(
+      //       //   new ThreadWorker(fileURLToPath(resolvedUrl)),
+      //       // )
+      //       this.instances.set(network, new lighClientConnector(network))
+      //     },
+      //   )
+      // } else {
+      //   // const smClient = webStartFromWorker(
+      //   //   new Worker(new URL("polkadot-api/smoldot/worker", import.meta.url)),
+      //   // )
+      // }
+      this.instances.set(network, new lighClientConnector(network))
     }
     return this.instances.get(network)!
   }

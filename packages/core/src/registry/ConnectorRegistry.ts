@@ -13,7 +13,6 @@ export class ConnectorRegistry {
   private static registry = new Map<string, ConnectorStatic>([
     ["websocket", WsHubConnector],
     ["smoldot", SmHubConnector],
-    // ["substrate", SubstrateConnectConnector],
   ])
 
   static createConnector(

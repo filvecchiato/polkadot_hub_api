@@ -1,11 +1,5 @@
 import { LogLevel } from "./types"
-import { ChainDefinition } from "polkadot-api"
-import { JsonRpcProvider } from "polkadot-api/ws-provider/node"
-
-export type ChainConfig = {
-  readonly descriptor: ChainDefinition
-  readonly provider: JsonRpcProvider
-}
+import { ChainConfig } from "@polkadot-hub-api/types"
 
 export function defineConfig({
   chainsDefinitions,
@@ -17,6 +11,9 @@ export function defineConfig({
     loggers?: Record<string, LogLevel>
   }
 }): Record<string, ChainConfig> {
+  //  add chains to ChainRegistry and then continue
+
+  // receives all data necessary when creating client
   return ConfigRegistry.setConfig(chainsDefinitions, logging)
 }
 

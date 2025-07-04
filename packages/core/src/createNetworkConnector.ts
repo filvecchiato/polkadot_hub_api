@@ -1,19 +1,19 @@
 import "./connectors" // ensures registration happens
-import { ConnectorRegistry } from "./registry/ConnectorRegistry"
 import { EnhancedNetworkConnector, enhanceWithApis } from "./mixins"
 import { NetworkConnector } from "./connectors"
+import { ConfigRegistry } from "@polkadot-hub-api/utils"
 
 export async function createNetworkConnector(
   network: string,
-  type: string,
 ): Promise<EnhancedNetworkConnector<NetworkConnector>> {
-  const connector = ConnectorRegistry.getConnector(network, type)
-  if (!connector) {
-    throw new Error(`Connector type "${type}" not supported`)
+  const config = ConfigRegistry.config[network]
+  if (!config) {
+    throw new Error(`Network configuration for "${network}" not found.`)
   }
 
-  await connector.connect()
-  // register methods available as runtime mixins
-
-  return enhanceWithApis(connector)
+  const networkConnector =
+    new //  create network connector from config if it exists
+    //  needs to know about connected chains and whatnot
+    // enahnce connector with APIs
+    NetworkConnector.return()
 }

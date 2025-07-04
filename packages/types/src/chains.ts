@@ -18,7 +18,10 @@ import {
   wpl,
   wct,
 } from "@polkadot-hub-api/descriptors"
+import { WellknownParachainId, WellknownRelayChainId } from "./wellKnownChains"
 
+// should load all available descriptors from config and use that to generate Ids and so on
+// export type
 export type AllDescriptors = typeof polkadot &
   typeof kusama &
   typeof westend &
@@ -74,12 +77,10 @@ export type ChainAsset = {
   name: string
 }
 
-export type TChain<Id = ChainId> = {
-  id: Id
-  name: string
-  wsUrl: string[]
-  paraId: number | null
-  stableTokenId: string | null
-}
-
 export type ChainIdRelay = keyof TDescriptorsRelay
+
+export type TChain = {
+  id: WellknownParachainId | WellknownRelayChainId
+  name: string
+  paraId: number | null
+}
