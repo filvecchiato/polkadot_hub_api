@@ -1,4 +1,5 @@
-import { TypedApi } from "polkadot-api"
+import type { ChainDefinition } from "polkadot-api"
+import type { Config } from "./config"
 import {
   kusama,
   kah,
@@ -67,9 +68,8 @@ export type TDescriptorsRelay = {
   westend: typeof westend
 }
 
-export type ChainId = keyof TDescriptors
-export type Descriptors<Id extends ChainId> = TDescriptors[Id]
-export type ApiOf<Id extends ChainId> = TypedApi<Descriptors<Id>>
+// export type Descriptors<Id extends ChainId> = TDescriptors[Id]
+// export type ApiOf<Id extends ChainId> = TypedApi<Descriptors<Id>>
 
 export type ChainAsset = {
   decimals: number
@@ -83,4 +83,29 @@ export type TChain = {
   id: WellknownParachainId | WellknownRelayChainId
   name: string
   paraId: number | null
+}
+
+type InferChains<T extends Config> = {
+  [P in keyof T["chains"]]: T["chains"][P]["descriptor"]
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface Chains extends InferChains<ResolvedRegister["config"]> {}
+
+export type ChainId = keyof Chains
+
+export type CommonDescriptor = Chains[keyof Chains] extends never
+  ? ChainDefinition
+  : Chains[keyof Chains]
+
+export type ChainDescriptorOf<T extends ChainId | undefined> =
+  undefined extends T ? CommonDescriptor : T extends ChainId ? Chains[T] : never
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface Register {}
+
+export type ResolvedRegister = {
+  config: Register extends { config: infer config extends Config }
+    ? config
+    : Config
 }

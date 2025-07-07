@@ -1,5 +1,5 @@
 import winston, { transports, format, Logger } from "winston"
-import { LogLevel } from "./types"
+import { LogLevel } from "@polkadot-hub-api/types"
 import { ConfigRegistry } from "./config"
 
 const customFormat = format.combine(

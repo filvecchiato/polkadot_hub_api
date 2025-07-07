@@ -1,20 +1,13 @@
-import { LogLevel } from "./types"
-import { ChainConfig } from "@polkadot-hub-api/types"
+import { ChainConfig, LogLevel, Config } from "@polkadot-hub-api/types"
 
 export function defineConfig({
-  chainsDefinitions,
+  chains,
   logging,
-}: {
-  chainsDefinitions: Record<string, ChainConfig>
-  logging?: {
-    defaultLogLevel?: LogLevel
-    loggers?: Record<string, LogLevel>
-  }
-}): Record<string, ChainConfig> {
+}: Config): Record<string, ChainConfig> {
   //  add chains to ChainRegistry and then continue
 
   // receives all data necessary when creating client
-  return ConfigRegistry.setConfig(chainsDefinitions, logging)
+  return ConfigRegistry.setConfig(chains, logging)
 }
 
 export class ConfigRegistry {

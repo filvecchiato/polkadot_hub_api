@@ -1,13 +1,11 @@
-import { CompatibilityToken, PolkadotClient } from "polkadot-api"
+import { CompatibilityToken, PolkadotClient, TypedApi } from "polkadot-api"
 import type {
-  ApiOf,
   ChainAsset,
+  ChainDescriptorOf,
   ChainId,
-  Descriptors,
   TChain,
 } from "@polkadot-hub-api/types"
 import { ComposedChainClass } from "@/types"
-import { DESCRIPTORS /*DESCRIPTORS_POLKADOT*/ } from "./constants"
 import { enhanceWithApis, enhanceWithPalletsMethods } from "./mixins"
 
 export * from "./types"
@@ -18,8 +16,7 @@ export class ChainConnector {
   client: PolkadotClient
   chainInfo: TChain
   pallets: string[] = []
-  api: ApiOf<ChainId>
-  descriptors: Descriptors<ChainId>
+  descriptors: ChainDescriptorOf<ChainId>
   compatibilityToken: CompatibilityToken
   SS58Prefix: number
   asset: ChainAsset
@@ -27,7 +24,7 @@ export class ChainConnector {
   protected constructor(
     info: TChain,
     client: PolkadotClient,
-    api: ApiOf<ChainId>,
+    descriptors: ChainDescriptorOf<ChainId>,
     compatibilityToken: CompatibilityToken,
     SS58Prefix: number,
     asset: ChainAsset,
@@ -35,9 +32,8 @@ export class ChainConnector {
   ) {
     this.chainInfo = info
     this.client = client
-    this.api = api
     this.pallets = pallets
-    this.descriptors = DESCRIPTORS[info.id as ChainId]
+    this.descriptors = descriptors
     this.SS58Prefix = SS58Prefix
     this.compatibilityToken = compatibilityToken
     this.asset = asset
@@ -50,30 +46,36 @@ export class ChainConnector {
     return this.instance
   }
 
+  get api(): TypedApi<ChainDescriptorOf<ChainId>> {
+    if (!this.descriptors) {
+      throw new Error("ChainConnector not initialized")
+    }
+    return this.client.getTypedApi(this.descriptors)
+  }
+
   static async init(
     info: TChain,
     client: PolkadotClient,
+    descriptors: ChainDescriptorOf<ChainId>,
   ): Promise<ChainConnector> {
-    const typedApi = client.getTypedApi(DESCRIPTORS[info.id as ChainId])
+    const typedApi = client.getTypedApi(descriptors)
     const chainInfo = await ChainConnector.getInitChainInfo(
       client,
       typedApi,
-      DESCRIPTORS[info.id as ChainId],
+      descriptors,
     )
 
     // enhance chainConnector with mixins
     const connector = new ChainConnector(
       info,
       client,
-      typedApi,
+      descriptors,
       chainInfo.compatibilityToken,
       chainInfo.SS58Prefix,
       chainInfo.asset,
       chainInfo.pallets,
     )
 
-    // ALWAYS enhance with methods first and then with APIs
-    // mixin Pallet methods
     const enhancedChain = enhanceWithApis(enhanceWithPalletsMethods(connector))
     this.instance = enhancedChain
     return this.instance
@@ -81,8 +83,8 @@ export class ChainConnector {
 
   static async getInitChainInfo(
     client: PolkadotClient,
-    typedApi: ApiOf<ChainId>,
-    descriptors: Descriptors<ChainId>,
+    typedApi: TypedApi<ChainDescriptorOf<ChainId>>,
+    descriptors: ChainDescriptorOf<ChainId>,
   ): Promise<{
     SS58Prefix: number
     compatibilityToken: CompatibilityToken
@@ -102,7 +104,7 @@ export class ChainConnector {
     ])
 
     return {
-      SS58Prefix,
+      SS58Prefix: SS58Prefix as number,
       compatibilityToken,
       asset: {
         decimals: properties.tokenDecimals,
