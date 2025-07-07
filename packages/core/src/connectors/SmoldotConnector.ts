@@ -1,8 +1,8 @@
 import type {
   ChainId,
-  ChainIdRelay,
   WellKnownChainIds,
   WellknownParachainId,
+  WellknownRelayChainId,
 } from "@polkadot-hub-api/types"
 import { NetworkConnector } from "./types"
 // import { startFromWorker as webStartFromWorker } from "polkadot-api/smoldot/from-worker"
@@ -22,7 +22,7 @@ export class lighClientConnector extends NetworkConnector {
 
   private status = "disconnected"
 
-  protected constructor(network: ChainIdRelay) {
+  protected constructor(network: WellknownRelayChainId) {
     super(network)
   }
 
@@ -86,7 +86,7 @@ export class lighClientConnector extends NetworkConnector {
   }
 
   //   TODO make sure it tests for browser environments
-  static getInstance(network: ChainIdRelay): lighClientConnector {
+  static getInstance(network: WellknownRelayChainId): lighClientConnector {
     if (!this.instances.has(network)) {
       // if (typeof window === "undefined") {
       //   resolve("polkadot-api/smoldot/node-worker", import.meta.url).then(

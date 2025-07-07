@@ -1,5 +1,4 @@
 import {
-  type ChainIdRelay,
   type WellKnownChainIds,
   type WellknownRelayChainId,
 } from "@polkadot-hub-api/types"
@@ -62,7 +61,7 @@ export class WsHubConnector extends NetworkConnector {
     return this.status
   }
 
-  static getInstance(network: ChainIdRelay): WsHubConnector {
+  static getInstance(network: WellknownRelayChainId): WsHubConnector {
     if (!this.instances.has(network)) {
       this.instances.set(network, new WsHubConnector(network))
     }

@@ -1,5 +1,7 @@
 /* eslint-disable no-unexpected-multiline */
 import {
+  ChainDescriptorOf,
+  ChainId,
   TChain,
   wellKnownChains,
   type WellknownParachainId,
@@ -12,8 +14,12 @@ import { LightClientProvider, getProviderSymbol } from "@polkadot-hub-api/types"
 import { ChainRegistry } from "@/registry"
 
 type AddChainOptions<TWellknownChainId> =
-  | { chainSpec: string; id: TWellknownChainId }
-  | { id: TWellknownChainId }
+  | {
+      chainSpec: string
+      id: TWellknownChainId
+      descriptors: ChainDescriptorOf<ChainId>
+    }
+  | { id: TWellknownChainId; descriptors: ChainDescriptorOf<ChainId> }
 
 export function createLightClientProvider() {
   const getSmoldot = async () => {
@@ -47,7 +53,7 @@ export function createLightClientProvider() {
 
         const chainInfo = wellKnownChains[options.id][0]().info as TChain
 
-        ChainRegistry.set(chainInfo, client)
+        await ChainRegistry.set(chainInfo, client, options.descriptors)
         return chain
       }
       const relayId = options.id as TRelayChainId
@@ -80,33 +86,40 @@ export function createLightClientProvider() {
               const parachainPromise = Promise.all([
                 getRelayChain(),
                 chainSpecPromise,
-              ]).then(([relayChain, chainSpec]) => {
-                const chain =
-                  "addChain" in relayChain
-                    ? relayChain.addChain(chainSpec)
-                    : (async () => {
-                        const smoldot = await getSmoldot()
+              ])
+                .then(([relayChain, chainSpec]) => {
+                  const chain =
+                    "addChain" in relayChain
+                      ? relayChain.addChain(chainSpec)
+                      : (async () => {
+                          const smoldot = await getSmoldot()
 
-                        return isSubstrateConnectProvider(smoldot)
-                          ? smoldot.addChain(chainSpec)
-                          : smoldot.addChain({
-                              chainSpec,
-                              potentialRelayChains: [relayChain],
-                            })
-                      })()
-                return chain
-              })
+                          return isSubstrateConnectProvider(smoldot)
+                            ? smoldot.addChain(chainSpec)
+                            : smoldot.addChain({
+                                chainSpec,
+                                potentialRelayChains: [relayChain],
+                              })
+                        })()
+                  return chain
+                })
+                .then(async (chain) => {
+                  const chainInfo = (
+                    wellKnownChains[relayId][1] as Record<
+                      TParachainId,
+                      () => { info: TChain }
+                    >
+                  )[options.id]?.().info
 
-              const chainInfo = (
-                wellKnownChains[relayId][1] as Record<
-                  TParachainId,
-                  () => { info: TChain }
-                >
-              )[options.id]?.().info
+                  const client = createClient(getSmProvider(chain))
 
-              const client = createClient(getSmProvider(parachainPromise))
-
-              ChainRegistry.set(chainInfo, client)
+                  await ChainRegistry.set(
+                    chainInfo,
+                    client,
+                    options.descriptors,
+                  )
+                  return chain
+                })
 
               return getSmProvider(parachainPromise)
             },

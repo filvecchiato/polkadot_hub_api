@@ -1,8 +1,5 @@
-import { ChainConnector } from "@/index"
-import { AllDescriptors } from "@polkadot-hub-api/types"
-// import { VotingConviction } from "@polkadot-hub-api/descriptors"
-import { CompatibilityLevel, SS58String, TypedApi } from "polkadot-api"
-// import { ReferendumInfo } from "./types"
+import { ChainConnector, AllTypedApi } from "@/index"
+import { CompatibilityLevel, SS58String } from "polkadot-api"
 
 import { LoggerFactory } from "@polkadot-hub-api/utils"
 
@@ -109,7 +106,7 @@ export function ConvictionVotingPalletMixin<T extends ChainConnector>(
         throw new Error("No account provided")
       }
 
-      const api = Base.api as unknown as TypedApi<AllDescriptors>
+      const api = Base.api as AllTypedApi
       if (!api.query.ConvictionVoting) {
         throw new Error(
           "Conviction Voting pallet is not available in the current runtime",

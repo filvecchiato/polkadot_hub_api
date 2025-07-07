@@ -1,6 +1,5 @@
-import { ChainConnector } from "@/index"
-import { AllDescriptors } from "@polkadot-hub-api/types"
-import { CompatibilityLevel, TypedApi } from "polkadot-api"
+import { AllTypedApi, ChainConnector } from "@/index"
+import { CompatibilityLevel } from "polkadot-api"
 import { LoggerFactory } from "@polkadot-hub-api/utils"
 
 const log = LoggerFactory.getLogger("ChainConnector")
@@ -22,7 +21,7 @@ export function ForeignAssetsPalletMixin<T extends ChainConnector>(
   }
   return Object.assign(Base, {
     async foreignAssets_getAssets() {
-      const api = Base.api as unknown as TypedApi<AllDescriptors>
+      const api = Base.api as AllTypedApi
       if (!api.query.Assets) {
         throw new Error(
           "Foreign Assets pallet is not available in the current runtime",

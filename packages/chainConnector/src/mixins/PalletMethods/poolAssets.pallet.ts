@@ -1,6 +1,5 @@
-import { ChainConnector } from "@/index"
-import { AllDescriptors } from "@polkadot-hub-api/types"
-import { CompatibilityLevel, TypedApi } from "polkadot-api"
+import { AllTypedApi, ChainConnector } from "@/index"
+import { CompatibilityLevel } from "polkadot-api"
 import { TAddressAssetBalance, TAsset } from "@polkadot-hub-api/types"
 import { LoggerFactory } from "@polkadot-hub-api/utils"
 
@@ -42,7 +41,7 @@ export function PoolAssetsPalletMixin<T extends ChainConnector>(
   }
   return Object.assign(Base, {
     async poolAssets_getAssets(assetId?: number) {
-      const api = Base.api as unknown as TypedApi<AllDescriptors>
+      const api = Base.api as AllTypedApi
       if (!api.query.PoolAssets) {
         throw new Error(
           "Pool Assets pallet is not available in the current runtime",
@@ -85,7 +84,7 @@ export function PoolAssetsPalletMixin<T extends ChainConnector>(
       }
     },
     async poolAssets_getAssetMetadata(assetId: number) {
-      const api = Base.api as unknown as TypedApi<AllDescriptors>
+      const api = Base.api as AllTypedApi
       if (!api.query.Assets) {
         throw new Error("Assets pallet is not available in the current runtime")
       }
@@ -127,7 +126,7 @@ export function PoolAssetsPalletMixin<T extends ChainConnector>(
         throw new Error("Invalid asset ID provided")
       }
 
-      const api = Base.api as unknown as TypedApi<AllDescriptors>
+      const api = Base.api as AllTypedApi
       if (!api.query.Assets) {
         throw new Error("Assets pallet is not available in the current runtime")
       }
@@ -172,7 +171,7 @@ export function PoolAssetsPalletMixin<T extends ChainConnector>(
         throw new Error("Only one address is supported at a time")
       }
 
-      const api = Base.api as unknown as TypedApi<AllDescriptors>
+      const api = Base.api as AllTypedApi
       if (!api.query.Assets) {
         throw new Error("Assets pallet is not available in the current runtime")
       }

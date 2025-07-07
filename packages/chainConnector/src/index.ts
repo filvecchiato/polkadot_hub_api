@@ -9,7 +9,6 @@ import { ComposedChainClass } from "@/types"
 import { enhanceWithApis, enhanceWithPalletsMethods } from "./mixins"
 
 export * from "./types"
-export * from "./constants"
 
 export class ChainConnector {
   private static instance: ComposedChainClass | undefined
@@ -50,7 +49,7 @@ export class ChainConnector {
     if (!this.descriptors) {
       throw new Error("ChainConnector not initialized")
     }
-    return this.client.getTypedApi(this.descriptors)
+    return this.client.getTypedApi<ChainDescriptorOf<ChainId>>(this.descriptors)
   }
 
   static async init(

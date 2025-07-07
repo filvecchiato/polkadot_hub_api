@@ -1,17 +1,25 @@
 import { PolkadotClient } from "polkadot-api"
-import type { ChainId, TChain } from "@polkadot-hub-api/types"
+import type {
+  ChainDescriptorOf,
+  ChainId,
+  TChain,
+  WellKnownChainIds,
+} from "@polkadot-hub-api/types"
 import { ChainConnector } from "@polkadot-hub-api/chain-connector"
 
 export class ChainRegistry {
   private static registry = new Map<string, ChainConnector>()
 
-  static set<T extends ChainConnector>(info: TChain, client: PolkadotClient) {
+  static async set(
+    info: TChain,
+    client: PolkadotClient,
+    descriptors: ChainDescriptorOf<ChainId>,
+  ): Promise<ChainConnector> {
     if (this.registry.has(info.id)) {
-      return this.registry.get(info.id)! as T
+      return this.registry.get(info.id)!
     }
 
-    // TODO: update this method and return the correct chain
-    const chain = ChainConnector.init(info, client)
+    const chain = await ChainConnector.init(info, client, descriptors)
 
     return chain
   }
@@ -24,7 +32,7 @@ export class ChainRegistry {
     return [...this.registry.keys()]
   }
 
-  static removeChain(chainId: ChainId) {
+  static removeChain(chainId: WellKnownChainIds) {
     this.registry.get(chainId)?.client.destroy()
     return this.registry.delete(chainId)
   }

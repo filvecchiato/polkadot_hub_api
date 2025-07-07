@@ -62,7 +62,7 @@ describe("createNetwork", () => {
   it("should be able to get a chain from the network", async () => {
     const wsConnector = new PolkadotHubApi()
 
-    const chain = wsConnector.getChain("pah")
+    const chain = wsConnector.getChain("polkadot_asset_hub")
 
     expect(chain).toBeDefined()
   })

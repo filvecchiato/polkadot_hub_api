@@ -1,6 +1,5 @@
-import { ChainConnector } from "@/index"
-import { AllDescriptors } from "@polkadot-hub-api/types"
-import { CompatibilityLevel, SS58String, TypedApi } from "polkadot-api"
+import { AllTypedApi, ChainConnector } from "@/index"
+import { CompatibilityLevel, SS58String } from "polkadot-api"
 import { LoggerFactory } from "@polkadot-hub-api/utils"
 
 const log = LoggerFactory.getLogger("ChainConnector")
@@ -28,7 +27,7 @@ export function VestingPalletMixin<T extends ChainConnector>(
         throw new Error("No account provided")
       }
 
-      const api = Base.api as unknown as TypedApi<AllDescriptors>
+      const api = Base.api as AllTypedApi
       if (!api.query.Vesting) {
         throw new Error(
           "Vesting pallet is not available in the current runtime",
@@ -89,7 +88,7 @@ export function VestingPalletMixin<T extends ChainConnector>(
         throw new Error("No account provided")
       }
 
-      const api = Base.api as unknown as TypedApi<AllDescriptors>
+      const api = Base.api as AllTypedApi
       if (!api.query.Vesting) {
         throw new Error(
           "Vesting pallet is not available in the current runtime",

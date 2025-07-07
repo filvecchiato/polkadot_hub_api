@@ -1,6 +1,5 @@
-import { ChainConnector } from "@/index"
-import { AllDescriptors } from "@polkadot-hub-api/types"
-import { CompatibilityLevel, SS58String, TypedApi } from "polkadot-api"
+import { AllTypedApi, ChainConnector } from "@/index"
+import { CompatibilityLevel, SS58String } from "polkadot-api"
 import { LoggerFactory } from "@polkadot-hub-api/utils"
 
 const log = LoggerFactory.getLogger("ChainConnector")
@@ -34,7 +33,7 @@ export function StakingPalletMixin<T extends ChainConnector>(
       if (account.length === 0) {
         throw new Error("No account provided")
       }
-      const typedApi = Base.api as unknown as TypedApi<AllDescriptors>
+      const typedApi = Base.api as AllTypedApi
 
       if (!typedApi.query.Staking) {
         throw new Error("Staking pallet is not available in the API")
@@ -89,7 +88,7 @@ export function StakingPalletMixin<T extends ChainConnector>(
         throw new Error("No account provided")
       }
 
-      const typedApi = Base.api as unknown as TypedApi<AllDescriptors>
+      const typedApi = Base.api as AllTypedApi
 
       if (!typedApi.query.Staking) {
         throw new Error("Staking pallet is not available in the API")

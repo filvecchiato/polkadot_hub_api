@@ -1,7 +1,10 @@
 import { SS58String } from "polkadot-api"
 import { u8aToHex } from "@polkadot/util"
 import { decodeAddress } from "@polkadot/util-crypto"
-import type { ChainId, TAccountBalance } from "@polkadot-hub-api/types"
+import type {
+  TAccountBalance,
+  WellKnownChainIds,
+} from "@polkadot-hub-api/types"
 import { EnhancedNetworkConnector } from "@/mixins"
 import { PolkadotHubApi } from ".."
 
@@ -36,7 +39,7 @@ export class Account {
 
   async balance(
     networkConnector: EnhancedNetworkConnector<PolkadotHubApi> | PolkadotHubApi,
-    chain?: ChainId,
+    chain?: WellKnownChainIds,
   ) {
     if (networkConnector.getStatus() !== "connected") {
       throw new Error("Network connector is not connected")

@@ -11,51 +11,51 @@ export const wellKnownChains = {
       }
     },
     {
-      pah: () => {
+      polkadot_asset_hub: () => {
         return {
           smoldot: () => import("polkadot-api/chains/polkadot_asset_hub"),
           info: {
-            id: "pah",
+            id: "polkadot_asset_hub",
             name: "Asset Hub",
             paraId: 1000,
           },
         }
       },
-      pbh: () => {
+      polkadot_bridge_hub: () => {
         return {
           smoldot: () => import("polkadot-api/chains/polkadot_bridge_hub"),
           info: {
-            id: "pbh",
+            id: "polkadot_bridge_hub",
             name: "Bridge Hub",
             paraId: 1002,
           },
         }
       },
-      pcl: () => {
+      polkadot_collectives: () => {
         return {
           smoldot: () => import("polkadot-api/chains/polkadot_collectives"),
           info: {
-            id: "pcl",
+            id: "polkadot_collectives",
             name: "Collectives",
             paraId: 1001,
           },
         }
       },
-      pct: () => {
+      polkadot_coretime: () => {
         return {
           smoldot: () => import("polkadot-api/chains/polkadot_coretime"),
           info: {
-            id: "pct",
+            id: "polkadot_coretime",
             name: "Coretime",
             paraId: 1005,
           },
         }
       },
-      ppl: () => {
+      polkadot_people: () => {
         return {
           smoldot: () => import("polkadot-api/chains/polkadot_people"),
           info: {
-            id: "ppl",
+            id: "polkadot_people",
             name: "People",
             paraId: 1004,
           },
@@ -63,53 +63,53 @@ export const wellKnownChains = {
       },
     },
   ],
-  kusama: [
+  ksmcc3: [
     () => {
       return {
         smoldot: () => import("polkadot-api/chains/ksmcc3"),
         info: {
-          id: "kusama",
+          id: "ksmcc3",
           name: "Kusama",
           paraId: null,
         },
       }
     },
     {
-      kah: () => {
+      ksmcc3_asset_hub: () => {
         return {
           smoldot: () => import("polkadot-api/chains/ksmcc3_asset_hub"),
           info: {
-            id: "kah",
+            id: "ksmcc3_asset_hub",
             name: "Asset Hub",
             paraId: 1000,
           },
         }
       },
-      kbh: () => {
+      ksmcc3_bridge_hub: () => {
         return {
           smoldot: () => import("polkadot-api/chains/ksmcc3_bridge_hub"),
           info: {
-            id: "kbh",
+            id: "ksmcc3_bridge_hub",
             name: "Bridge Hub",
             paraId: 1002,
           },
         }
       },
-      kct: () => {
+      ksmcc3_coretime: () => {
         return {
           smoldot: () => null,
           info: {
-            id: "kct",
+            id: "ksmcc3_coretime",
             name: "Coretime",
             paraId: 1005,
           },
         }
       },
-      kpl: () => {
+      ksmcc3_people: () => {
         return {
           smoldot: () => import("polkadot-api/chains/ksmcc3_people"),
           info: {
-            id: "kpl",
+            id: "ksmcc3_people",
             name: "People",
             paraId: 1004,
           },
@@ -117,63 +117,63 @@ export const wellKnownChains = {
       },
     },
   ],
-  westend: [
+  westend2: [
     () => {
       return {
         smoldot: () => import("polkadot-api/chains/westend2"),
         info: {
-          id: "westend",
+          id: "westend2",
           name: "Westend",
           paraId: null,
         },
       }
     },
     {
-      wah: () => {
+      westend2_asset_hub: () => {
         return {
           smoldot: () => import("polkadot-api/chains/westend2_asset_hub"),
           info: {
-            id: "wah",
+            id: "westend2_asset_hub",
             name: "Asset Hub",
             paraId: 1000,
           },
         }
       },
-      wbh: () => {
+      westend2_bridge_hub: () => {
         return {
           smoldot: () => import("polkadot-api/chains/westend2_bridge_hub"),
           info: {
-            id: "wbh",
+            id: "westend2_bridge_hub",
             name: "Bridge Hub",
             paraId: 1002,
           },
         }
       },
-      wcl: () => {
+      westend2_collectives: () => {
         return {
           smoldot: () => import("polkadot-api/chains/westend2_collectives"),
           info: {
-            id: "wcl",
+            id: "westend2_collectives",
             name: "Collectives",
             paraId: 1001,
           },
         }
       },
-      wpl: () => {
+      westend2_people: () => {
         return {
           smoldot: () => import("polkadot-api/chains/westend2_people"),
           info: {
-            id: "wpl",
+            id: "westend2_people",
             name: "People",
             paraId: 1004,
           },
         }
       },
-      wct: () => {
+      westend2_coretime: () => {
         return {
           smoldot: () => null,
           info: {
-            id: "wct",
+            id: "westend2_coretime",
             name: "Coretime",
             paraId: 1005,
           },

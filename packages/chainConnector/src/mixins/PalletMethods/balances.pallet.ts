@@ -1,6 +1,7 @@
 import { ChainConnector } from "@/index"
-import { CompatibilityLevel, SS58String } from "polkadot-api"
+import { SS58String, CompatibilityLevel } from "polkadot-api"
 import { LoggerFactory } from "@polkadot-hub-api/utils"
+import { AllTypedApi } from "@/index"
 
 const log = LoggerFactory.getLogger("ChainConnector")
 
@@ -48,7 +49,7 @@ export function BalancesPalletMixin<T extends ChainConnector>(
         throw new Error("No account provided")
       }
 
-      const balance_Account = Base.api.query.Balances.Account
+      const balance_Account = (Base.api as AllTypedApi).query.Balances.Account
 
       if (
         !balance_Account.isCompatible(
@@ -109,13 +110,15 @@ export function BalancesPalletMixin<T extends ChainConnector>(
         throw new Error("No account provided")
       }
 
+      const typedApi = Base.api as AllTypedApi
+
       const [balance, locks, reserves, freezes, holds] =
         await Promise.allSettled([
           this.balances_getAccountBalance(account),
-          Base.api.query.Balances.Locks.getValues(account.map((a) => [a])),
-          Base.api.query.Balances.Reserves.getValues(account.map((a) => [a])),
-          Base.api.query.Balances.Freezes.getValues(account.map((a) => [a])),
-          Base.api.query.Balances.Holds.getValues(account.map((a) => [a])),
+          typedApi.query.Balances.Locks.getValues(account.map((a) => [a])),
+          typedApi.query.Balances.Reserves.getValues(account.map((a) => [a])),
+          typedApi.query.Balances.Freezes.getValues(account.map((a) => [a])),
+          typedApi.query.Balances.Holds.getValues(account.map((a) => [a])),
         ])
 
       if (balance.status === "rejected") {
@@ -198,7 +201,7 @@ export function BalancesPalletMixin<T extends ChainConnector>(
         transferrable,
         reserved,
         locked,
-        allocated: 0n, // TODO: implement
+        allocated: 0n, // TODO:
         reservedDetails,
         lockedDetails,
         freezesDetails,

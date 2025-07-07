@@ -1,5 +1,5 @@
 import { Enum, SS58String } from "polkadot-api"
-import { TDescriptors } from "./chains"
+import { WellKnownChainIds } from "./wellKnownChains"
 
 export type TAccountBalance = {
   total: bigint
@@ -7,16 +7,20 @@ export type TAccountBalance = {
   allocated: bigint // tokens not available for transfer but available for other operations like staking/voting/etc
   reserved: bigint
   locked: bigint
-  reservedDetails: { value: bigint; id: string; chainId: keyof TDescriptors }[]
+  reservedDetails: {
+    value: bigint
+    id: string
+    chainId: WellKnownChainIds
+  }[]
   lockedDetails: {
-    chainId: keyof TDescriptors
+    chainId: WellKnownChainIds
     value: bigint
     id: string
     details?: () => Promise<unknown>
   }[]
   locations: {
     total: bigint
-    location: keyof TDescriptors
+    location: WellKnownChainIds
     decimals: number
   }[]
 }
