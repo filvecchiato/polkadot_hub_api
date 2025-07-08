@@ -2,7 +2,7 @@
   "name": "polakdot-hub-api-monorepo",
   "version": "0.1.32",
   "description": "Polkadot Hub API",
-  "private": true,
+  "private": false,
   "type": "module",
   "workspaces": [
     "packages/*",

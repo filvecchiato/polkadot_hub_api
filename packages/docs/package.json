@@ -1,7 +1,7 @@
 {
-  "name": "packages-docs",
-  "version": "0.0.0",
-  "private": true,
+  "name": "@polkadot-hib-api/docs",
+  "version": "0.0.1",
+  "private": false,
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
