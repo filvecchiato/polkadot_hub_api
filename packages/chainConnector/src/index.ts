@@ -9,6 +9,7 @@ import { ComposedChainClass } from "@/types"
 import { enhanceWithApis, enhanceWithPalletsMethods } from "./mixins"
 
 export * from "./types"
+export * from "./abstractions"
 
 export class ChainConnector {
   private static instance: ComposedChainClass | undefined
