@@ -6,8 +6,10 @@ import tseslint from "typescript-eslint"
 export default [
   { ignores: ["dist/**/*", ".papi/**/*", "eslint.config.js"] },
   { files: ["**/*.{js,mjs,cjs,ts}"] },
-  // { plugins: ["babel-plugin-transform-import-meta"] },
   { languageOptions: { globals: globals.browser } },
+  {
+    plugins: ["eslint-plugin-tsdoc"],
+  },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
 ]

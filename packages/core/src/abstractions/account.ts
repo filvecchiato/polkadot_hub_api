@@ -8,28 +8,62 @@ import type {
 import { EnhancedNetworkConnector } from "@/mixins"
 import { PolkadotHubApi } from ".."
 
+/**
+ * Represents a user account with multiple addresses.
+ * Provides methods to manage addresses and query balances across different chains.
+ * @example
+ * const account = new Account(["address1", "address2"]);
+ * account.addAddress("address3");
+ * const balances = await account.balance(networkConnector, "polkadot");
+ **/
 export class Account {
   private addresses: SS58String[]
   constructor(addresses: SS58String[]) {
     this.addresses = addresses
   }
-
+  /**
+   * Returns the list of addresses associated with this account.
+   * @returns {SS58String[]} Array of addresses.
+   */
   listAddresses(): SS58String[] {
     return this.addresses
   }
-
-  addAddress(address: SS58String): void {
+  /**
+   * Adds a new address to the account.
+   * @param {SS58String} address - The address to add.
+   * @return {SS58String[]} Updated array of addresses.
+   */
+  addAddress(address: SS58String): SS58String[] {
     this.addresses.push(address)
+    return this.addresses
   }
 
-  removeAddress(address: SS58String): void {
+  /**
+   * Removes an address from the account.
+   * @param {SS58String} address - The address to remove.
+   * @return {SS58String[]} Updated array of addresses.
+   */
+  removeAddress(address: SS58String): SS58String[] {
     this.addresses = this.addresses.filter((addr) => addr !== address)
+    return this.addresses
   }
 
-  clearAddresses(): void {
+  /**
+   * Clears all addresses from the account.
+   * @returns {SS58String[]} An empty array indicating all addresses have been cleared.
+   */
+  clearAddresses(): [] {
     this.addresses = []
+    return []
   }
 
+  /**
+   * Converts a given address to its public key representation.
+   * If the address is already in hex format (starts with "0x" and is 42 characters long),
+   * it returns the address as is. Otherwise, it decodes the address and returns its hex representation.
+   * @param {string} address - The address to convert.
+   * @returns {string} The public key in hex format.
+   */
   static getAddressPubkey(address: string) {
     if (address.startsWith("0x") && address.length === 42) {
       return address
@@ -37,6 +71,12 @@ export class Account {
     return u8aToHex(decodeAddress(address))
   }
 
+  /**
+   * Queries the balance of the account across different chains.
+   * @param {EnhancedNetworkConnector<PolkadotHubApi> | PolkadotHubApi} networkConnector - The network connector to use.
+   * @param {WellKnownChainIds} [chain] - The specific chain to query (optional).
+   * @returns {Promise<TAccountBalance>} The account balance information.
+   */
   async balance(
     networkConnector: EnhancedNetworkConnector<PolkadotHubApi> | PolkadotHubApi,
     chain?: WellKnownChainIds,
