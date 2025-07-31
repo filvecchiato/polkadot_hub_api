@@ -3,6 +3,14 @@
     Include all methods for more detailed queries and generic calculations, info etc.
 */
 
+/**
+ * @unstable
+ * Represents a native token abstraction.
+ * Provides methods to access token properties and balance.
+ * @example
+ * const nativeToken = new NativeToken();
+ * console.log(nativeToken.id);
+ **/
 export class NativeToken {
   private originChainId: string | undefined
 
@@ -29,5 +37,19 @@ export class NativeToken {
 
   get chainId(): string | undefined {
     return this.originChainId
+  }
+
+  /**
+   * @unstable
+   * Returns the balance of the native token.
+   * @returns {Promise<bigint>} The balance of the native token.
+   * @throws {Error} If the method is not implemented.
+   * @example
+   * const nativeToken = new NativeToken();
+   * const balance = await nativeToken.balance;
+   **/
+
+  get balance(): Promise<bigint> {
+    throw new Error("Method 'balance' not implemented.")
   }
 }
