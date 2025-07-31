@@ -16,15 +16,18 @@ import { PolkadotHubApi } from ".."
  * account.addAddress("address3");
  * const balances = await account.balance(networkConnector, "polkadot");
  **/
+
 export class Account {
   private addresses: SS58String[]
   constructor(addresses: SS58String[]) {
     this.addresses = addresses
   }
+
   /**
    * Returns the list of addresses associated with this account.
    * @returns {SS58String[]} Array of addresses.
-   */
+   **/
+
   listAddresses(): SS58String[] {
     return this.addresses
   }
@@ -43,6 +46,7 @@ export class Account {
    * @param {SS58String} address - The address to remove.
    * @return {SS58String[]} Updated array of addresses.
    */
+
   removeAddress(address: SS58String): SS58String[] {
     this.addresses = this.addresses.filter((addr) => addr !== address)
     return this.addresses
@@ -63,8 +67,9 @@ export class Account {
    * it returns the address as is. Otherwise, it decodes the address and returns its hex representation.
    * @param {string} address - The address to convert.
    * @returns {string} The public key in hex format.
-   */
-  static getAddressPubkey(address: string) {
+   **/
+
+  static getAddressPubkey(address: string): string {
     if (address.startsWith("0x") && address.length === 42) {
       return address
     }
@@ -76,11 +81,12 @@ export class Account {
    * @param {EnhancedNetworkConnector<PolkadotHubApi> | PolkadotHubApi} networkConnector - The network connector to use.
    * @param {WellKnownChainIds} [chain] - The specific chain to query (optional).
    * @returns {Promise<TAccountBalance>} The account balance information.
-   */
+   **/
+
   async balance(
     networkConnector: EnhancedNetworkConnector<PolkadotHubApi> | PolkadotHubApi,
     chain?: WellKnownChainIds,
-  ) {
+  ): Promise<TAccountBalance> {
     if (networkConnector.getStatus() !== "connected") {
       throw new Error("Network connector is not connected")
     }
