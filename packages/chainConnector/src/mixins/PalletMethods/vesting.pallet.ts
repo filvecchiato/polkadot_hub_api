@@ -1,5 +1,5 @@
-import { AllTypedApi, ChainConnector } from "@/index"
-import { CompatibilityLevel, SS58String } from "polkadot-api"
+import { ChainConnector } from "@/index"
+import { SS58String } from "polkadot-api"
 import { LoggerFactory } from "@polkadot-hub-api/utils"
 
 const log = LoggerFactory.getLogger("ChainConnector")
@@ -27,7 +27,7 @@ export function VestingPalletMixin<T extends ChainConnector>(
         throw new Error("No account provided")
       }
 
-      const api = Base.api as AllTypedApi
+      const api = Base.api
       if (!api.query.Vesting) {
         throw new Error(
           "Vesting pallet is not available in the current runtime",
@@ -35,12 +35,7 @@ export function VestingPalletMixin<T extends ChainConnector>(
       }
       const vesting_Account = api.query.Vesting.Vesting
 
-      if (
-        !vesting_Account.isCompatible(
-          CompatibilityLevel.BackwardsCompatible,
-          Base.compatibilityToken,
-        )
-      ) {
+      if (!vesting_Account) {
         throw new Error(
           "Vesting.Vesting is not compatible with the current runtime",
         )
@@ -88,7 +83,7 @@ export function VestingPalletMixin<T extends ChainConnector>(
         throw new Error("No account provided")
       }
 
-      const api = Base.api as AllTypedApi
+      const api = Base.api
       if (!api.query.Vesting) {
         throw new Error(
           "Vesting pallet is not available in the current runtime",
@@ -96,12 +91,7 @@ export function VestingPalletMixin<T extends ChainConnector>(
       }
       const vesting_Account = api.query.Vesting.Vesting
 
-      if (
-        !vesting_Account.isCompatible(
-          CompatibilityLevel.BackwardsCompatible,
-          Base.compatibilityToken,
-        )
-      ) {
+      if (!vesting_Account) {
         throw new Error(
           "Vesting.Vesting is not compatible with the current runtime",
         )

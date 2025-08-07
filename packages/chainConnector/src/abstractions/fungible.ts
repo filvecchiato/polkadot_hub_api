@@ -23,7 +23,8 @@ export class FungibleToken {
   }
 
   get id(): string {
-    throw new Error("Method 'id' not implemented.")
+    const id = `${this.originChainId}-${this.originAssetId}-${this.originAssetType}`
+    return id
   }
 
   get balance(): Promise<bigint> {

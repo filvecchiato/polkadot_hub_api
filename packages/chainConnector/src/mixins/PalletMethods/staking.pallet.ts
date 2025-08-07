@@ -1,5 +1,5 @@
-import { AllTypedApi, ChainConnector } from "@/index"
-import { CompatibilityLevel, SS58String } from "polkadot-api"
+import { ChainConnector } from "@/index"
+import { SS58String } from "polkadot-api"
 import { LoggerFactory } from "@polkadot-hub-api/utils"
 
 const log = LoggerFactory.getLogger("ChainConnector")
@@ -33,20 +33,15 @@ export function StakingPalletMixin<T extends ChainConnector>(
       if (account.length === 0) {
         throw new Error("No account provided")
       }
-      const typedApi = Base.api as AllTypedApi
+      const typedApi = Base.api
 
       if (!typedApi.query.Staking) {
         throw new Error("Staking pallet is not available in the API")
       }
 
-      const staking_Bonded = typedApi.query.Staking.Bonded
+      const staking_Bonded = typedApi.query.Staking?.Bonded
 
-      if (
-        !staking_Bonded.isCompatible(
-          CompatibilityLevel.BackwardsCompatible,
-          Base.compatibilityToken,
-        )
-      ) {
+      if (!staking_Bonded) {
         throw new Error(
           "Staking.Bonded is not compatible with the current runtime",
         )
@@ -59,13 +54,8 @@ export function StakingPalletMixin<T extends ChainConnector>(
       if (stash.length === 0) {
         return []
       }
-      const staking_Ledger = typedApi.query.Staking.Ledger
-      if (
-        !staking_Ledger.isCompatible(
-          CompatibilityLevel.BackwardsCompatible,
-          Base.compatibilityToken,
-        )
-      ) {
+      const staking_Ledger = typedApi.query.Staking?.Ledger
+      if (!staking_Ledger) {
         throw new Error(
           "Staking.Ledger is not compatible with the current runtime",
         )
@@ -88,20 +78,15 @@ export function StakingPalletMixin<T extends ChainConnector>(
         throw new Error("No account provided")
       }
 
-      const typedApi = Base.api as AllTypedApi
+      const typedApi = Base.api
 
       if (!typedApi.query.Staking) {
         throw new Error("Staking pallet is not available in the API")
       }
 
-      const staking_Ledger = typedApi.query.Staking.Ledger
+      const staking_Ledger = typedApi.query.Staking?.Ledger
 
-      if (
-        !staking_Ledger.isCompatible(
-          CompatibilityLevel.BackwardsCompatible,
-          Base.compatibilityToken,
-        )
-      ) {
+      if (!staking_Ledger) {
         throw new Error(
           "Staking.Ledger is not compatible with the current runtime",
         )

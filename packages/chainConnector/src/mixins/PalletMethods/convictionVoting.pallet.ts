@@ -1,5 +1,5 @@
-import { ChainConnector, AllTypedApi } from "@/index"
-import { CompatibilityLevel, SS58String } from "polkadot-api"
+import { ChainConnector } from "@/index"
+import { SS58String } from "polkadot-api"
 
 import { LoggerFactory } from "@polkadot-hub-api/utils"
 
@@ -106,36 +106,25 @@ export function ConvictionVotingPalletMixin<T extends ChainConnector>(
         throw new Error("No account provided")
       }
 
-      const api = Base.api as AllTypedApi
+      const api = Base.api
       if (!api.query.ConvictionVoting) {
         throw new Error(
           "Conviction Voting pallet is not available in the current runtime",
         )
       }
-      // const convictionVoting_VoteLockingPeriod =
-      //   await api.constants.ConvictionVoting.VoteLockingPeriod()
-      const convictionVoting_votingFor = api.query.ConvictionVoting.VotingFor
+
+      const convictionVoting_votingFor = api.query.ConvictionVoting?.VotingFor
       // get tracks
       const currentBlock = await api.query.System.Number.getValue()
       log.info(`Current block number: ${currentBlock}`)
       const convictionVoting_votingClasses =
-        api.query.ConvictionVoting.ClassLocksFor
-      if (
-        !convictionVoting_votingClasses.isCompatible(
-          CompatibilityLevel.BackwardsCompatible,
-          Base.compatibilityToken,
-        )
-      ) {
+        api.query.ConvictionVoting?.ClassLocksFor
+      if (!convictionVoting_votingClasses) {
         throw new Error(
           "ConvictionVoting.ClassLocksFor is not compatible with the current runtime",
         )
       }
-      if (
-        !convictionVoting_votingFor.isCompatible(
-          CompatibilityLevel.BackwardsCompatible,
-          Base.compatibilityToken,
-        )
-      ) {
+      if (!convictionVoting_votingFor) {
         throw new Error(
           "ConvictionVoting.VotingFor is not compatible with the current runtime",
         )
@@ -148,7 +137,7 @@ export function ConvictionVotingPalletMixin<T extends ChainConnector>(
         .then((classes) =>
           classes.map((c, i) => ({
             account: account[i],
-            classes: c.reduce((acc: number[], cl) => {
+            classes: c.reduce((acc: number[], cl: any) => {
               if (cl[1] > 0n) {
                 acc.push(cl[0])
               }
@@ -160,7 +149,7 @@ export function ConvictionVotingPalletMixin<T extends ChainConnector>(
       const referendaVotes = await Promise.all(
         votingClasses.map((a) =>
           convictionVoting_votingFor
-            .getValues(a.classes.map((cl) => [a.account, cl]))
+            .getValues(a.classes.map((cl: any) => [a.account, cl]))
             .then((votes) => ({
               account: a.account,
               votes: votes,

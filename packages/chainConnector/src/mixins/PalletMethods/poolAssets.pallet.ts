@@ -1,5 +1,4 @@
-import { AllTypedApi, ChainConnector } from "@/index"
-import { CompatibilityLevel } from "polkadot-api"
+import { ChainConnector } from "@/index"
 import { TAddressAssetBalance, TAsset } from "@polkadot-hub-api/types"
 import { LoggerFactory } from "@polkadot-hub-api/utils"
 
@@ -41,21 +40,16 @@ export function PoolAssetsPalletMixin<T extends ChainConnector>(
   }
   return Object.assign(Base, {
     async poolAssets_getAssets(assetId?: number) {
-      const api = Base.api as AllTypedApi
+      const api = Base.api
       if (!api.query.PoolAssets) {
         throw new Error(
           "Pool Assets pallet is not available in the current runtime",
         )
       }
 
-      const poolAssets_asset = api.query.PoolAssets.Asset
+      const poolAssets_asset = api.query.PoolAssets?.Asset
 
-      if (
-        !poolAssets_asset.isCompatible(
-          CompatibilityLevel.BackwardsCompatible,
-          Base.compatibilityToken,
-        )
-      ) {
+      if (!poolAssets_asset) {
         throw new Error(
           "PoolAssets.Asset is not compatible with the current runtime",
         )
@@ -84,19 +78,14 @@ export function PoolAssetsPalletMixin<T extends ChainConnector>(
       }
     },
     async poolAssets_getAssetMetadata(assetId: number) {
-      const api = Base.api as AllTypedApi
+      const api = Base.api
       if (!api.query.Assets) {
         throw new Error("Assets pallet is not available in the current runtime")
       }
 
       const assets_assetMetadata = api.query.Assets.Metadata
 
-      if (
-        !assets_assetMetadata.isCompatible(
-          CompatibilityLevel.BackwardsCompatible,
-          Base.compatibilityToken,
-        )
-      ) {
+      if (!assets_assetMetadata) {
         throw new Error(
           "Assets.Asset is not compatible with the current runtime",
         )
@@ -126,19 +115,14 @@ export function PoolAssetsPalletMixin<T extends ChainConnector>(
         throw new Error("Invalid asset ID provided")
       }
 
-      const api = Base.api as AllTypedApi
+      const api = Base.api
       if (!api.query.Assets) {
         throw new Error("Assets pallet is not available in the current runtime")
       }
 
       const poolAssets_accountBalance = api.query.PoolAssets.Account
 
-      if (
-        !poolAssets_accountBalance.isCompatible(
-          CompatibilityLevel.BackwardsCompatible,
-          Base.compatibilityToken,
-        )
-      ) {
+      if (!poolAssets_accountBalance) {
         throw new Error(
           "Assets.Account is not compatible with the current runtime",
         )
@@ -171,19 +155,14 @@ export function PoolAssetsPalletMixin<T extends ChainConnector>(
         throw new Error("Only one address is supported at a time")
       }
 
-      const api = Base.api as AllTypedApi
+      const api = Base.api
       if (!api.query.Assets) {
         throw new Error("Assets pallet is not available in the current runtime")
       }
 
-      const assets_Account = api.query.Assets.Account
+      const assets_Account = api.query.Assets?.Account
 
-      if (
-        !assets_Account.isCompatible(
-          CompatibilityLevel.BackwardsCompatible,
-          Base.compatibilityToken,
-        )
-      ) {
+      if (!assets_Account) {
         throw new Error(
           "Assets.Asset is not compatible with the current runtime",
         )

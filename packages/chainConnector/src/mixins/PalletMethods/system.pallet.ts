@@ -1,5 +1,5 @@
-import { AllTypedApi, ChainConnector } from "@/index"
-import { CompatibilityLevel, SS58String } from "polkadot-api"
+import { ChainConnector } from "@/index"
+import { SS58String } from "polkadot-api"
 import { LoggerFactory } from "@polkadot-hub-api/utils"
 
 const log = LoggerFactory.getLogger("ChainConnector")
@@ -33,14 +33,9 @@ export function SystemPalletMixin<T extends ChainConnector>(
         throw new Error("No account provided")
       }
 
-      const balance_Account = (Base.api as AllTypedApi).query.System.Account
+      const balance_Account = Base.api.query.System?.Account
 
-      if (
-        !balance_Account.isCompatible(
-          CompatibilityLevel.BackwardsCompatible,
-          Base.compatibilityToken,
-        )
-      ) {
+      if (!balance_Account) {
         throw new Error(
           "System.Account is not compatible with the current runtime",
         )

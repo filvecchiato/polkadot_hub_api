@@ -1,7 +1,6 @@
 import { ChainConnector } from "@/index"
-import { SS58String, CompatibilityLevel } from "polkadot-api"
+import { SS58String } from "polkadot-api"
 import { LoggerFactory } from "@polkadot-hub-api/utils"
-import { AllTypedApi } from "@/index"
 
 const log = LoggerFactory.getLogger("ChainConnector")
 
@@ -49,14 +48,9 @@ export function BalancesPalletMixin<T extends ChainConnector>(
         throw new Error("No account provided")
       }
 
-      const balance_Account = (Base.api as AllTypedApi).query.Balances.Account
+      const balance_Account = Base.api.query.Balances?.Account
 
-      if (
-        !balance_Account.isCompatible(
-          CompatibilityLevel.BackwardsCompatible,
-          Base.compatibilityToken,
-        )
-      ) {
+      if (!balance_Account) {
         throw new Error(
           "Balance.Account is not compatible with the current runtime",
         )
@@ -110,15 +104,15 @@ export function BalancesPalletMixin<T extends ChainConnector>(
         throw new Error("No account provided")
       }
 
-      const typedApi = Base.api as AllTypedApi
+      const api = Base.api
 
       const [balance, locks, reserves, freezes, holds] =
         await Promise.allSettled([
           this.balances_getAccountBalance(account),
-          typedApi.query.Balances.Locks.getValues(account.map((a) => [a])),
-          typedApi.query.Balances.Reserves.getValues(account.map((a) => [a])),
-          typedApi.query.Balances.Freezes.getValues(account.map((a) => [a])),
-          typedApi.query.Balances.Holds.getValues(account.map((a) => [a])),
+          api.query.Balances.Locks.getValues(account.map((a) => [a])),
+          api.query.Balances.Reserves.getValues(account.map((a) => [a])),
+          api.query.Balances.Freezes.getValues(account.map((a) => [a])),
+          api.query.Balances.Holds.getValues(account.map((a) => [a])),
         ])
 
       if (balance.status === "rejected") {
@@ -130,7 +124,7 @@ export function BalancesPalletMixin<T extends ChainConnector>(
         reserves.status === "fulfilled"
           ? reserves.value
               .map((r) => {
-                return r.map((reserve) => ({
+                return r.map((reserve: any) => ({
                   value: reserve.amount,
                   id: reserve.id?.asText().trim(),
                 }))
@@ -142,15 +136,13 @@ export function BalancesPalletMixin<T extends ChainConnector>(
         freezes.status === "fulfilled"
           ? freezes.value
               .map((f) => {
-                return f.map((freeze) => {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  const f = freeze as any
+                return f.map((freeze: any) => {
                   return {
-                    value: f.amount,
-                    id: f.id
+                    value: freeze.amount,
+                    id: freeze.id
                       ? (
-                          f.id.type.charAt(0).toLowerCase() +
-                          f.id.type.substring(1)
+                          freeze.id.type.charAt(0).toLowerCase() +
+                          freeze.id.type.substring(1)
                         ).trim()
                       : undefined,
                   }
@@ -162,15 +154,13 @@ export function BalancesPalletMixin<T extends ChainConnector>(
         holds.status === "fulfilled"
           ? holds.value
               .map((h) => {
-                return h.map((hold) => {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  const h = hold as any
+                return h.map((hold: any) => {
                   return {
-                    value: h.amount,
-                    id: h.id
+                    value: hold.amount,
+                    id: hold.id
                       ? (
-                          h.id.type.charAt(0).toLowerCase() +
-                          h.id.type.substring(1)
+                          hold.id.type.charAt(0).toLowerCase() +
+                          hold.id.type.substring(1)
                         ).trim()
                       : undefined,
                   }
@@ -182,7 +172,7 @@ export function BalancesPalletMixin<T extends ChainConnector>(
         locks.status === "fulfilled"
           ? locks.value
               .map((l) => {
-                return l.map((lock) => {
+                return l.map((lock: any) => {
                   return {
                     value: lock.amount,
                     id: (

@@ -1,5 +1,5 @@
-import { AllTypedApi, ChainConnector } from "@/index"
-import { CompatibilityLevel, SS58String } from "polkadot-api"
+import { ChainConnector } from "@/index"
+import { SS58String } from "polkadot-api"
 import { LoggerFactory } from "@polkadot-hub-api/utils"
 
 const log = LoggerFactory.getLogger("ChainConnector")
@@ -35,21 +35,17 @@ export function DelegatedStakingPalletMixin<T extends ChainConnector>(
         throw new Error("No account provided")
       }
 
-      const api = Base.api as AllTypedApi
+      const api = Base.api
       if (!api.query.DelegatedStaking) {
         throw new Error(
           "Delegated Staking pallet is not available in the current runtime",
         )
       }
 
-      const delegatedStaking_HoldDetails = api.query.DelegatedStaking.Delegators
+      const delegatedStaking_HoldDetails =
+        api.query.DelegatedStaking?.Delegators
 
-      if (
-        !delegatedStaking_HoldDetails.isCompatible(
-          CompatibilityLevel.BackwardsCompatible,
-          Base.compatibilityToken,
-        )
-      ) {
+      if (!delegatedStaking_HoldDetails) {
         throw new Error(
           "DelegatedStaking.Delegators is not compatible with the current runtime",
         )
